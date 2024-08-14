@@ -72,7 +72,8 @@ class GTFSLoader:
         
         print(f"Loaded all tables: {self.name}")
         del self.feed  # Remove the feed object to free up memory and make it picklable
-        del self.zipfile
+        if hasattr(self, 'zipfile'):
+            del self.zipfile
         
     @lru_cache(maxsize=2**18)
     def parse_time(self, val: str) -> np.float32:

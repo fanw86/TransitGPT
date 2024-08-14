@@ -2,3 +2,5 @@ __pycache__/
 *.ipynb
 .vscode/
 data/feedback.json
+*.log
+generated_prompt.md

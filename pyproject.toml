@@ -1,0 +1,16 @@
+[tool.poetry]
+package-mode = false
+name = "code4gtfs"
+version = "0"
+description = ""
+authors = ["Praneeth Devunuri <sd37@illinois.edu>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+gtfs-kit = "^6.1.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
