@@ -1,0 +1,11 @@
+folium
+matplotlib
+pandas
+numpy
+streamlit
+streamlit-folium
+openai
+anthropic
+groq
+partridge
+geopandas
