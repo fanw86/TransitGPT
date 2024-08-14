@@ -9,4 +9,4 @@ anthropic
 groq
 partridge
 geopandas
-poetry
+gtfs_kit
