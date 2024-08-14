@@ -10,3 +10,4 @@ groq
 partridge
 geopandas
 gtfs_kit
+google-cloud-firestore

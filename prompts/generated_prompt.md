@@ -45,34 +45,36 @@ calendar_dates.txt:
 	- service_id: string
 	- date: date
 	- exception_type: integer
-fare_attributes.txt:
-	- fare_id: string
-	- price: float
-	- currency_type: string
-	- payment_method: integer
-	- transfers: integer
-	- agency_id: string
-	- transfer_duration: integer
-fare_rules.txt:
-	- fare_id: string
-	- route_id: string
 routes.txt:
 	- route_id: string
 	- agency_id: string
 	- route_short_name: string
 	- route_long_name: string
-	- route_url: string
 	- route_desc: string
 	- route_type: integer
+	- route_url: string
 	- route_color: string
 	- route_text_color: string
-	- route_sort_order: integer
 shapes.txt:
 	- shape_id: string
 	- shape_pt_lat: float
 	- shape_pt_lon: float
 	- shape_pt_sequence: integer
 	- shape_dist_traveled: float
+stops.txt:
+	- stop_id: string
+	- stop_code: string
+	- stop_name: string
+	- stop_desc: string
+	- stop_lat: float
+	- stop_lon: float
+	- zone_id: string
+	- stop_url: string
+	- location_type: integer
+	- parent_station: string
+	- stop_timezone: string
+	- wheelchair_boarding: integer
+	- platform_code: string
 stop_times.txt:
 	- trip_id: string
 	- arrival_time: time
@@ -80,17 +82,10 @@ stop_times.txt:
 	- stop_id: string
 	- stop_sequence: integer
 	- stop_headsign: string
-	- shape_dist_traveled: float
+	- pickup_type: integer
+	- drop_off_type: integer
 	- timepoint: integer
-stops.txt:
-	- stop_id: string
-	- stop_code: string
-	- stop_name: string
-	- stop_lat: float
-	- stop_lon: float
-	- wheelchair_boarding: integer
-	- platform_code: string
-	- stop_url: string
+	- shape_dist_traveled: float
 trips.txt:
 	- route_id: string
 	- service_id: string
@@ -101,43 +96,54 @@ trips.txt:
 	- shape_id: string
 	- wheelchair_accessible: integer
 	- bikes_allowed: integer
+feed_info.txt:
+	- feed_publisher_name: string
+	- feed_publisher_url: string
+	- feed_lang: string
+	- default_lang: string
+	- feed_start_date: date
+	- feed_end_date: date
+	- feed_version: string
+	- feed_contact_email: string
+	- feed_contact_url: string
+fare_attributes.txt:
+	- fare_id: string
+	- price: float
+	- currency_type: string
+	- payment_method: integer
+	- transfers: integer
+	- transfer_duration: integer
+fare_rules.txt:
+	- fare_id: string
+	- route_id: string
+	- origin_id: string
+	- destination_id: string
+	- contains_id: string
 
 
 ## Sample from the feed:
 ### agency.txt (feed.agency)
-agency_id,agency_name,agency_url,agency_timezone,agency_lang,agency_phone,agency_fare_url,agency_emailSFMTA,San Francisco Municipal Transportation Agency,http://www.sfmta.com,America/Los_Angeles,en,311,https://SFMTA.com/Fares,munifeedback@sfmta.com
+agency_id,agency_name,agency_url,agency_timezone,agency_lang,agency_phone,agency_fare_url,agency_emailCUMTD,Champaign Urbana Mass Transit District,https://www.mtd.org/,America/Chicago,en,217-384-8188,,mtdweb@mtd.org
 ### calendar.txt (feed.calendar)
-service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_date1,1,1,1,1,1,0,0,2024-06-22,2024-08-162,0,0,0,0,0,1,0,2024-06-22,2024-08-163,0,0,0,0,0,0,1,2024-06-22,2024-08-16
-### calendar_attributes.txt (feed.calendar_attributes)
-service_id,service_description1,WEEKDAY2,SATURDAY3,SUNDAY
+service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_dateGNX1_SCH_MF,0,0,0,0,0,0,0,2024-05-12,2024-08-10GR4_SU,0,0,0,0,0,0,0,2024-05-12,2024-08-109A_SHOW_MF,0,0,0,0,0,0,0,2024-05-12,2024-08-10RUB1_MF,0,0,0,0,0,0,0,2024-05-12,2024-08-10T2_SA,0,0,0,0,0,0,0,2024-05-12,2024-08-10
 ### calendar_dates.txt (feed.calendar_dates)
-service_id,date,exception_type2,2024-06-22,2M12,2024-06-22,13,2024-06-23,2M23,2024-06-23,11,2024-06-24,2
-### directions.txt (feed.directions)
-route_id,direction_id,direction1,0,Outbound1,1,Inbound2,0,Outbound2,1,Inbound5,0,Outbound
-### fare_attributes.txt (feed.fare_attributes)
-fare_id,price,currency_type,payment_method,transfers,agency_id,transfer_duration1,3,USD,0,,,54002,8,USD,0,0.0,,0
-### fare_rider_categories.txt (feed.fare_rider_categories)
-fare_id,rider_category_id,price,expiration_date,commencement_date1,2,1.25,,1,3,0.0,,1,5,0.0,,1,6,1.25,,2,2,8.0,,
-### fare_rules.txt (feed.fare_rules)
-fare_id,route_id1,11,121,141,14R1,15
-### realtime_routes.txt (feed.realtime_routes)
-route_id,realtime_enabled1,12,15,16,17,1
-### rider_categories.txt (feed.rider_categories)
-rider_category_id,rider_category_description2,Senior3,Child5,Youth6,Disabled
-### route_attributes.txt (feed.route_attributes)
-route_id,category,subcategory,running_way1,2,201,312,3,301,51X,3,302,314,2,201,314R,2,201,3
+service_id,date,exception_typeGN2_SU,2024-05-12,1GN2_SU,2024-05-19,1GN2_SU,2024-05-26,1GN2_SU,2024-06-02,1GN2_SU,2024-06-09,1
 ### routes.txt (feed.routes)
-route_id,agency_id,route_short_name,route_long_name,route_url,route_desc,route_type,route_color,route_text_color,route_sort_order1,SFMTA,1,CALIFORNIA,http://www.sfmta.com/1,5am-12 midnight daily,3,005B95 ,FFFFFF,12,SFMTA,12,FOLSOM-PACIFIC,http://www.sfmta.com/12,6am-10pm daily,3,005B95 ,FFFFFF,14,SFMTA,14,MISSION,http://www.sfmta.com/14,24 hour service daily,3,005B95 ,FFFFFF,14R,SFMTA,14R,MISSION RAPID,http://www.sfmta.com/14R,5am-10pm daily,3,BF2B45 ,FFFFFF,15,SFMTA,15,BAYVIEW HUNTERS POINT EXPRESS,http://www.sfmta.com/15,Weekdays 5am-10pm Weekends 8am-10pm,3,005B95 ,FFFFFF,
+route_id,agency_id,route_short_name,route_long_name,route_desc,route_type,route_url,route_color,route_text_colorTEAL_SUNDAY,CUMTD,120-TEAL_SUNDAY,Teal Sunday,,3,https://mtd.org/maps-and-schedules/to-schedule/561875bc4cd84124b67031474c033949/,006991,ffffffLIME_EVENING,CUMTD,180-LIME_EVENING,Lime Evening,,3,https://mtd.org/maps-and-schedules/to-schedule/109880accddb455f8d44761fd3e622f5/,b2d235,000000SILVER_LIMITED_EVENING,CUMTD,130-SILVER_LIMITED_EVENING,Silver Limited Evening,,3,https://mtd.org/maps-and-schedules/to-schedule/238b198d3d0f46c58c089cb9d5628c34/,cccccc,000000BRONZE_ALT,CUMTD,8-BRONZE_ALT,Bronze Alternate,,3,https://mtd.org/maps-and-schedules/to-schedule/dd2fb42da8a14b019c55e336ddbafc9b/,9e8966,000000RUBY_SATURDAY,CUMTD,110-RUBY_SATURDAY,Ruby Saturday,,3,https://mtd.org/maps-and-schedules/to-schedule/1ac854f3783b453c92307cd0ff6effbb/,eb008b,000000
 ### shapes.txt (feed.shapes)
-shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence,shape_dist_traveled30,37.773571,-122.510014,1,0.030,37.773562,-122.510071,3,0.003172530,37.773264,-122.51005,4,0.023781330,37.773197,-122.510037,5,0.028461730,37.771401,-122.509907,6,0.1526782
-### stop_attributes.txt (feed.stop_attributes)
-stop_id,accessibility_id,cardinal_direction,relative_position,stop_city6598,0,,,San Francisco6599,0,,,San Francisco6600,0,,,San Francisco6601,0,,,San Francisco6602,0,,,San Francisco
-### stop_times.txt (feed.stop_times)
-trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,shape_dist_traveled,timepoint11593899,16320.0,16320.0,3892,1,,0.0,111593899,16361.0,16361.0,3875,2,,0.1725032,011593899,16408.0,16408.0,3896,3,,0.3702889,011593899,16452.0,16452.0,3852,4,,0.553436,011593899,16485.0,16485.0,3845,5,,0.6893041,0
+shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence,shape_dist_traveled[@124.0.102302343@]1,40.115935,-88.24094667,1,0.0[@124.0.102302343@]1,40.1159153,-88.240893,2,5.059103617073224[@124.0.102302343@]1,40.115502,-88.24105,3,52.90116244855051[@124.0.102302343@]1,40.115384,-88.241155,4,68.90795598338649[@124.0.102302343@]1,40.115319,-88.241312,5,84.09044354751579
 ### stops.txt (feed.stops)
-stop_id,stop_code,stop_name,stop_lat,stop_lon,wheelchair_boarding,platform_code,stop_url4200,14200,Crescent Ave & Porter St,37.734895,-122.418214,0, ,https://www.sfmta.com/142004201,14201,Crescent Ave & Putnam St,37.735009,-122.411169,0, ,https://www.sfmta.com/142014202,14202,Crescent Ave & Putnam St,37.734911,-122.411283,0, ,https://www.sfmta.com/142024203,14203,Crescent Ave & Roscoe St,37.735055,-122.418626,0, ,https://www.sfmta.com/142034204,14204,Carmel St & Belvedere St,37.76092,-122.447631,0, ,https://www.sfmta.com/14204
+stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,location_type,parent_station,stop_timezone,wheelchair_boarding,platform_code150DALE:1,5437,U.S. 150 & Dale (NE Corner),,40.11451167,-88.18067333,f,https://mtd.org/maps-and-schedules/bus-stops/info/150dale-1/,0,,America/Chicago,0,150DALE:3,5437,U.S. 150 & Dale (South Side),,40.11450333,-88.18084833,f,https://mtd.org/maps-and-schedules/bus-stops/info/150dale-3/,0,,America/Chicago,0,150DOD:5,2634,U.S. 150 & Dodson (NE Far Side),,40.11415833,-88.173105,f,https://mtd.org/maps-and-schedules/bus-stops/info/150dod-5/,0,,America/Chicago,0,150UNI:4,6741,U.S. 150 & University (NW Corner),,40.11654167,-88.18384,f,https://mtd.org/maps-and-schedules/bus-stops/info/150uni-4/,0,,America/Chicago,0,150UNI:8,6741,U.S. 150 & University (NW Far Side),,40.11603333,-88.18417832999998,f,https://mtd.org/maps-and-schedules/bus-stops/info/150uni-8/,0,,America/Chicago,0,
+### stop_times.txt (feed.stop_times)
+trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,timepoint,shape_dist_traveled1GN500__GN1_MF,20760.0,20760.0,LSE:8,0,,0,0,0,0.01GN500__GN1_MF,20785.0,20785.0,GRNRACE:4,1,,0,0,0,157.89750710616461GN500__GN1_MF,20825.0,20825.0,GRNBRCH:1,2,,0,0,0,433.32492266649091GN500__GN1_MF,20860.0,20860.0,GRNORCH:1,3,,0,0,0,686.38440623059811GN500__GN1_MF,20900.0,20900.0,GRNBUSEY:8,4,,0,0,0,988.2460940007865
 ### trips.txt (feed.trips)
-route_id,service_id,trip_id,trip_headsign,direction_id,block_id,shape_id,wheelchair_accessible,bikes_allowed1,1,11593899,Geary + 33rd Avenue,0,102,103,,1,1,11593900,Geary + 33rd Avenue,0,103,103,,1,1,11593901,Geary + 33rd Avenue,0,105,103,,1,1,11593902,Geary + 33rd Avenue,0,107,103,,1,1,11593903,Geary + 33rd Avenue,0,101,102,,
+route_id,service_id,trip_id,trip_headsign,direction_id,block_id,shape_id,wheelchair_accessible,bikes_allowedGOLDHOPPER,G5_NON_UI_MF,[@6.0.28930011@][31][1653411591839]/7__G5_NON_UI_MF,Lincoln Square,0,G5_NON_UI_MF,GOLDHOPPER_2,0,0SILVER,SV4_NOSCH_NONUI,[@6.0.28932250@][2][1654525478258]/23__SV4__NOSCH_NONUI,PAR,1,SV4_NOSCH_NONUI,SILVER_120,0,0ORANGEHOPPER,O1_MF,[@14.0.52435578@][4][1275670882890]/6__O1_MF,Illinois Terminal,1,O1_MF,6WIT->CF_HOPPER,0,01N_YELLOW_ALT,1N_2_SHO_HSEO,[@6.0.28928809@][1][1657995341026]/20__1N_2_SHO_HSEO,Newton & Nobel,0,1N_2_SHO_HSEO,[@124.0.111412330@]1,0,0YELLOW_EVENING,Y2_NONUI_MF,[@15.0.63189138@][1][1338405523122]/10__Y2_NONUI_MF,First & Gregory,0,Y2_NONUI_MF,[@15.0.63189138@]8,0,0
+### feed_info.txt (feed.feed_info)
+feed_publisher_name,feed_publisher_url,feed_lang,default_lang,feed_start_date,feed_end_date,feed_version,feed_contact_email,feed_contact_urlChampaign-Urbana Mass Transit District,https://mtd.org/,en,en,2024-05-12,2024-08-10,GTFS Feed 12/05/2024 – 10/08/2024 (Generated: 13/05/2024 9:23:26),mtdweb@mtd.org,https://mtd.org/inside/contact/
+### fare_attributes.txt (feed.fare_attributes)
+fare_id,price,currency_type,payment_method,transfers,transfer_durationFULL,1.0,USD,0,1,0ISTOP,0.0,USD,1,0,0
+### fare_rules.txt (feed.fare_rules)
+fare_id,route_id,origin_id,destination_id,contains_idFULL,,f,,FULL,1_YELLOW_ALT,i,,FULL,10W_GOLD_ALT,i,,FULL,1N_YELLOW_ALT,i,,FULL,1N_YELLOW_ALT_PM,i,,
 
 ## Task Instructions
 

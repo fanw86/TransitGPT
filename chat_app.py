@@ -19,16 +19,15 @@ from components.chat_interface import display_chat_history
 # st.set_page_config(layout="wide")
 
 @st.cache_resource(show_spinner="Loading feedback...")
-def get_feedback(feedback_file):
-    fb_agent = FeedbackAgent(feedback_file)
+def get_feedback():
+    fb_agent = FeedbackAgent()
     return fb_agent
 
-# Files to store sample questions and feedback
+# File to store sample questions
 QUESTIONS_FILE = "data/sample_questions.json"
-FEEDBACK_FILE = "data/feedback.json"
 QUESTION_LIMIT = 3
 
-fb_agent = get_feedback(FEEDBACK_FILE)
+fb_agent = get_feedback()
 initialize_agent_evaluator()
 setup_sidebar()
 
@@ -144,9 +143,8 @@ if user_input or st.session_state.selected_question:
         )
 
         # Store comprehensive feedback
-        feedback = fb_agent.load_feedback()
         feedback_entry = {
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(),
             "question": user_input,
             "response": llm_response,
             "code_eval_success": success,
@@ -166,11 +164,10 @@ if user_input or st.session_state.selected_question:
             elif isinstance(output, pd.DataFrame) or isinstance(output, pd.Series):
                 feedback_entry["code_eval_result"] = output.to_dict()
             else:
-                feedback_entry["code_eval_result"] = output
+                feedback_entry["code_eval_result"] = str(output)
         else:
             feedback_entry["code_eval_result"] = error_message
 
-        feedback[message_id] = feedback_entry
-        fb_agent.save_feedback(feedback)
+        fb_agent.db.collection(fb_agent.collection_name).document(message_id).set(feedback_entry)
         agent.reset()
         st.rerun()

@@ -1,50 +1,37 @@
-import os
 import json
 import streamlit as st
-from utils.helper import NpEncoder
-from datetime import datetime, date
-
-def json_serial(obj):
-    """JSON serializer for objects not serializable by default json code"""
-
-    if isinstance(obj, (datetime, date)):
-        return obj.isoformat()
-    else:
-        return str(obj)
-    # raise TypeError ("Type %s not serializable" % type(obj))
+from google.oauth2 import service_account
+from google.cloud import firestore
+from datetime import datetime
 
 class FeedbackAgent:
-    def __init__(self,feedback_file):
-        self.feedback_file = feedback_file
-        
-    def load_feedback(self):# -> Any | dict[Any, Any]:
-        if os.path.exists(self.feedback_file):
-            try:
-                with open(self.feedback_file, "r") as f:
-                    content = f.read()
-                    if content.strip():  # Check if the file is not empty
-                        return json.loads(content)
-                    else:
-                        return {}  # Return an empty dict if the file is empty
-            except json.JSONDecodeError:
-                st.warning("The feedback file contains invalid JSON. Starting with an empty feedback dictionary.")
-                return {}
-        return {}
+    def __init__(self, collection_name='feedback'):
+        key_dict = json.loads(st.secrets["firestore_key"])
+        credentials = service_account.Credentials.from_service_account_info(key_dict)
+        self.db = firestore.Client(credentials=credentials, project="gtfs2code")
+        self.collection_name = collection_name
 
+    def load_feedback(self):
+        feedback = {}
+        docs = self.db.collection(self.collection_name).stream()
+        for doc in docs:
+            feedback[doc.id] = doc.to_dict()
+        return feedback
 
     def save_feedback(self, feedback):
-        with open(self.feedback_file, "w") as f:
-            json.dump(feedback, f, indent=2, cls=NpEncoder, default=json_serial)
-            
+        for message_id, data in feedback.items():
+            self.db.collection(self.collection_name).document(message_id).set(data)
+
     def on_feedback_change(self):
         feedback_value = st.session_state[f"{st.session_state.current_message_id}_feedback"]
         comment = st.session_state[f"{st.session_state.current_message_id}_comment"]
         message_id = st.session_state.current_message_id
-        feedback = self.load_feedback()
-        
-        if message_id in feedback:
-            feedback[message_id]["user_rating"] = feedback_value
-            feedback[message_id]["user_comment"] = comment
-        
-        self.save_feedback(feedback)
+
+        doc_ref = self.db.collection(self.collection_name).document(message_id)
+        doc_ref.set({
+            "user_rating": feedback_value,
+            "user_comment": comment,
+            "timestamp": datetime.now()
+        }, merge=True)
+
         st.toast(f"Thank you for your feedback!", icon="👍" if feedback_value else "👎")

@@ -1,6 +1,7 @@
 __pycache__/
+logs/
 *.ipynb
 .vscode/
 data/feedback.json
-logs/
 generated_prompt.md
+firestore-key.json
