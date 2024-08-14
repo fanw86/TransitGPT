@@ -17,8 +17,6 @@ import multiprocessing as mp
 import datetime
 import matplotlib
 import matplotlib.pyplot as plt
-import contextily as ctx
-
 
 from prompts.generate_prompt import generate_system_prompt
 install_rich_traceback()
@@ -62,7 +60,6 @@ class GTFS_Eval:
             "pd": pd,
             "gpd": gpd,
             "plt": plt,
-            "ctx": ctx,
             "matplotlib": matplotlib,
             "folium": folium,
             "time": time,
