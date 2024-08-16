@@ -1,15 +1,15 @@
 import streamlit as st
+from groq import Groq
 from openai import OpenAI
-import anthropic
+from anthropic import Anthropic
 import logging
 import os
 from logging.handlers import RotatingFileHandler
-from groq import Groq
 from prompts.all_prompts import FINAL_LLM_SYSTEM_PROMPT
 
 # Initialize OpenAI and Anthropic client
 oai_client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-anth_client = anthropic.Anthropic(api_key=st.secrets["ANTHROPIC_API_KEY"])
+anth_client = Anthropic(api_key=st.secrets["ANTHROPIC_API_KEY"])
 groq_client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
 RETRY_PROMPT = """While executing the code, I encountered the following error:

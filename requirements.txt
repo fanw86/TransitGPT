@@ -13,3 +13,4 @@ geopandas
 gtfs_kit
 google-cloud-firestore
 pytz
+pydantic
