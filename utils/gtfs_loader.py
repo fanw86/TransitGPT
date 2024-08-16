@@ -71,7 +71,8 @@ class GTFSLoader:
                     print(f"Could not load {table}")
         
         print(f"Loaded all tables: {self.name}")
-        del self.feed  # Remove the feed object to free up memory and make it picklable
+        if hasattr(self, 'feed'):
+            del self.feed  # Remove the feed object to free up memory and make it picklable
         if hasattr(self, 'zipfile'):
             del self.zipfile
         

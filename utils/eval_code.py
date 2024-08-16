@@ -24,36 +24,41 @@ install_rich_traceback()
 class GTFS_Eval:
     def __init__(self, file_mapping, distance_unit="m"):
         self.feed_main = None
-        # self.feed_mtd = GTFSLoader(file_mapping["CUMTD"])
-        # self.feed_mtd.load_all_tables()
+        self.gtfs = None
+        self.system_prompt = None
         self.file_mapping = file_mapping
+        # Initialize GTFSLoader objects for each GTFS feed in the selectbox with feed_sfmta
         for key in self.file_mapping:
             file_location = self.file_mapping[key]
             setattr(self, f"feed_{key.lower()}", GTFSLoader(key, file_location, distance_unit))
-            # gtfs = getattr(self, f"feed_{key.lower()}")
-            # Pre-load all tables for all GTFS feeds
-            # gtfs.load_all_tables()
-        self.gtfs = None
         
     def load_current_feed(self, GTFS):
         if not self.gtfs or self.gtfs != GTFS:
-            self.feed_main = getattr(self, f"feed_{GTFS.lower()}")
+            feed_main = getattr(self, f"feed_{GTFS.lower()}")
             # Load all tables for the selected GTFS feed
-            self.feed_main.load_all_tables()
+            feed_main.load_all_tables()
             self.gtfs = GTFS       
             print(f"Loaded feed {self.gtfs}")
-
-    def load_system_prompt(self):
-        if self.feed_main is None:
-            self.load_current_feed(self.file_mapping.keys()[0])
-        system_prompt = generate_system_prompt(self.feed_main)
-        return system_prompt
+        return feed_main
+    
+    def load_system_prompt(self, GTFS = None):
+        if self.gtfs is None or self.gtfs != GTFS:
+            self.feed_main =  self.load_current_feed(GTFS)
+        if self.system_prompt is None: 
+            system_prompt = generate_system_prompt(self.feed_main)
+            self.system_prompt = system_prompt
+            return system_prompt
+        else:
+            return self.system_prompt
     
     def evaluate(self, code):
         # Format string input to extract only the code
-        code = (
-            code.split("```python")[1].split("```")[0] if "```python" in code else code
-        )
+        if "```python" in code:
+            code = (
+                code.split("```python")[1].split("```")[0] if "```python" in code else code
+            )
+        else:
+            return (None, True, None)
         nm = globals()
         locals_dict = {
             "np": np,

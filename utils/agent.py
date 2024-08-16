@@ -32,7 +32,7 @@ class LLMAgent:
         self.chat_history = None
         self.model = None
         self.result = None
-        self.distance_units = 'Meters'
+        self.distance_units = "Meters"
 
     def _clear_log_file(self, log_file: str) -> None:
         """Clear the contents of the log file."""
@@ -154,6 +154,7 @@ class LLMAgent:
         elif model.startswith("llama"):
             response = self.call_groq(model, messages)
         else:
+            # Claude has a specified attribute for the system prompt
             messages = [
                 {"role": chat[0], "content": chat[1]}
                 for chat in chat_history
@@ -171,14 +172,17 @@ class LLMAgent:
         system_prompt = FINAL_LLM_SYSTEM_PROMPT
         user_prompt = """
         
-        Question: {question}
+        ## Question 
+        {question}
         
-        Answer: {response}
+        ## Answer 
+        {response}
         
-        Evaluation of the code: {evaluation}"""
+        ## Code Evaluation 
+        {evaluation}"""
         model = "gpt-4o-mini"
         question = self.chat_history[1][1]
-        response = self.last_response # This accounts for retries too
+        response = self.last_response  # This accounts for retries too
         evaluation = self.result
         user_prompt = user_prompt.format(
             question=question, response=response, evaluation=evaluation

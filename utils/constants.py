@@ -1,12 +1,26 @@
+# File to store sample questions
+QUESTIONS_FILE = "data/sample_questions.json"
+QUESTION_LIMIT = 3
+
+# Define the maximum number of messages to keep in the chat history
+MAX_MESSAGES = 10
+
 file_mapping = {
+    "DART":"gtfs_data/Dallas-Dallas Area Rapid Transit (DART)-TX/gtfs.zip",
     "CUMTD": "gtfs_data/Urbana-Champaign Urbana Mass Transit District (MTD)-IL/gtfs.zip",
     "SFMTA": "gtfs_data/San Francisco-San Francisco Municipal Transportation Agency (SFMTA, Muni)-CA/gtfs.zip",
+    "MBTA": "gtfs_data/Boston-Massachusetts Bay Transportation Authority (MBTA)-MA/gtfs.zip",
+    "VTA": "gtfs_data/San Jose-Santa Clara Valley Transportation Authority (VTA)-CA/gtfs.zip",
+    "BART": "gtfs_data/San Francisco-Bay Area Rapid Transit (BART)-CA/gtfs.zip",
+    "AC Transit" : "gtfs_data/Oakland-Alameda-Contra Costa Transit District (AC Transit)-CA/gtfs.zip",
+    "samTrans" :"gtfs_data/San Mateo-San Mateo County Transit District (samTrans)-CA/gtfs.zip",
+    "Caltrain":"gtfs_data/San Francisco-Caltrain-CA/gtfs.zip",
 }
 
 LLMs = [
-    "llama-3.1-70b-versatile",
     "claude-3-5-sonnet-20240620",
     "gpt-4o-mini",
+    "llama-3.1-70b-versatile",
     "gpt-3.5-turbo",
 ]
 

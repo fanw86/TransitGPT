@@ -192,6 +192,9 @@ TASK_INSTRUCTION = """
 13. When approriate, use pandas and geopandas plot functions to visualize the data.
 14. For figures, restrict the dimensions to 8, 8 and use higher dpi (300) for better quality.
 15. Almost always use base map for geospatial plots by using the `explore()` method on  GeoDataFrame. Use `CartoDB Positron` for base map tiles. Store the folium.Map object in the result
+16. If the task involves a map, ensure that the map is interactive and includes markers, popups, or other relevant information.
+17. For all results, ensure that the output is human-readable and easy to understand. 
+18. Along with the direct answer or field in the `result` variable, include other relevant information that might help the user understand the context better.
 """
 
 TASK_INSTRUCTION_WITH_COT = """
@@ -231,18 +234,20 @@ TASK_TIPS = """
 - When comparing strings, consider using case-insensitive comparisons to handle variations in capitalization. Some common abbreviations include St for Street, Blvd for Boulevard, Ave for Avenue, etc. Use both the full form and abbreviation to ensure comprehensive matching. 
 - Set regex=False in the `str.contains` function to perform exact string matching. Alternativelyt,use regular expressions (regex = True [Default]) in  `str.contains` for more complex string matching.
 - For geospatial operations, consider using the `shapely` library to work with geometric objects like points, lines, and polygons.
-- Remember that you are a chat assistant. Therefore, your responses should be in a format that can understood by a human. 
+- Remember that you are a chat assistant. Therefore, your responses should be in a format that can understood by a human.
+- Use the default color scheme for plots and maps unless specified otherwise. 
+- Always have a legend and/or labels for the plots and maps to make them more informative.
 """
 
 EXAMPLE_CODE = """
 ### Example Task and Solution 1
 
-Task: Find the number of trips for route\_id "1" on Mondays
+Task: Find the number of trips for route\_id '1' on Mondays
 Solution:
-To solve the problem of finding the number of trips for `route_id "1"` on mondays, we can follow these steps:
+To solve the problem of finding the number of trips for `route_id '1'` on mondays, we can follow these steps:
 
 1. Identify the service_ids that are applicable by checking the calendar DataFrame for Monday.
-2. Filter the trips DataFrame to include those that correspond to `route_id "1"` and fall under the previously identified monday service_ids.
+2. Filter the trips DataFrame to include those that correspond to `route_id '1'` and fall under the previously identified monday service_ids.
 3. Count the resulting trips.
 
 Here’s the Python code to implement this:
@@ -251,7 +256,7 @@ Here’s the Python code to implement this:
 # Get Monday service_ids
 monday_services = feed.calendar[(feed.calendar['monday'] == 1)]['service_id']
 
-# Filter trips for route_id "1" and monday services
+# Filter trips for route_id '1' and monday services
 monday_trips = feed.trips[(feed.trips['route_id'] == '1') & 
                            (feed.trips['service_id'].isin(monday_services))]
 
@@ -282,10 +287,10 @@ result = longest_route
 
 ### Example Task and Solution 3
 
-Task: Calculate the average trip duration for route_id "1".
+Task: Calculate the average trip duration for route_id '1'.
 Solution:
 ```python
-# Filter stop_times for route_id "1"
+# Filter stop_times for route_id '1'
 route_1_trips = feed.trips[feed.trips['route_id'] == '1']['trip_id']
 route_1_stop_times = feed.stop_times[feed.stop_times['trip_id'].isin(route_1_trips)]
 
@@ -308,8 +313,8 @@ To calculate the headway for a given route, we'll need to analyze the departure 
 ```python
 import numpy as np
 
-# Let's use route_id "1" as an example from the sample data
-route_id = "1"
+# Let's use route_id '1' as an example from the sample data
+route_id = '1'
 
 # Get all trips for the specified route on a monday
 monday_service = feed.calendar[feed.calendar['monday'] == 1]['service_id'].iloc[0]
@@ -343,7 +348,7 @@ Task: Given questions about GTFS, provide helpful responses to the user.
 Task Instructions:
 
 - Provide human-friendly responses based on your GTFS expertise.
-- If the code output is an image, provide a brief description of the image such axis,labels, etc.
+- If the code output is an image or map, provide a brief description of the image/map such axis, markers, colors, labels, etc.
 - State all the assumptions (such as assumed values, fields, methods, etc.) made within the code at the beginning of your response.
 - Be concise and clear in your responses. 
 - If code evaluation has Null values, it possibly means that the requested field or variable is empty or not available.

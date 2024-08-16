@@ -1,5 +1,6 @@
-folium
 matplotlib
+folium
+mapclassify
 pandas
 numpy
 streamlit
@@ -11,3 +12,4 @@ partridge
 geopandas
 gtfs_kit
 google-cloud-firestore
+pytz

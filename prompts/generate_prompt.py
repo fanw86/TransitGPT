@@ -40,7 +40,8 @@ def generate_system_prompt(feed: GTFSLoader) -> str:# -> Any | str:
                             GTFS_FEED_DATATYPES += f"\t- {field}: {df[field].dtype}\n"
                     # else:
                     #     print(f"Field {field} not found in {file_name}")
-        except:
+        except Exception as e:
+            print(f"Failed to generate prompt for {file_name}: {e}")
             continue
         
     print(f"Prompt generated successfully: {time.ctime()}")
