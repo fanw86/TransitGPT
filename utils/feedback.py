@@ -1,22 +1,16 @@
 import json
-import pytz
 import streamlit as st
 from google.oauth2 import service_account
 from google.cloud import firestore
 from datetime import datetime
 from typing import Optional, Any
-from utils.helper import fig_to_base64
+from utils.helper import fig_to_base64, get_current_time
 import matplotlib.pyplot as plt
 import pandas as pd
 import folium
 from pydantic import BaseModel, Field
 
-def get_current_time():
-    # Get the timezone for Chicago
-    chicago_tz = pytz.timezone('America/Chicago')
-    # Get the current time in Chicago
-    current_time_chicago = datetime.now(chicago_tz)
-    return current_time_chicago
+
 class FeedbackEntry(BaseModel):
     timestamp: datetime = Field(default_factory=get_current_time)
     question: str
@@ -30,12 +24,13 @@ class FeedbackEntry(BaseModel):
     code_eval_result: Optional[str] = None
     figure: Optional[str] = None
 
+
 def create_feedback_entry(
     user_input: str,
     llm_response: str,
     success: bool,
     output: Any = None,
-    error_message: Optional[str] = None
+    error_message: Optional[str] = None,
 ) -> FeedbackEntry:
     feedback_entry = FeedbackEntry(
         question=user_input,
@@ -43,7 +38,7 @@ def create_feedback_entry(
         code_eval_success=success,
         GTFS=st.session_state["GTFS"],
         llm_model=st.session_state["model"],
-        system_prompt=st.session_state["SYSTEM_PROMPT"]
+        system_prompt=st.session_state["SYSTEM_PROMPT"],
     )
 
     if success:
@@ -60,8 +55,10 @@ def create_feedback_entry(
         feedback_entry.code_eval_result = str(error_message)
 
     return feedback_entry
+
+
 class FeedbackAgent:
-    def __init__(self, collection_name='feedback'):
+    def __init__(self, collection_name="feedback"):
         key_dict = json.loads(st.secrets["firestore_key"])
         credentials = service_account.Credentials.from_service_account_info(key_dict)
         self.db = firestore.Client(credentials=credentials, project="gtfs2code")
@@ -79,19 +76,25 @@ class FeedbackAgent:
             self.db.collection(self.collection_name).document(message_id).set(data)
 
     def on_feedback_change(self):
-        feedback_value = st.session_state[f"{st.session_state.current_message_id}_feedback"]
+        feedback_value = st.session_state[
+            f"{st.session_state.current_message_id}_feedback"
+        ]
         comment = st.session_state[f"{st.session_state.current_message_id}_comment"]
         message_id = st.session_state.current_message_id
 
         doc_ref = self.db.collection(self.collection_name).document(message_id)
-        doc_ref.set({
-            "user_rating": feedback_value,
-            "user_comment": comment,
-            "timestamp": datetime.now()
-        }, merge=True)
+        doc_ref.set(
+            {
+                "user_rating": feedback_value,
+                "user_comment": comment,
+                "timestamp": datetime.now(),
+            },
+            merge=True,
+        )
 
-        st.toast(f"Thank you for your feedback!", icon="👍" if feedback_value else "👎")
-        
+        st.toast("Thank you for your feedback!", icon="👍" if feedback_value else "👎")
+
+
 @st.cache_resource(show_spinner="Loading feedback...")
 def get_feedback():
     fb_agent = FeedbackAgent()

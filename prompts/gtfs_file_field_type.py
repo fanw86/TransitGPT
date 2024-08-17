@@ -8,7 +8,7 @@ GTFS_FILE_FIELD_TYPE_MAPPING = {
         "agency_lang": "string",
         "agency_phone": "string",
         "agency_fare_url": "string",
-        "agency_email": "string"
+        "agency_email": "string",
     },
     "stops.txt": {
         "stop_id": "string",
@@ -25,7 +25,7 @@ GTFS_FILE_FIELD_TYPE_MAPPING = {
         "stop_timezone": "string",
         "wheelchair_boarding": "integer",
         "level_id": "string",
-        "platform_code": "string"
+        "platform_code": "string",
     },
     "routes.txt": {
         "route_id": "string",
@@ -40,7 +40,7 @@ GTFS_FILE_FIELD_TYPE_MAPPING = {
         "route_sort_order": "integer",
         "continuous_pickup": "integer",
         "continuous_drop_off": "integer",
-        "network_id": "string"
+        "network_id": "string",
     },
     "trips.txt": {
         "route_id": "string",
@@ -52,7 +52,7 @@ GTFS_FILE_FIELD_TYPE_MAPPING = {
         "block_id": "string",
         "shape_id": "string",
         "wheelchair_accessible": "integer",
-        "bikes_allowed": "integer"
+        "bikes_allowed": "integer",
     },
     "stop_times.txt": {
         "trip_id": "string",
@@ -72,7 +72,7 @@ GTFS_FILE_FIELD_TYPE_MAPPING = {
         "shape_dist_traveled": "float",
         "timepoint": "integer",
         "pickup_booking_rule_id": "string",
-        "drop_off_booking_rule_id": "string"
+        "drop_off_booking_rule_id": "string",
     },
     "calendar.txt": {
         "service_id": "string",
@@ -84,12 +84,12 @@ GTFS_FILE_FIELD_TYPE_MAPPING = {
         "saturday": "integer",
         "sunday": "integer",
         "start_date": "date",
-        "end_date": "date"
+        "end_date": "date",
     },
     "calendar_dates.txt": {
         "service_id": "string",
         "date": "date",
-        "exception_type": "integer"
+        "exception_type": "integer",
     },
     "fare_attributes.txt": {
         "fare_id": "string",
@@ -98,32 +98,32 @@ GTFS_FILE_FIELD_TYPE_MAPPING = {
         "payment_method": "integer",
         "transfers": "integer",
         "agency_id": "string",
-        "transfer_duration": "integer"
+        "transfer_duration": "integer",
     },
     "fare_rules.txt": {
         "fare_id": "string",
         "route_id": "string",
         "origin_id": "string",
         "destination_id": "string",
-        "contains_id": "string"
+        "contains_id": "string",
     },
     "timeframes.txt": {
         "timeframe_group_id": "string",
         "start_time": "time",
         "end_time": "time",
-        "service_id": "string"
+        "service_id": "string",
     },
     "fare_media.txt": {
         "fare_media_id": "string",
         "fare_media_name": "string",
-        "fare_media_type": "integer"
+        "fare_media_type": "integer",
     },
     "fare_products.txt": {
         "fare_product_id": "string",
         "fare_product_name": "string",
         "fare_media_id": "string",
         "amount": "float",
-        "currency": "string"
+        "currency": "string",
     },
     "fare_leg_rules.txt": {
         "leg_group_id": "string",
@@ -133,7 +133,7 @@ GTFS_FILE_FIELD_TYPE_MAPPING = {
         "fare_product_id": "string",
         "from_timeframe_group_id": "string",
         "to_timeframe_group_id": "string",
-        "rule_priority": "integer"
+        "rule_priority": "integer",
     },
     "fare_transfer_rules.txt": {
         "from_leg_group_id": "string",
@@ -142,43 +142,31 @@ GTFS_FILE_FIELD_TYPE_MAPPING = {
         "duration_limit": "integer",
         "duration_limit_type": "string",
         "fare_transfer_type": "string",
-        "fare_product_id": "string"
+        "fare_product_id": "string",
     },
-    "areas.txt": {
-        "area_id": "string",
-        "area_name": "string"
-    },
-    "stop_areas.txt": {
-        "area_id": "string",
-        "stop_id": "string"
-    },
-    "networks.txt": {
-        "network_id": "string",
-        "network_name": "string"
-    },
-    "route_networks.txt": {
-        "route_id": "string",
-        "network_id": "string"
-    },
+    "areas.txt": {"area_id": "string", "area_name": "string"},
+    "stop_areas.txt": {"area_id": "string", "stop_id": "string"},
+    "networks.txt": {"network_id": "string", "network_name": "string"},
+    "route_networks.txt": {"route_id": "string", "network_id": "string"},
     "shapes.txt": {
         "shape_id": "string",
         "shape_pt_lat": "float",
         "shape_pt_lon": "float",
         "shape_pt_sequence": "integer",
-        "shape_dist_traveled": "float"
+        "shape_dist_traveled": "float",
     },
     "frequencies.txt": {
         "trip_id": "string",
         "start_time": "time",
         "end_time": "time",
         "headway_secs": "integer",
-        "exact_times": "integer"
+        "exact_times": "integer",
     },
     "transfers.txt": {
         "from_stop_id": "string",
         "to_stop_id": "string",
         "transfer_type": "integer",
-        "min_transfer_time": "integer"
+        "min_transfer_time": "integer",
     },
     "pathways.txt": {
         "pathway_id": "string",
@@ -192,25 +180,22 @@ GTFS_FILE_FIELD_TYPE_MAPPING = {
         "max_slope": "float",
         "min_width": "float",
         "signposted_as": "string",
-        "reversed_signposted_as": "string"
+        "reversed_signposted_as": "string",
     },
     "levels.txt": {
         "level_id": "string",
         "level_index": "float",
-        "level_name": "string"
+        "level_name": "string",
     },
     "location_groups.txt": {
         "location_group_id": "string",
         "location_group_name": "string",
-        "location_group_type": "string"
+        "location_group_type": "string",
     },
-    "location_group_stops.txt": {
-        "location_group_id": "string",
-        "stop_id": "string"
-    },
+    "location_group_stops.txt": {"location_group_id": "string", "stop_id": "string"},
     "locations.geojson": {
         "type": "string",
-        "features": "array of objects"  # This is a special case, it's a GeoJSON file with `Feature` objects
+        "features": "array of objects",  # This is a special case, it's a GeoJSON file with `Feature` objects
     },
     "booking_rules.txt": {
         "booking_rule_id": "string",
@@ -227,7 +212,7 @@ GTFS_FILE_FIELD_TYPE_MAPPING = {
         "drop_off_message": "string",
         "phone_number": "string",
         "info_url": "string",
-        "booking_url": "string"
+        "booking_url": "string",
     },
     "translations.txt": {
         "table_name": "string",
@@ -236,7 +221,7 @@ GTFS_FILE_FIELD_TYPE_MAPPING = {
         "translation": "string",
         "record_id": "string",
         "record_sub_id": "string",
-        "field_value": "string"
+        "field_value": "string",
     },
     "feed_info.txt": {
         "feed_publisher_name": "string",
@@ -247,7 +232,7 @@ GTFS_FILE_FIELD_TYPE_MAPPING = {
         "feed_end_date": "date",
         "feed_version": "string",
         "feed_contact_email": "string",
-        "feed_contact_url": "string"
+        "feed_contact_url": "string",
     },
     "attributions.txt": {
         "attribution_id": "string",
@@ -260,6 +245,6 @@ GTFS_FILE_FIELD_TYPE_MAPPING = {
         "is_authority": "integer",
         "attribution_url": "string",
         "attribution_email": "string",
-        "attribution_phone": "string"
-    }
+        "attribution_phone": "string",
+    },
 }

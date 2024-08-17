@@ -5,16 +5,12 @@ from anthropic import Anthropic
 import logging
 import os
 from logging.handlers import RotatingFileHandler
-from prompts.all_prompts import FINAL_LLM_SYSTEM_PROMPT
+from prompts.all_prompts import FINAL_LLM_SYSTEM_PROMPT, RETRY_PROMPT
 
 # Initialize OpenAI and Anthropic client
 oai_client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 anth_client = Anthropic(api_key=st.secrets["ANTHROPIC_API_KEY"])
 groq_client = Groq(api_key=st.secrets["GROQ_API_KEY"])
-
-RETRY_PROMPT = """While executing the code, I encountered the following error:
-{error}
-Please account for this error and adjust your code accordingly."""
 
 LOG_FILE = "logs/llm_agent.log"
 

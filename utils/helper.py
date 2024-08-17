@@ -4,6 +4,17 @@ import zipfile
 import numpy as np
 import io
 import base64
+import pytz
+from datetime import datetime
+
+
+def get_current_time():
+    # Get the timezone for Chicago
+    chicago_tz = pytz.timezone("America/Chicago")
+    # Get the current time in Chicago
+    current_time_chicago = datetime.now(chicago_tz)
+    return current_time_chicago
+
 
 def jumble_list(original_list):
     # Create a copy of the original list to avoid modifying it directly
@@ -16,10 +27,12 @@ def jumble_list(original_list):
 
     return jumbled_list
 
+
 def list_files_in_zip(zip_path):
-    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+    with zipfile.ZipFile(zip_path, "r") as zip_ref:
         file_list = zip_ref.namelist()
     return file_list
+
 
 custom_btns = [
     {
@@ -59,6 +72,7 @@ info_bar = {
     "info": [{"name": "python", "style": {"width": "100px"}}],
 }
 
+
 class NpEncoder(json.JSONEncoder):
     def default(self, obj):
         dtypes = (np.datetime64, np.complexfloating)
@@ -73,10 +87,11 @@ class NpEncoder(json.JSONEncoder):
                 return obj.astype(str).tolist()
             return obj.tolist()
         return super(NpEncoder, self).default(obj)
-    
+
+
 def fig_to_base64(fig):
     buf = io.BytesIO()
-    fig.savefig(buf, format='png')
+    fig.savefig(buf, format="png")
     buf.seek(0)
     img_str = base64.b64encode(buf.getvalue()).decode()
     return img_str

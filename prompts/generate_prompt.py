@@ -1,5 +1,4 @@
 import time
-from utils.helper import list_files_in_zip
 from prompts.all_prompts import (
     TASK_KNOWLEDGE,
     BASE_PROMPT,
@@ -12,17 +11,15 @@ from prompts.gtfs_file_field_type import GTFS_FILE_FIELD_TYPE_MAPPING
 from utils.gtfs_loader import GTFSLoader
 from functools import lru_cache
 
+
 @lru_cache(maxsize=None)
-def generate_system_prompt(feed: GTFSLoader) -> str:# -> Any | str:
-    print(f"FEED OBJECT: {feed}")
+def generate_fileinfo_dtypes(feed: GTFSLoader, distance_unit: str):
     files = feed.file_list
     FILE_INFO = """\n\n## Sample from the feed:\n"""
-    distance_unit = feed.distance_unit
-    distance_unit = '`Meters`' if distance_unit == 'm' else '`Kilometers`'
     GTFS_FEED_DATATYPES = BASE_GTFS_FEED_DATATYPES.format(distance_unit=distance_unit)
     for file_name in files:
         try:
-            file = file_name.split('.txt')[0]
+            file = file_name.split(".txt")[0]
             df = getattr(feed, file)
             df_string = df.head().to_csv(index=False).replace("\n", "")
             FILE_INFO += f"### {file_name} (feed.{file})\n"
@@ -33,9 +30,7 @@ def generate_system_prompt(feed: GTFSLoader) -> str:# -> Any | str:
                     if field in GTFS_FILE_FIELD_TYPE_MAPPING[file_name]:
                         # print(f"{file} {field}")
                         if len(df[field].unique()) >= 1:
-                            GTFS_FEED_DATATYPES += (
-                                f"\t- {field}: {GTFS_FILE_FIELD_TYPE_MAPPING[file_name][field]}\n"
-                            )
+                            GTFS_FEED_DATATYPES += f"\t- {field}: {GTFS_FILE_FIELD_TYPE_MAPPING[file_name][field]}\n"
                         else:
                             GTFS_FEED_DATATYPES += f"\t- {field}: {df[field].dtype}\n"
                     # else:
@@ -43,8 +38,18 @@ def generate_system_prompt(feed: GTFSLoader) -> str:# -> Any | str:
         except Exception as e:
             print(f"Failed to generate prompt for {file_name}: {e}")
             continue
-        
-    print(f"Prompt generated successfully: {time.ctime()}")
+    return FILE_INFO, GTFS_FEED_DATATYPES
+
+
+def generate_system_prompt(
+    GTFS: str, feed: GTFSLoader, distance_unit: str
+) -> str:  # -> Any | str:
+    distance_unit = "`Meters`" if distance_unit == "m" else "`Kilometers`"
+    FILE_INFO, GTFS_FEED_DATATYPES = generate_fileinfo_dtypes(feed, distance_unit)
+
+    print(
+        f"Prompt generated for {GTFS} with distance units {distance_unit}: {time.ctime()}"
+    )
     final_prompt = (
         BASE_PROMPT
         + TASK_KNOWLEDGE

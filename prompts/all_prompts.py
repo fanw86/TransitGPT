@@ -357,3 +357,8 @@ Task Instructions:
 - If answering a generic question about GTFS files or fields using a specific example, mention that you're using a specific file or field in your response.
 - Use markdown highlighting for GTFS file names and field names. E.g. trip_id, routes.txt, etc.
 """
+
+RETRY_PROMPT = """While executing the code, I encountered the following error:
+{error}
+
+Please account for this error and adjust your code accordingly."""
