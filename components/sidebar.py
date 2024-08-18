@@ -56,7 +56,7 @@ def clear_chat_history():
 def setup_sidebar():
     # Sidebar for model selection and GTFS feed selection
     # st.sidebar.title("GTFS2CODE🚌")
-    st.sidebar.json(st.session_state, expanded=False)
+    # st.sidebar.json(st.session_state, expanded=False)
 
     if "call_count" not in st.session_state:
         st.session_state["call_count"] = 0
