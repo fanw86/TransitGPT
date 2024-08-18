@@ -26,6 +26,7 @@ class ChatHistoryEntry(BaseModel):
     error_message: Optional[str] = None
     only_text: bool = False
 
+
 def display_llm_response(fb_agent, uuid, message, i):
     # Display Code if final response is different from the initial LLM response
     only_text = message["only_text"]
@@ -49,7 +50,7 @@ def display_llm_response(fb_agent, uuid, message, i):
                     st.write(code_output.to_dict())
                 else:
                     st.write(code_output)
-                if (isinstance(code_output, dict)):
+                if isinstance(code_output, dict):
                     if "map" in code_output:
                         folium_static(code_output["map"])
                     if "plot" in code_output:
@@ -57,7 +58,10 @@ def display_llm_response(fb_agent, uuid, message, i):
             else:
                 with st.expander("❌Code evaluation failed", expanded=False):
                     st.error(f"\n {message['error_message']}")
-                st.warning("Something went wrong with running the code. Please edit your prompt or toggle `🔘Allow Retry`.", icon='⚠')
+                st.warning(
+                    "Something went wrong with running the code. Please edit your prompt or toggle `🔘Allow Retry`.",
+                    icon="⚠",
+                )
 
     message_id = f"{uuid}_{i}"
     st.session_state.current_message_id = message_id
@@ -76,8 +80,8 @@ def display_llm_response(fb_agent, uuid, message, i):
             key=f"{message_id}_comment",
             on_change=fb_agent.on_feedback_change,
         )
-    
-    if only_text or message['final_response'] != message['code_response']:
+
+    if only_text or message["final_response"] != message["code_response"]:
         st.write(message["final_response"])
 
 

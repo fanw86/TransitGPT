@@ -46,10 +46,11 @@ class GTFS_Eval:
         return feed_main
 
     def load_system_prompt(self, GTFS, distance_unit="m"):
-        if (self.system_prompt is None or 
-            self.gtfs != GTFS or 
-            self.distance_unit != distance_unit):
-
+        if (
+            self.system_prompt is None
+            or self.gtfs != GTFS
+            or self.distance_unit != distance_unit
+        ):
             if self.gtfs != GTFS:
                 self.feed_main = self.load_current_feed(GTFS)
                 self.gtfs = GTFS

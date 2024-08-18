@@ -6,6 +6,8 @@ import io
 import base64
 import pytz
 from datetime import datetime
+import pandas as pd
+from typing import Any
 
 
 def get_current_time():
@@ -95,3 +97,35 @@ def fig_to_base64(fig):
     buf.seek(0)
     img_str = base64.b64encode(buf.getvalue()).decode()
     return img_str
+
+
+def truncate_text(text: str, max_chars: int) -> str:
+    if len(text) <= max_chars:
+        return text
+    return text[:max_chars] + "... [truncated]"
+
+
+def summarize_large_output(
+    output: Any, max_rows: int = 100, max_chars: int = 1200
+) -> str:
+    if isinstance(output, pd.DataFrame):
+        if len(output) > max_rows:
+            output = output.head(max_rows)
+            return f"DataFrame with {len(output)} rows (truncated from original), {output.shape[1]} columns. First few rows:\n{output.to_string()}\n... [truncated]"
+        return f"DataFrame with {len(output)} rows, {output.shape[1]} columns. Data:\n{output.to_string()}"
+    elif isinstance(output, pd.Series):
+        if len(output) > max_rows:
+            output = output.head(max_rows)
+            return f"Series with {len(output)} items (truncated from original). First few items:\n{output.to_string()}\n... [truncated]"
+        return f"Series with {len(output)} items. Data:\n{output.to_string()}"
+    elif isinstance(output, list):
+        if len(output) > max_rows:
+            return f"List with {len(output)} items. First {max_rows} items: {str(output[:max_rows])}... [truncated]"
+        return f"List with {len(output)} items: {str(output)}"
+    elif isinstance(output, dict):
+        if len(output) > max_rows:
+            truncated_dict = dict(list(output.items())[:max_rows])
+            return f"Dict with {len(output)} keys. First {max_rows} items: {truncated_dict}... [truncated]"
+        return f"Dict with {len(output)} keys: {str(output)}"
+    else:
+        return truncate_text(str(output), max_chars)

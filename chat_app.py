@@ -45,11 +45,13 @@ if st.session_state["show_limit_popup"]:
 
 # User input
 user_input = st.chat_input(
-    "Type your message here...", disabled=st.session_state.is_processing, key="chat_input"
+    "Type your message here...",
+    disabled=st.session_state.is_processing,
+    key="chat_input",
 )
 
 # Display sample questions above the message bar only if it's the first question
-if not st.session_state.first_question_asked and not st.session_state.get('chat_input'):
+if not st.session_state.first_question_asked and not user_input:
     st.write("Sample Questions:")
     for i, question in enumerate(st.session_state.questions):
         if st.button(question, key=f"q_{i}"):
@@ -60,7 +62,7 @@ if not st.session_state.first_question_asked and not st.session_state.get('chat_
 # Process user input or selected question
 if user_input or st.session_state.selected_question:
     # Disable chat input after user input
-    st.session_state['is_processing'] = True
+    st.session_state["is_processing"] = True
 
     if st.session_state.selected_question:
         print(st.session_state.selected_question)
@@ -69,7 +71,7 @@ if user_input or st.session_state.selected_question:
 
     st.session_state.first_question_asked = True
     # st.rerun()
-    
+
 if st.session_state.is_processing:
     st.session_state.chat_history.append({"role": "user", "content": user_input})
     with st.chat_message("user", avatar="🙋‍♂️"):
@@ -84,9 +86,14 @@ if st.session_state.is_processing:
     with st.chat_message("assistant", avatar="🚍"):
         with st.spinner(f"Getting response from {model}..."):
             system_prompt = st.session_state["SYSTEM_PROMPT"]
-            llm_response = agent.call_llm(
+            llm_response, call_success = agent.call_llm(
                 system_prompt, user_input, st.session_state["model"]
             )
+
+        if not call_success:
+            st.error("Something went wrong with the model. Please try again.")
+            st.session_state.is_processing = False
+            st.rerun()
 
         code_output, eval_success, error_message, only_text, final_response = (
             None,
@@ -97,11 +104,13 @@ if st.session_state.is_processing:
         )
         with st.status("Evaluating code..."):
             if retry_code_toggle:
-                code_output, eval_success, error_message, only_text, new_llm_response = (
-                    agent.evaluate_with_retry(
-                        st.session_state["model"], llm_response
-                    )
-                )
+                (
+                    code_output,
+                    eval_success,
+                    error_message,
+                    only_text,
+                    new_llm_response,
+                ) = agent.evaluate_with_retry(st.session_state["model"], llm_response)
                 llm_response = new_llm_response
             else:
                 code_output, eval_success, error_message, only_text = agent.evaluate(
@@ -118,7 +127,7 @@ if st.session_state.is_processing:
         code_output=code_output,
         eval_success=eval_success,
         error_message=error_message,
-        only_text=only_text
+        only_text=only_text,
     )
     # Add the new assistant message to the chat history
     st.session_state.chat_history.append(chat_entry.dict())

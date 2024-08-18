@@ -20,7 +20,7 @@ def load_agent_evaluator():
     if len(st.session_state.chat_history) > 0:
         clear_chat_history()
     distance_unit = st.session_state["distance_units"]
-    distance_unit = distance_unit.lower().split('(')[1].split(')')[0]
+    distance_unit = distance_unit.lower().split("(")[1].split(")")[0]
     print("<<<========================================>>>")
     print(f"Initializing agent and evaluator with `{distance_unit}`")
     evaluator = get_evaluator(file_mapping, distance_unit)
@@ -50,13 +50,14 @@ def clear_chat_history():
     st.session_state.selected_question = None
     st.session_state.show_limit_popup = False
     st.session_state.is_chat_input_disabled = False
+    st.session_state.agent.reset()
 
 
 def setup_sidebar():
     # Sidebar for model selection and GTFS feed selection
     # st.sidebar.title("GTFS2CODE🚌")
     st.sidebar.json(st.session_state, expanded=False)
-    
+
     if "call_count" not in st.session_state:
         st.session_state["call_count"] = 0
 

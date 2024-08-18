@@ -15,7 +15,6 @@ def load_session_state():
         "fb_agent": get_feedback(),
         "show_limit_popup": False,
         "is_processing": False,
-        
     }
 
     for key, default_value in default_values.items():

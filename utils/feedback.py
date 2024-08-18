@@ -4,25 +4,11 @@ from google.oauth2 import service_account
 from google.cloud import firestore
 from datetime import datetime
 from typing import Optional, Any
-from utils.helper import fig_to_base64, get_current_time
 import matplotlib.pyplot as plt
 import pandas as pd
 import folium
-from pydantic import BaseModel, Field
-
-
-class FeedbackEntry(BaseModel):
-    timestamp: datetime = Field(default_factory=get_current_time)
-    question: str
-    response: str
-    code_eval_success: bool
-    GTFS: Optional[str] = None
-    llm_model: Optional[str] = None
-    system_prompt: Optional[str] = None
-    user_rating: Optional[int] = None
-    user_comment: Optional[str] = None
-    code_eval_result: Optional[str] = None
-    figure: Optional[str] = None
+from utils.data_models import FeedbackEntry
+from utils.helper import fig_to_base64
 
 
 def create_feedback_entry(
