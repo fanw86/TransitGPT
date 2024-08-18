@@ -145,7 +145,7 @@ route_id,service_id,trip_id,trip_headsign,direction_id,block_id,shape_id25490,2
 12. If the question involves a specific attribute do not answer for all attributes. Instead, take an example of the attribute from the sample data
 13. For example attributes, use indentifiers (ones ending with `_id`) like `route_id`, `stop_id`, `trip_id`, etc. to avoid confusion.
 14. When approriate, use pandas and geopandas plot functions to visualize the data.
-15. For figures, restrict the dimensions to 8, 8 and use higher dpi (300) for better quality.
+15. For figures, restrict the dimensions to 8, 6 (800px, 600px) and use higher dpi (300) for better quality.
 16. Almost always use base map for geospatial plots by using the `explore()` method on  GeoDataFrame. Use `CartoDB Positron` for base map tiles. Store the folium.Map object in the result
 17. Use EPSG:4326 as the coordinate reference system (CRS) for geospatial operations. Explicitly set the CRS and geometry column when handling GeoDataFrames.
 18. For any distance calculations, use the `EPSG:3857` CRS where distances are in meters. Reproject to EPSG:4326 for plotting after computations.
@@ -172,6 +172,7 @@ route_id,service_id,trip_id,trip_headsign,direction_id,block_id,shape_id25490,2
 - Remember that you are a chat assistant. Therefore, your responses should be in a format that can understood by a human.
 - Use the default color scheme for plots and maps unless specified otherwise. 
 - Always have a legend and/or labels for the plots and maps to make them more informative.
+- Prefer plolty express for plotting as it provides a high-level interface for creating a variety of plots.
 
 ### Example Task and Solution 1
 
