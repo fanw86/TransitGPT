@@ -62,6 +62,16 @@ class GTFS_Eval:
         return self.system_prompt
 
     def evaluate(self, code):
+        """
+        Evaluates the given code and returns the result.
+
+        Parameters:
+            code (str): The code to be evaluated.
+
+        Returns:
+            tuple: A tuple containing the result of the evaluation, a boolean indicating if the evaluation was successful,
+                   detailed error information if the evaluation failed, and a boolean indicating if response is only text.
+        """
         # Format string input to extract only the code
         if "```python" in code:
             code = (
@@ -70,7 +80,8 @@ class GTFS_Eval:
                 else code
             )
         else:
-            return (None, True, None)
+            # Has no code block. Send back with only text response
+            return (None, True, None, True)
         nm = globals()
         locals_dict = {
             "np": np,
@@ -91,10 +102,10 @@ class GTFS_Eval:
         nm.update({"feed": self.feed_main})
         try:
             exec(code, nm)
-            return (nm.get("result"), True, None)
+            return (nm.get("result"), True, None, False)
         except Exception as e:
             error_info = self._get_detailed_error_info(e)
-            return (None, False, error_info)
+            return (None, False, error_info, False)
 
     def _get_detailed_error_info(self, error: Exception) -> str:
         """

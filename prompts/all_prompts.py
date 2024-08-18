@@ -189,12 +189,15 @@ TASK_INSTRUCTION = """
 10. Keep the answer concise and specify the output format (e.g., DataFrame, Series, list, integer, string) in a comment.
 11. Do not hallucinate fields in the DataFrames. Assume the existing fields are those given in the GTFS Static Specification and a feed sample. 
 12. If the question involves a specific attribute do not answer for all attributes. Instead, take an example of the attribute from the sample data
-13. When approriate, use pandas and geopandas plot functions to visualize the data.
-14. For figures, restrict the dimensions to 8, 8 and use higher dpi (300) for better quality.
-15. Almost always use base map for geospatial plots by using the `explore()` method on  GeoDataFrame. Use `CartoDB Positron` for base map tiles. Store the folium.Map object in the result
-16. If the task involves a map, ensure that the map is interactive and includes markers, popups, or other relevant information.
-17. For all results, ensure that the output is human-readable and easy to understand. 
-18. Along with the direct answer or field in the `result` variable, include other relevant information that might help the user understand the context better.
+13. For example attributes, use indentifiers (ones ending with `_id`) like `route_id`, `stop_id`, `trip_id`, etc. to avoid confusion.
+14. When approriate, use pandas and geopandas plot functions to visualize the data.
+15. For figures, restrict the dimensions to 8, 8 and use higher dpi (300) for better quality.
+16. Almost always use base map for geospatial plots by using the `explore()` method on  GeoDataFrame. Use `CartoDB Positron` for base map tiles. Store the folium.Map object in the result
+17. Use EPSG:4326 as the coordinate reference system (CRS) for geospatial operations. Explicitly set the CRS and geometry column when handling GeoDataFrames.
+18. For any distance calculations, use the `EPSG:3857` CRS where distances are in meters. Reproject to EPSG:4326 for plotting after computations.
+19. If the task involves a map, ensure that the map is interactive and includes markers, popups, or other relevant information.
+20. For all results, ensure that the output is human-readable and easy to understand. 
+21. Along with the direct answer or field in the `result` variable, include other relevant information that might help the user understand the context better.
 """
 
 TASK_INSTRUCTION_WITH_COT = """
@@ -356,6 +359,23 @@ Task Instructions:
 - Don't explain coding processes or technical code details unless clarification of an assumption is needed.
 - If answering a generic question about GTFS files or fields using a specific example, mention that you're using a specific file or field in your response.
 - Use markdown highlighting for GTFS file names and field names. E.g. trip_id, routes.txt, etc.
+"""
+
+FINAL_LLM_USER_PROMPT = """
+## Question 
+{question}
+
+## Answer 
+{response}
+
+## Code Evaluation 
+{evaluation}
+
+## Code Evaluation Success
+{success}
+
+## Error Message
+{error}
 """
 
 RETRY_PROMPT = """While executing the code, I encountered the following error:

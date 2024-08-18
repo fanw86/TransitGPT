@@ -14,7 +14,8 @@ def load_session_state():
         "questions": load_questions(),
         "fb_agent": get_feedback(),
         "show_limit_popup": False,
-        "is_chat_input_disabled": False,
+        "is_processing": False,
+        
     }
 
     for key, default_value in default_values.items():

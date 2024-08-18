@@ -16,11 +16,11 @@ def get_evaluator(file_mapping, distance_unit):
 
 
 def load_agent_evaluator():
+    # Clear chat history on change of model or GTFS feed or units
+    if len(st.session_state.chat_history) > 0:
+        clear_chat_history()
     distance_unit = st.session_state["distance_units"]
-    if distance_unit == "Meters" or distance_unit == "m":
-        distance_unit = "m"
-    else:
-        distance_unit = "Km"
+    distance_unit = distance_unit.lower().split('(')[1].split(')')[0]
     print("<<<========================================>>>")
     print(f"Initializing agent and evaluator with `{distance_unit}`")
     evaluator = get_evaluator(file_mapping, distance_unit)
@@ -40,22 +40,23 @@ def load_prompt_and_feed(distance_unit="m"):
         st.session_state["SYSTEM_PROMPT"] = agent.evaluator.load_system_prompt(
             GTFS, distance_unit
         )
-        st.toast(f"Loaded GTFS feed: {GTFS}", icon="🚌")
+        st.toast(f"Loaded GTFS feed: {GTFS} ({distance_unit})", icon="🚌")
 
 
 def clear_chat_history():
+    print("Clearing chat history...")
     st.session_state.chat_history = []
     st.session_state.first_question_asked = False
     st.session_state.selected_question = None
     st.session_state.show_limit_popup = False
     st.session_state.is_chat_input_disabled = False
-    st.rerun()
 
 
 def setup_sidebar():
     # Sidebar for model selection and GTFS feed selection
     # st.sidebar.title("GTFS2CODE🚌")
-
+    st.sidebar.json(st.session_state, expanded=False)
+    
     if "call_count" not in st.session_state:
         st.session_state["call_count"] = 0
 
@@ -68,6 +69,7 @@ def setup_sidebar():
         LLMs,
         key="model",
         help="Pick your LLM! In our experiments Claude seems to be the best!",
+        on_change=load_agent_evaluator,
     )
 
     GTFS_feed_list = list(file_mapping.keys())
@@ -85,18 +87,18 @@ def setup_sidebar():
         # Ditance units
         st.sidebar.radio(
             "Select Distance Units",
-            ["Meters", "Kilometers"],
+            ["Meters (m)", "Kilometers (km)"],
             key="distance_units",
-            help="GTFS allows both `m` and `Km` as distance units",
+            help="GTFS allows both `m` and `km` as distance units",
             on_change=load_agent_evaluator,
         )
     with col2:
-        st.sidebar.toggle(
-            "Run Code",
-            value=True,
-            key="evaluate_code",
-            help="Enable code evaluation to run code snippets in the chat.",
-        )
+        # st.sidebar.toggle(
+        #     "Run Code",
+        #     value=True,
+        #     key="evaluate_code",
+        #     help="Enable code evaluation to run code snippets in the chat.",
+        # )
         st.sidebar.toggle(
             "Allow Retry",
             value=False,
