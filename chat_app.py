@@ -11,8 +11,8 @@ from components.sidebar import (
 from components.chat_interface import (
     display_chat_history,
     clear_chat,
-    ChatHistoryEntry,
 )
+from utils.data_models import ChatHistoryEntry
 
 
 # Set the page to wide mode
