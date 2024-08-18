@@ -26,8 +26,8 @@ def display_code_output(message, only_text=False):
         return
 
     display_functions = {
-        plt.Figure: lambda x: st.pyplot(x, use_container_width=False),
-        go.Figure: lambda x: st.plotly_chart(x, use_container_width=False),
+        plt.Figure: lambda x: st.pyplot(x, use_container_width=True),
+        go.Figure: lambda x: st.plotly_chart(x, use_container_width=True),
         folium.Map: folium_static,
         pd.Series: lambda x: st.write(x.to_dict()),
     }
@@ -45,9 +45,9 @@ def display_code_output(message, only_text=False):
 
 def display_figure(fig):
     if isinstance(fig, go.Figure):
-        st.plotly_chart(fig, use_container_width=False)
+        st.plotly_chart(fig, use_container_width=True)
     elif isinstance(fig, plt.Figure):
-        st.pyplot(fig, use_container_width=False)
+        st.pyplot(fig, use_container_width=True)
 
 def display_llm_response(fb_agent, uuid, message, i):
     # Display Code if final response is different from the initial LLM response

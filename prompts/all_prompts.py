@@ -246,7 +246,7 @@ TASK_TIPS = """
 EXAMPLE_CODE = """
 ### Example Task and Solution 1
 
-Task: Find the number of trips for route\_id '1' on Mondays
+Task: Find the number of trips for route_id '1' on Mondays
 Solution:
 To solve the problem of finding the number of trips for `route_id '1'` on mondays, we can follow these steps:
 
@@ -254,7 +254,7 @@ To solve the problem of finding the number of trips for `route_id '1'` on monday
 2. Filter the trips DataFrame to include those that correspond to `route_id '1'` and fall under the previously identified monday service_ids.
 3. Count the resulting trips.
 
-Here’s the Python code to implement this:
+Here's the Python code to implement this:
 
 ```python
 # Get Monday service_ids
