@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from utils.feedback import FeedbackAgent
 from streamlit_folium import folium_static
 from components.sidebar import clear_chat_history
-
+import plotly.graph_objects as go
 
 @st.dialog("Maximum number of messages reached!")
 def clear_chat():
@@ -14,6 +14,40 @@ def clear_chat():
         clear_chat_history()
         st.rerun()
 
+def display_code_output(message, only_text=False):
+    if "code_output" not in message or only_text:
+        return
+
+    code_output = message["code_output"]
+    st.write("Code Evaluation Result:")
+
+    if not message.get("eval_success", False):
+        st.write("Evaluation failed.")
+        return
+
+    display_functions = {
+        plt.Figure: lambda x: st.pyplot(x, use_container_width=False),
+        go.Figure: lambda x: st.plotly_chart(x, use_container_width=False),
+        folium.Map: folium_static,
+        pd.Series: lambda x: st.write(x.to_dict()),
+    }
+
+    if isinstance(code_output, dict):
+        if "map" in code_output:
+            folium_static(code_output["map"])
+        for key in ["plot", "figure"]:
+            if key in code_output:
+                display_figure(code_output[key])
+    elif isinstance(code_output, tuple(display_functions.keys())):
+        display_functions[type(code_output)](code_output)
+    else:
+        st.write(code_output)
+
+def display_figure(fig):
+    if isinstance(fig, go.Figure):
+        st.plotly_chart(fig, use_container_width=False)
+    elif isinstance(fig, plt.Figure):
+        st.pyplot(fig, use_container_width=False)
 
 def display_llm_response(fb_agent, uuid, message, i):
     # Display Code if final response is different from the initial LLM response
@@ -27,24 +61,10 @@ def display_llm_response(fb_agent, uuid, message, i):
 
     with col1:
         if "code_output" in message and only_text is False:
-            code_output = message["code_output"]
-            st.write("Code Evaluation Result:")
             if message.get("eval_success", False):  # Default to False
-                if isinstance(code_output, plt.Figure):
-                    st.pyplot(code_output)
-                elif isinstance(code_output, folium.Map):
-                    folium_static(code_output)
-                elif isinstance(code_output, pd.Series):
-                    st.write(code_output.to_dict())
-                else:
-                    st.write(code_output)
-                if isinstance(code_output, dict):
-                    if "map" in code_output:
-                        folium_static(code_output["map"])
-                    if "plot" in code_output:
-                        st.pyplot(code_output["plot"])
+                display_code_output(message)
             else:
-                with st.expander("❌Code evaluation failed", expanded=False):
+                with st.expander("❌ :red[Code evaluation failed]", expanded=False):
                     st.error(f"\n {message['error_message']}")
                 st.warning(
                     "Something went wrong with running the code. Please edit your prompt or toggle `🔘Allow Retry`.",

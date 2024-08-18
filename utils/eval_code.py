@@ -14,6 +14,8 @@ from shapely.geometry import Point, LineString, Polygon
 import datetime
 import matplotlib
 import matplotlib.pyplot as plt
+import plotly
+import plotly.express as px
 
 from prompts.generate_prompt import generate_system_prompt
 
@@ -98,6 +100,8 @@ class GTFS_Eval:
             "LineString": LineString,
             "Polygon": Polygon,
             "result": None,
+            "px": px,
+            "plotly": plotly,
         }
         nm.update(locals_dict)
         nm.update({"feed": self.feed_main})

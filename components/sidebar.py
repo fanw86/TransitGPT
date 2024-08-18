@@ -111,9 +111,11 @@ def setup_sidebar():
     if st.sidebar.button("Clear Chat History"):
         clear_chat_history()
 
+    
     with st.sidebar.expander("⚠️ Disclaimer", expanded=False):
         st.markdown(disclaimer_text)
 
+    
     with st.sidebar:
         st.write(
             "Copyright © 2024 [Urban Traffic & Economics Lab (UTEL)](https://github.com/UTEL-UIUC)"

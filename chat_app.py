@@ -91,7 +91,7 @@ if st.session_state.is_processing:
             )
 
         if not call_success:
-            st.error("Something went wrong with the model. Please try again.")
+            st.error("Something went wrong with the model. Please try again or try another model.")
             st.session_state.is_processing = False
             st.rerun()
 
@@ -118,7 +118,7 @@ if st.session_state.is_processing:
                 )
 
         if eval_success and (code_output is not None):
-            final_response = agent.call_final_llm()  # Call final LLM
+            final_response, call_success = agent.call_final_llm()  # Call final LLM
 
     chat_entry = ChatHistoryEntry(
         role="assistant",

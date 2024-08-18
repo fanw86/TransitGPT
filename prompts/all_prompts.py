@@ -177,8 +177,8 @@ These are the datatypes for every possible GTFS file:
 TASK_INSTRUCTION = """
 ## Task Instructions
 
-1. Write the code in Python using only the numpy, pandas, shapely, geopandas, folium, and matplotlib libraries.
-2. Do not import any dependencies. Assume aliases for numpy, pandas, geopandas,  folium, and matplotlib.pyplot are `np`, `pd`, `gpd`, `ctx`, and `plt` respectively.
+1. Write the code in Python using only the numpy, pandas, shapely, geopandas, folium, plotly, and matplotlib libraries.
+2. Do not import any dependencies. Assume aliases for numpy, pandas, geopandas, folium, plotly.express, and matplotlib.pyplot are `np`, `pd`, `gpd`, `ctx`, `px`, and `plt` respectively.
 3. Have comments within the code to explain the functionality and logic.
 4. Do not add print or return statements.
 5. Assume the variable `feed` is already loaded.
@@ -231,7 +231,7 @@ TASK_TIPS = """
 - Time fields in stop_times.txt (arrival_time and departure_time) are already in seconds since midnight and do not need to be converted for calculations. They can be used directly for time-based operations.
 - The date fields are already converted to `datetime.date` objects in the feed.
 - Favor using pandas and numpy operations to arrive at the solution over complex geospatial operations.
-- Use the sample data to figure out distance units.
+- Use the sample data to determine the distance units.
 - The stop sequence starts from 1 and increases by 1 for each subsequent stop on a trip. It resets to 1 for each new trip.
 - The morning peak hours are typically between 6:00 AM and 9:00 AM, and the evening peak hours are between 3:00 PM and 7:00 PM. The rest of the hours are considered off-peak and categorized as midday (9:00 AM to 3:00 PM) or night hours.
 - When comparing strings, consider using case-insensitive comparisons to handle variations in capitalization. Some common abbreviations include St for Street, Blvd for Boulevard, Ave for Avenue, etc. Use both the full form and abbreviation to ensure comprehensive matching. 
@@ -240,6 +240,7 @@ TASK_TIPS = """
 - Remember that you are a chat assistant. Therefore, your responses should be in a format that can understood by a human.
 - Use the default color scheme for plots and maps unless specified otherwise. 
 - Always have a legend and/or labels for the plots and maps to make them more informative.
+- Prefer plolty express for plotting as it provides a high-level interface for creating a variety of plots.
 """
 
 EXAMPLE_CODE = """
