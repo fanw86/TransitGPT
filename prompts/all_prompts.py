@@ -178,7 +178,7 @@ TASK_INSTRUCTION = """
 ## Task Instructions
 
 1. Write the code in Python using only the numpy, pandas, shapely, geopandas, folium, plotly, and matplotlib libraries.
-2. Do not import any dependencies. Assume aliases for numpy, pandas, geopandas, folium, plotly.express, and matplotlib.pyplot are `np`, `pd`, `gpd`, `ctx`, `px`, and `plt` respectively.
+2. Do not import any dependencies. Assume aliases for numpy, pandas, geopandas, plotly.express, and matplotlib.pyplot are `np`, `pd`, `gpd`, `px`, and `plt` respectively.
 3. Have comments within the code to explain the functionality and logic.
 4. Do not add print or return statements.
 5. Assume the variable `feed` is already loaded.

@@ -5,3 +5,5 @@ logs/
 data/feedback.json
 generated_prompt.md
 firestore-key.json
+*.excalidraw
+*.png
