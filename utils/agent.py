@@ -157,7 +157,8 @@ class LLMAgent:
                 f"Evaluation failed with error: {error}. Retrying attempt {retry + 1}"
             )
             llm_response, call_success = self.call_llm_retry(error)
-        return None, False, "Evaluation failed after max retries", False, llm_response
+        error_message = "Evaluation failed after max retries\nLast Error:\n" + error
+        return None, False, error_message, False, llm_response
 
     def get_retry_messages(self, error: str) -> List[Dict[str, str]]:
         messages = []
