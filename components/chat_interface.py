@@ -1,3 +1,4 @@
+import json
 import folium
 import pandas as pd
 import streamlit as st
@@ -6,20 +7,49 @@ from utils.feedback import FeedbackAgent
 from streamlit_folium import folium_static
 from components.sidebar import clear_chat_history
 import plotly.graph_objects as go
+from folium import Map
+
 
 @st.dialog("Maximum number of messages reached!")
 def clear_chat():
     st.write("The chat history will be cleared.")
-    if st.button("OK"):
+    if st.button("🧹Clear Chat!"):
         clear_chat_history()
         st.rerun()
+
+
+def is_json_serializable(obj):
+    try:
+        json.dumps(obj)
+        return True
+    except (TypeError, OverflowError):
+        return False
+
+
+def safe_folium_display(folium_map):
+    if isinstance(folium_map, Map):
+        try:
+            folium_static(folium_map, width=600, height=400)
+        except Exception as e:
+            st.error(f"Error displaying Folium map: {str(e)}")
+            st.write("Map data (non-rendered):")
+            st.json(
+                {
+                    k: v
+                    for k, v in folium_map.__dict__.items()
+                    if is_json_serializable(v)
+                }
+            )
+    else:
+        st.error("Expected a Folium Map object, but received a different type.")
+        st.write(f"Received object of type: {type(folium_map)}")
+
 
 def display_code_output(message, only_text=False):
     if "code_output" not in message or only_text:
         return
 
     code_output = message["code_output"]
-    st.write("Code Evaluation Result:")
 
     if not message.get("eval_success", False):
         st.write("Evaluation failed.")
@@ -28,26 +58,35 @@ def display_code_output(message, only_text=False):
     display_functions = {
         plt.Figure: lambda x: st.pyplot(x, use_container_width=True),
         go.Figure: lambda x: st.plotly_chart(x, use_container_width=True),
-        folium.Map: folium_static,
+        folium.Map: safe_folium_display,
         pd.Series: lambda x: st.write(x.to_dict()),
     }
 
-    if isinstance(code_output, dict):
-        if "map" in code_output:
-            folium_static(code_output["map"])
-        for key in ["plot", "figure"]:
-            if key in code_output:
-                display_figure(code_output[key])
-    elif isinstance(code_output, tuple(display_functions.keys())):
+    possible_alt_keys = {
+        "map": safe_folium_display,
+        "plot": lambda x: st.pyplot(x, use_container_width=True),
+        "figure": lambda x: st.plotly_chart(x, use_container_width=True),
+    }
+
+    if isinstance(code_output, tuple(display_functions.keys())):
         display_functions[type(code_output)](code_output)
     else:
-        st.write(code_output)
+        with st.expander("✅Code Evaluation Result:", expanded=True):
+            st.write(code_output)
+        if isinstance(code_output, dict):
+            specific_keys = ["map", "plot", "figure"]
+            check_keys = [key in code_output for key in specific_keys]
+            if sum(check_keys) == 1:
+                key = specific_keys[check_keys.index(True)]
+                possible_alt_keys[key](code_output[key])
+
 
 def display_figure(fig):
     if isinstance(fig, go.Figure):
         st.plotly_chart(fig, use_container_width=True)
     elif isinstance(fig, plt.Figure):
         st.pyplot(fig, use_container_width=True)
+
 
 def display_llm_response(fb_agent, uuid, message, i):
     # Display Code if final response is different from the initial LLM response

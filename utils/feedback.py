@@ -1,46 +1,49 @@
 import json
-import streamlit as st
-from google.oauth2 import service_account
-from google.cloud import firestore
 from datetime import datetime
-from typing import Optional, Any
+
+import folium
 import matplotlib.pyplot as plt
 import pandas as pd
-import folium
+import streamlit as st
+from google.cloud import firestore
+from google.oauth2 import service_account
+
 from utils.data_models import FeedbackEntry
 from utils.helper import fig_to_base64
 
 
 def create_feedback_entry(
-    user_input: str,
-    llm_response: str,
-    success: bool,
-    output: Any = None,
-    error_message: Optional[str] = None,
-) -> FeedbackEntry:
+    user_input, agent, llm_response, eval_success, code_output, error_message
+):
+    message_id = f"{st.session_state.uuid}_{len(st.session_state.chat_history) - 1}"
+    st.session_state.current_message_id = message_id
+
     feedback_entry = FeedbackEntry(
         question=user_input,
         response=llm_response,
-        code_eval_success=success,
-        GTFS=st.session_state["GTFS"],
-        llm_model=st.session_state["model"],
-        system_prompt=st.session_state["SYSTEM_PROMPT"],
+        code_eval_success=eval_success,
+        GTFS=agent.GTFS,
+        llm_model=agent.model,
+        system_prompt=agent.system_prompt,
     )
 
-    if success:
-        if isinstance(output, plt.Figure):
+    if eval_success:
+        if isinstance(code_output, plt.Figure):
             feedback_entry.code_eval_result = "Figure generated"
-            feedback_entry.figure = fig_to_base64(output)
-        elif isinstance(output, folium.Map):
+            feedback_entry.figure = fig_to_base64(code_output)
+        elif isinstance(code_output, folium.Map):
             feedback_entry.code_eval_result = "Map generated"
-        elif isinstance(output, (pd.DataFrame, pd.Series)):
-            feedback_entry.code_eval_result = output.to_string()
+        elif isinstance(code_output, (pd.DataFrame, pd.Series)):
+            feedback_entry.code_eval_result = code_output.to_string()
         else:
-            feedback_entry.code_eval_result = str(output)
+            feedback_entry.code_eval_result = str(code_output)
     else:
         feedback_entry.code_eval_result = str(error_message)
 
-    return feedback_entry
+    collection_name = st.session_state["fb_agent"].collection_name
+    st.session_state["fb_agent"].db.collection(collection_name).document(
+        message_id
+    ).set(feedback_entry.dict())
 
 
 class FeedbackAgent:

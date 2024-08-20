@@ -12,25 +12,45 @@ from typing import List, Dict, Any, Tuple
 from utils.helper import summarize_large_output
 from utils.llm_client import OpenAIClient, GroqClient, AnthropicClient
 from utils.data_models import ChatInteraction
+from utils.eval_code import GTFS_Eval
 
 
 class LLMAgent:
-    def __init__(self, evaluator, max_retry=3, max_chars=12000, max_rows=50):
-        self.evaluator = evaluator
+    def __init__(
+        self,
+        file_mapping,
+        model: str,
+        max_retry=3,
+        max_chars=12000,
+        max_rows=50,
+    ):
+        self.evaluator = GTFS_Eval(file_mapping)
+        self.model = model
+        # Initialize with first entry of file_mapping
+        self.GTFS = list(file_mapping.keys())[0]
+        self.distance_unit = file_mapping[self.GTFS]['distance_unit']
+
+        # Set Hyperparameters
         self.max_retry = max_retry
         self.max_chars = max_chars
         self.max_rows = max_rows
+
+        ## Initialize the logger and clients
         self.logger = self._setup_logger(LOG_FILE)
+        self.logger.info(
+            f"\nInitializing LLMAgent with model: {model}, GTFS: {self.GTFS} and distance unit: {self.distance_unit}"
+        )
         self.clients = {
             "gpt": OpenAIClient(),
             "llama": GroqClient(),
             "claude": AnthropicClient(),
         }
+        self.result = None
         self.last_response = None
         self.chat_history = []
-        self.model = None
-        self.result = None
-        self.distance_units = "Meters"
+
+        ## Load system prompt
+        self.system_prompt = self.evaluator.load_system_prompt(self.GTFS, self.distance_unit)
 
     def _setup_logger(self, log_file):
         logger = logging.getLogger(__name__)
@@ -73,7 +93,7 @@ class LLMAgent:
         return "llama"
 
     def create_messages(
-        self, system_prompt: str, user_prompt: str, model: str
+        self, system_prompt, user_prompt: str, model: str
     ) -> List[Dict[str, str]]:
         messages = []
         for interaction in self.chat_history:
@@ -86,11 +106,9 @@ class LLMAgent:
             messages.insert(0, {"role": "system", "content": system_prompt})
         return messages
 
-    def update_chat_history(
-        self, system_prompt: str, user_prompt: str, response: str
-    ) -> None:
+    def update_chat_history(self, user_prompt: str, response: str) -> None:
         interaction = ChatInteraction(
-            system_prompt=system_prompt,
+            system_prompt=self.system_prompt,
             user_prompt=user_prompt,
             assistant_response=response,
         )
@@ -100,18 +118,18 @@ class LLMAgent:
         self.logger.info(f"Calling LLM with following messages:\n {messages}")
         self.logger.info(f"Response from LLM: {response}")
 
-    def call_llm(self, system_prompt, user_prompt, model):
-        self.model = model
-        messages = self.create_messages(system_prompt, user_prompt, model)
+    def call_llm(self, user_prompt):
+        model = self.model
+        messages = self.create_messages(self.system_prompt, user_prompt, model)
 
         client = self.clients[self.get_client_key(model)]
-        response, call_success = client.call(model, messages, system_prompt)
+        response, call_success = client.call(model, messages, self.system_prompt)
 
         if not call_success:
             self.logger.error(f"LLM call failed: {response}")
         else:
             self.last_response = response
-            self.update_chat_history(system_prompt, user_prompt, response)
+            self.update_chat_history(user_prompt, response)
             self.log_llm_interaction(messages, response)
 
         return response, call_success
@@ -126,7 +144,7 @@ class LLMAgent:
         return result, success, error, only_text
 
     def evaluate_with_retry(
-        self, model: str, llm_response: str
+        self, llm_response: str
     ) -> Tuple[Any, bool, str, bool, str]:
         call_success = True
         for retry in range(self.max_retry):
@@ -138,31 +156,34 @@ class LLMAgent:
             self.logger.info(
                 f"Evaluation failed with error: {error}. Retrying attempt {retry + 1}"
             )
-            llm_response, call_success = self.call_llm_retry(model, error)
+            llm_response, call_success = self.call_llm_retry(error)
         return None, False, "Evaluation failed after max retries", False, llm_response
 
     def get_retry_messages(self, error: str) -> List[Dict[str, str]]:
         messages = []
         for interaction in self.chat_history:
             messages.append({"role": "user", "content": interaction.user_prompt})
-            messages.append(
-                {"role": "assistant", "content": interaction.assistant_response}
-            )
-            if interaction.error_message:
-                messages.append(
-                    {"role": "user", "content": f"Error: {interaction.error_message}"}
-                )
+            messages.append({"role": "assistant", "content": interaction.assistant_response})
+        
+        # Add the error message as part of the last assistant's response
+        if messages and messages[-1]["role"] == "assistant":
+            messages[-1]["content"] += f"\n\nError: {error}"
+        else:
+            # If the last message was not from the assistant, add a new assistant message with the error
+            messages.append({"role": "assistant", "content": f"Error: {error}"})
+        
+        # Add the retry prompt as a new user message
         messages.append({"role": "user", "content": RETRY_PROMPT.format(error=error)})
+        
         return messages
 
-    def call_llm_retry(self, model: str, error: str) -> str:
-        self.model = model
+    def call_llm_retry(self, error: str) -> str:
+        model = self.model
         self.logger.info(f"Retrying LLM call with model: {model}")
 
         messages = self.get_retry_messages(error)
-        system_prompt = self.chat_history[0].system_prompt if self.chat_history else ""
         client = self.clients[self.get_client_key(model)]
-        response, call_success = client.call(model, messages, system_prompt)
+        response, call_success = client.call(model, messages, self.system_prompt)
 
         self.logger.info(f"LLM Response: {response}")
         return response, call_success
@@ -195,8 +216,26 @@ class LLMAgent:
         self.logger.info("Final response from LLM:\n %s", response)
         return response
 
+    def evaluate_code(self, retry_code, llm_response: str):
+        with st.status("Evaluating code..."):
+            if retry_code:
+                return self.evaluate_with_retry(llm_response)
+            else:
+                result, success, error, only_text = self.evaluate(llm_response)
+                return result, success, error, only_text, llm_response
+
     def reset(self):
         self.last_response = None
         self.chat_history = []
-        self.model = None
         self.result = None
+
+    def update_agent(self, GTFS, model, distance_unit):
+        self.reset()
+        self.evaluator.reset()
+        self.GTFS = GTFS
+        self.model = model
+        self.distance_unit = distance_unit
+        self.system_prompt = self.evaluator.load_system_prompt(GTFS, distance_unit)
+        self.logger.info(
+            f"Updating LLMAgent with model: {model}, GTFS: {GTFS} and distance unit: {distance_unit}"
+        )

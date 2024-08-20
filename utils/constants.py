@@ -9,15 +9,38 @@ LOG_FILE = "logs/llm_agent.log"
 MAX_MESSAGES = 10
 
 file_mapping = {
-    "DART": "gtfs_data/Dallas-Dallas Area Rapid Transit (DART)-TX/gtfs.zip",
-    "SFMTA": "gtfs_data/San Francisco-San Francisco Municipal Transportation Agency (SFMTA, Muni)-CA/gtfs.zip",
-    "MBTA": "gtfs_data/Boston-Massachusetts Bay Transportation Authority (MBTA)-MA/gtfs.zip",
-    "CUMTD": "gtfs_data/Urbana-Champaign Urbana Mass Transit District (MTD)-IL/gtfs.zip",
-    "VTA": "gtfs_data/San Jose-Santa Clara Valley Transportation Authority (VTA)-CA/gtfs.zip",
-    # "BART": "gtfs_data/San Francisco-Bay Area Rapid Transit (BART)-CA/gtfs.zip",
-    "AC Transit": "gtfs_data/Oakland-Alameda-Contra Costa Transit District (AC Transit)-CA/gtfs.zip",
-    "samTrans": "gtfs_data/San Mateo-San Mateo County Transit District (samTrans)-CA/gtfs.zip",
-    "Caltrain": "gtfs_data/San Francisco-Caltrain-CA/gtfs.zip",
+    "DART": {
+        "file_loc": "gtfs_data/Dallas-Dallas Area Rapid Transit (DART)-TX/gtfs.zip",
+        "distance_unit": "km",
+    },
+    "SFMTA": {
+        "file_loc": "gtfs_data/San Francisco-San Francisco Municipal Transportation Agency (SFMTA, Muni)-CA/gtfs.zip",
+        "distance_unit": "km",
+    },
+    "MBTA": {
+        "file_loc": "gtfs_data/Boston-Massachusetts Bay Transportation Authority (MBTA)-MA/gtfs.zip",
+        "distance_unit": None,
+    },
+    "CUMTD": {
+        "file_loc": "gtfs_data/Urbana-Champaign Urbana Mass Transit District (MTD)-IL/gtfs.zip",
+        "distance_unit": "m",
+    },
+    "VTA": {
+        "file_loc": "gtfs_data/San Jose-Santa Clara Valley Transportation Authority (VTA)-CA/gtfs.zip",
+        "distance_unit": "km",
+    },
+    "AC Transit": {
+        "file_loc": "gtfs_data/Oakland-Alameda-Contra Costa Transit District (AC Transit)-CA/gtfs.zip",
+        "distance_unit": "m",
+    },
+    "samTrans": {
+        "file_loc": "gtfs_data/San Mateo-San Mateo County Transit District (samTrans)-CA/gtfs.zip",
+        "distance_unit": None,
+    },
+    "Caltrain": {
+        "file_loc": "gtfs_data/San Francisco-Caltrain-CA/gtfs.zip",
+        "distance_unit": "m",
+    },
 }
 
 LLMs = [
@@ -37,3 +60,5 @@ This chatbot is an AI-powered tool designed to assist with GTFS data analysis an
 
 By using this chatbot, you acknowledge and agree to these terms.
 """
+
+copyright_text = "Copyright © 2024 [Urban Traffic & Economics Lab (UTEL)](https://github.com/UTEL-UIUC)"

@@ -192,12 +192,13 @@ TASK_INSTRUCTION = """
 13. For example attributes, use indentifiers (ones ending with `_id`) like `route_id`, `stop_id`, `trip_id`, etc. to avoid confusion.
 14. When approriate, use pandas and geopandas plot functions to visualize the data.
 15. For figures, restrict the dimensions to 8, 6 (800px, 600px) and use higher dpi (300) for better quality.
-16. Almost always use base map for geospatial plots by using the `explore()` method on  GeoDataFrame. Use `CartoDB Positron` for base map tiles. Store the folium.Map object in the result
-17. Use EPSG:4326 as the coordinate reference system (CRS) for geospatial operations. Explicitly set the CRS and geometry column when handling GeoDataFrames.
-18. For any distance calculations, use the `EPSG:3857` CRS where distances are in meters. Reproject to EPSG:4326 for plotting after computations.
-19. If the task involves a map, ensure that the map is interactive and includes markers, popups, or other relevant information.
-20. For all results, ensure that the output is human-readable and easy to understand. 
-21. Along with the direct answer or field in the `result` variable, include other relevant information that might help the user understand the context better.
+16. Almost always use basemap with `CartoDB Positron` for base map tiles
+17. Prefer GeoPandas GeoDataFrame `explore()` method for all spatial visualization tasks.
+18. Use EPSG:4326 as the coordinate reference system (CRS) for geospatial operations. Explicitly set the CRS and geometry column when handling GeoDataFrames.
+19. For any distance calculations, use the `EPSG:3857` CRS where distances are in meters. Reproject to EPSG:4326 for plotting after computations.
+20. If the task involves a map, ensure that the map is interactive and includes markers, popups, or other relevant information.
+21. For all results, ensure that the output is human-readable and easy to understand. 
+22. Along with the direct answer or field in the `result` variable, include other relevant information that might help the user understand the context better.
 """
 
 TASK_INSTRUCTION_WITH_COT = """
@@ -306,7 +307,7 @@ trip_durations = route_1_stop_times.groupby('trip_id').agg({
 # Calculate average duration
 result = trip_durations['arrival_time'].mean()
 # Result is a timedelta object representing the average trip duration
-
+```
 
 ### Example Task and Solution 4
 

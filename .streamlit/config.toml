@@ -1,0 +1,14 @@
+[client]
+showErrorDetails = true
+
+[runner]
+fastReruns = true
+
+[server]
+enableCORS = true
+maxUploadSize = 512
+maxMessageSize = 512
+
+[logger]
+level = "info"
+messageFormat = "%(asctime)s %(message)s"

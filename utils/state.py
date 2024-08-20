@@ -1,7 +1,7 @@
-from utils.feedback import get_feedback
 import uuid
-from utils.sample_questions import load_questions
 import streamlit as st
+from utils.feedback import get_feedback
+from utils.sample_questions import load_questions
 
 
 def load_session_state():
@@ -14,9 +14,27 @@ def load_session_state():
         "questions": load_questions(),
         "fb_agent": get_feedback(),
         "show_limit_popup": False,
+        "is_chat_input_disabled": False,
         "is_processing": False,
     }
 
     for key, default_value in default_values.items():
         if key not in st.session_state:
             st.session_state[key] = default_value
+
+
+def reset_session_state():
+    reset_keys = [
+        "chat_history",
+        "first_question_asked",
+        "current_message_id",
+        "selected_question",
+        "uuid",
+        "questions",
+        "show_limit_popup",
+        "is_chat_input_disabled",
+        "is_processing",
+    ]
+    for key in reset_keys:
+        del st.session_state[key]
+    load_session_state()

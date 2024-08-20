@@ -2,6 +2,7 @@ __pycache__/
 logs/
 *.ipynb
 .vscode/
+data_challenge/
 data/feedback.json
 generated_prompt.md
 firestore-key.json

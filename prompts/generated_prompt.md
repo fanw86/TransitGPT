@@ -132,7 +132,7 @@ route_id,service_id,trip_id,trip_headsign,direction_id,block_id,shape_id25490,2
 ## Task Instructions
 
 1. Write the code in Python using only the numpy, pandas, shapely, geopandas, folium, plotly, and matplotlib libraries.
-2. Do not import any dependencies. Assume aliases for numpy, pandas, geopandas, folium, plotly.express, and matplotlib.pyplot are `np`, `pd`, `gpd`, `ctx`, `px`, and `plt` respectively.
+2. Do not import any dependencies. Assume aliases for numpy, pandas, geopandas, plotly.express, and matplotlib.pyplot are `np`, `pd`, `gpd`, `px`, and `plt` respectively.
 3. Have comments within the code to explain the functionality and logic.
 4. Do not add print or return statements.
 5. Assume the variable `feed` is already loaded.
@@ -146,12 +146,13 @@ route_id,service_id,trip_id,trip_headsign,direction_id,block_id,shape_id25490,2
 13. For example attributes, use indentifiers (ones ending with `_id`) like `route_id`, `stop_id`, `trip_id`, etc. to avoid confusion.
 14. When approriate, use pandas and geopandas plot functions to visualize the data.
 15. For figures, restrict the dimensions to 8, 6 (800px, 600px) and use higher dpi (300) for better quality.
-16. Almost always use base map for geospatial plots by using the `explore()` method on  GeoDataFrame. Use `CartoDB Positron` for base map tiles. Store the folium.Map object in the result
-17. Use EPSG:4326 as the coordinate reference system (CRS) for geospatial operations. Explicitly set the CRS and geometry column when handling GeoDataFrames.
-18. For any distance calculations, use the `EPSG:3857` CRS where distances are in meters. Reproject to EPSG:4326 for plotting after computations.
-19. If the task involves a map, ensure that the map is interactive and includes markers, popups, or other relevant information.
-20. For all results, ensure that the output is human-readable and easy to understand. 
-21. Along with the direct answer or field in the `result` variable, include other relevant information that might help the user understand the context better.
+16. Almost always use basemap with `CartoDB Positron` for base map tiles
+17. Prefer GeoPandas GeoDataFrame `explore()` method for all spatial visualization tasks.
+18. Use EPSG:4326 as the coordinate reference system (CRS) for geospatial operations. Explicitly set the CRS and geometry column when handling GeoDataFrames.
+19. For any distance calculations, use the `EPSG:3857` CRS where distances are in meters. Reproject to EPSG:4326 for plotting after computations.
+20. If the task involves a map, ensure that the map is interactive and includes markers, popups, or other relevant information.
+21. For all results, ensure that the output is human-readable and easy to understand. 
+22. Along with the direct answer or field in the `result` variable, include other relevant information that might help the user understand the context better.
 
 ### Helpful Tips and Facts
 
@@ -176,7 +177,7 @@ route_id,service_id,trip_id,trip_headsign,direction_id,block_id,shape_id25490,2
 
 ### Example Task and Solution 1
 
-Task: Find the number of trips for route\_id '1' on Mondays
+Task: Find the number of trips for route_id '1' on Mondays
 Solution:
 To solve the problem of finding the number of trips for `route_id '1'` on mondays, we can follow these steps:
 
@@ -184,7 +185,7 @@ To solve the problem of finding the number of trips for `route_id '1'` on monday
 2. Filter the trips DataFrame to include those that correspond to `route_id '1'` and fall under the previously identified monday service_ids.
 3. Count the resulting trips.
 
-Here’s the Python code to implement this:
+Here's the Python code to implement this:
 
 ```python
 # Get Monday service_ids
@@ -236,7 +237,7 @@ trip_durations = route_1_stop_times.groupby('trip_id').agg({
 # Calculate average duration
 result = trip_durations['arrival_time'].mean()
 # Result is a timedelta object representing the average trip duration
-
+```
 
 ### Example Task and Solution 4
 
