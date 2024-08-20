@@ -49,37 +49,21 @@ def display_code_output(message, only_text=False):
     if "code_output" not in message or only_text:
         return
 
-    code_output = message["code_output"]
-
     if not message.get("eval_success", False):
         st.write("Evaluation failed.")
         return
 
-    display_functions = {
-        plt.Figure: lambda x: st.pyplot(x, use_container_width=True),
-        go.Figure: lambda x: st.plotly_chart(x, use_container_width=True),
-        folium.Map: safe_folium_display,
-        pd.Series: lambda x: st.write(x.to_dict()),
-    }
-
-    possible_alt_keys = {
-        "map": safe_folium_display,
-        "plot": lambda x: st.pyplot(x, use_container_width=True),
-        "figure": lambda x: st.plotly_chart(x, use_container_width=True),
-    }
-
-    if isinstance(code_output, tuple(display_functions.keys())):
-        display_functions[type(code_output)](code_output)
-    else:
-        with st.expander("✅Code Evaluation Result:", expanded=True):
-            st.write(code_output)
-        if isinstance(code_output, dict):
-            specific_keys = ["map", "plot", "figure"]
-            check_keys = [key in code_output for key in specific_keys]
-            if sum(check_keys) == 1:
-                key = specific_keys[check_keys.index(True)]
-                possible_alt_keys[key](code_output[key])
-
+    code_output = message["code_output"]
+    with st.expander("✅Code Evaluation Result:", expanded=False):
+        st.write(code_output)
+    if isinstance(code_output, dict):
+        if "plot" in code_output:
+            if isinstance(code_output['plot'],plt.Figure):
+                st.pyplot(code_output['plot'], use_container_width=True)
+            if isinstance(code_output['plot'],go.Figure):
+                st.plotly_chart(code_output['plot'], use_container_width=True)
+        if "map" in code_output:
+            safe_folium_display(code_output["map"])
 
 def display_figure(fig):
     if isinstance(fig, go.Figure):

@@ -177,28 +177,19 @@ These are the datatypes for every possible GTFS file:
 TASK_INSTRUCTION = """
 ## Task Instructions
 
-1. Write the code in Python using only the numpy, pandas, shapely, geopandas, folium, plotly, and matplotlib libraries.
-2. Do not import any dependencies. Assume aliases for numpy, pandas, geopandas, plotly.express, and matplotlib.pyplot are `np`, `pd`, `gpd`, `px`, and `plt` respectively.
-3. Have comments within the code to explain the functionality and logic.
-4. Do not add print or return statements.
-5. Assume the variable `feed` is already loaded.
-6. Store the result within the variable `result` on the last line of code. In case of plot, the result should be the figure object.
-7. Handle potential errors or missing data in the GTFS feed.
-8. Consider performance optimization for large datasets when applicable.
-9. Validate GTFS data integrity and consistency when relevant to the task.
-10. Keep the answer concise and specify the output format (e.g., DataFrame, Series, list, integer, string) in a comment.
-11. Do not hallucinate fields in the DataFrames. Assume the existing fields are those given in the GTFS Static Specification and a feed sample. 
-12. If the question involves a specific attribute do not answer for all attributes. Instead, take an example of the attribute from the sample data
-13. For example attributes, use indentifiers (ones ending with `_id`) like `route_id`, `stop_id`, `trip_id`, etc. to avoid confusion.
-14. When approriate, use pandas and geopandas plot functions to visualize the data.
-15. For figures, restrict the dimensions to 8, 6 (800px, 600px) and use higher dpi (300) for better quality.
-16. Almost always use basemap with `CartoDB Positron` for base map tiles
-17. Prefer GeoPandas GeoDataFrame `explore()` method for all spatial visualization tasks.
-18. Use EPSG:4326 as the coordinate reference system (CRS) for geospatial operations. Explicitly set the CRS and geometry column when handling GeoDataFrames.
-19. For any distance calculations, use the `EPSG:3857` CRS where distances are in meters. Reproject to EPSG:4326 for plotting after computations.
-20. If the task involves a map, ensure that the map is interactive and includes markers, popups, or other relevant information.
-21. For all results, ensure that the output is human-readable and easy to understand. 
-22. Along with the direct answer or field in the `result` variable, include other relevant information that might help the user understand the context better.
+1. Use Python with numpy (np), pandas (pd), shapely, geopandas (gpd), folium, plotly.express (px), and matplotlib.pyplot (plt) libraries only.
+2. Assume `feed` variable is pre-loaded. Don't import dependencies or read/write to disk.
+3. Include explanatory comments in the code. Specify the output format in a comment (e.g., DataFrame, Series, list, integer, string).
+4. Store result in `result` dictionary with keys: `answer`, `additional_info`, and `map`/`plot` if applicable where `answer` is the main result, `additional_info` provides context and other info to the answer, and `map`/`plot` contains the generated map or plot which are map or figure objects.
+5. Handle potential errors and missing data in the GTFS feed.
+6. Optimize performance for large datasets when relevant.
+7. Validate GTFS data integrity and consistency as needed.
+8. Use only fields from GTFS Static Specification and provided feed sample.
+9. For specific attributes, use example identifiers (e.g., `route_id`, `stop_id`) from sample data.
+10. Set figure dimensions to 800x600 pixels with 300 DPI.
+11. Prefer GeoPandas GeoDataFrame `explore()` method for spatial visualization.
+12. Use EPSG:4326 CRS for geospatial operations, setting CRS and geometry column explicitly.For distance calculations, use EPSG:3857 CRS, then reproject to EPSG:4326 for plotting.
+13. Create interactive maps with markers, popups, and relevant info. Use `CartoDB Positron` for base map tiles.
 """
 
 TASK_INSTRUCTION_WITH_COT = """
@@ -244,114 +235,11 @@ TASK_TIPS = """
 - Prefer plolty express for plotting as it provides a high-level interface for creating a variety of plots.
 """
 
-EXAMPLE_CODE = """
-### Example Task and Solution 1
-
-Task: Find the number of trips for route_id '1' on Mondays
-Solution:
-To solve the problem of finding the number of trips for `route_id '1'` on mondays, we can follow these steps:
-
-1. Identify the service_ids that are applicable by checking the calendar DataFrame for Monday.
-2. Filter the trips DataFrame to include those that correspond to `route_id '1'` and fall under the previously identified monday service_ids.
-3. Count the resulting trips.
-
-Here's the Python code to implement this:
-
-```python
-# Get Monday service_ids
-monday_services = feed.calendar[(feed.calendar['monday'] == 1)]['service_id']
-
-# Filter trips for route_id '1' and monday services
-monday_trips = feed.trips[(feed.trips['route_id'] == '1') & 
-                           (feed.trips['service_id'].isin(monday_services))]
-
-# Step 3: Store the result (number of trips)
-result = monday_trips.shape[0]
-# Result is an integer representing the number of trips
-```
-### Example Task and Solution 2
-
-Task: Find the longest route (route_id) in the GTFS feed.
-Solution:
-```python
-# Group shapes by shape_id and calculate total distance for each shape
-shape_distances = feed.shapes.groupby('shape_id').agg({'shape_dist_traveled': 'max'}).reset_index()
-
-# Merge shape distances with trips to get route_id for each shape
-route_distances = pd.merge(feed.trips[['route_id', 'shape_id']], shape_distances, on='shape_id', how='left')
-
-# Group by route_id and find the maximum distance for each route
-route_max_distances = route_distances.groupby('route_id').agg({'shape_dist_traveled': 'max'}).reset_index()
-
-# Get the longest route
-longest_route = route_max_distances.shape_dist_traveled.idxmax()
-
-# Result is a route_id (string) of the longest route
-result = longest_route
-```
-
-### Example Task and Solution 3
-
-Task: Calculate the average trip duration for route_id '1'.
-Solution:
-```python
-# Filter stop_times for route_id '1'
-route_1_trips = feed.trips[feed.trips['route_id'] == '1']['trip_id']
-route_1_stop_times = feed.stop_times[feed.stop_times['trip_id'].isin(route_1_trips)]
-
-# Calculate trip durations
-trip_durations = route_1_stop_times.groupby('trip_id').agg({
-    'arrival_time': lambda x: x.max() - x.min()
-})
-
-# Calculate average duration
-result = trip_durations['arrival_time'].mean()
-# Result is a timedelta object representing the average trip duration
-```
-
-### Example Task and Solution 4
-
-Task: Calculate the headway for a given route
-Solution:
-To calculate the headway for a given route, we'll need to analyze the departure times of trips for that route at a specific stop. We will take the first stop of each trip and calculate the time difference between consecutive departures. The average of these time differences will give us the headway.
-
-```python
-import numpy as np
-
-# Let's use route_id '1' as an example from the sample data
-route_id = '1'
-
-# Get all trips for the specified route on a monday
-monday_service = feed.calendar[feed.calendar['monday'] == 1]['service_id'].iloc[0]
-route_trips = feed.trips[(feed.trips['route_id'] == route_id) & 
-                         (feed.trips['service_id'] == monday_service)]
-
-# Get the first stop for each trip (assuming it's always the one with stop_sequence == 1)
-first_stops = feed.stop_times[
-    (feed.stop_times['trip_id'].isin(route_trips['trip_id'])) & 
-    (feed.stop_times['stop_sequence'] == 1)
-]
-
-# Sort the departures and calculate time differences
-departures = np.sort(first_stops['departure_time'].values)
-time_diffs = np.diff(departures)
-
-# Calculate average headway in minutes
-avg_headway = np.mean(time_diffs) / 60
-
-# Handle potential edge case where there's only one trip
-if np.isnan(avg_headway):
-    avg_headway = 0
-
-# Result is a float representing the average headway in minutes
-result = avg_headway
-```
-"""
-
 FINAL_LLM_SYSTEM_PROMPT = """You are a human-friendly chatbot that is an expert in General Transit Feed Specification (GTFS) data. You are helping a user to understand and analyze GTFS data.
-Task: Given questions about GTFS, provide helpful responses to the user.
-Task Instructions:
 
+Task: Given questions about GTFS, provide helpful responses to the user.
+
+Task Instructions:
 - Provide human-friendly responses based on your GTFS expertise.
 - If the code output is an image or map, provide a brief description of the image/map such axis, markers, colors, labels, etc.
 - State all the assumptions (such as assumed values, fields, methods, etc.) made within the code at the beginning of your response.
@@ -360,7 +248,8 @@ Task Instructions:
 - Avoid providing code snippets unless explicitly requested by the user.
 - Don't explain coding processes or technical code details unless clarification of an assumption is needed.
 - If answering a generic question about GTFS files or fields using a specific example, mention that you're using a specific file or field in your response.
-- Use markdown highlighting for GTFS file names and field names. E.g. trip_id, routes.txt, etc.
+- Use markdown highlighting for GTFS file names and field names. E.g. trip_id, routes.txt as `trip_id`, `routes.txt`.
+- Have only 3 main sections "Assumptions", "Result", "Additional Info". Use third level headings (###) for the section titles. Yoou can add sub-sections if needed.
 """
 
 FINAL_LLM_USER_PROMPT = """

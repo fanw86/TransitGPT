@@ -5,6 +5,10 @@ QUESTION_LIMIT = 3
 # File to store Logs
 LOG_FILE = "logs/llm_agent.log"
 
+# Few shot examples
+FEW_SHOT_EXAMPLES_FILE = "data/few_shot.yaml"
+
+
 # Define the maximum number of messages to keep in the chat history
 MAX_MESSAGES = 10
 
@@ -46,7 +50,7 @@ file_mapping = {
 LLMs = [
     "claude-3-5-sonnet-20240620",
     "gpt-4o-mini",
-    "llama-3.1-70b-versatile",
+    "llama-3.1-8b-instant",
     "gpt-3.5-turbo",
 ]
 
