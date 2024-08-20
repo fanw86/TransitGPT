@@ -150,7 +150,7 @@ class LLMAgent:
         for retry in range(self.max_retry):
             if call_success:
                 result, success, error, only_text = self.evaluate(llm_response)
-                if success:
+                if success or only_text:
                     return result, success, error, only_text, llm_response
             st.write(f"Something wasn't right, retrying: attempt {retry + 1}")
             self.logger.info(

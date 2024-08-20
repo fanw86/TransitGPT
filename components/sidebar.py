@@ -75,7 +75,7 @@ def setup_sidebar():
     # )
     st.sidebar.toggle(
         "Allow Retry",
-        value=False,
+        value=True,
         key="retry_code",
         help="LLM will retry code generation if it fails.",
     )

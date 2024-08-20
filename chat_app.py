@@ -37,9 +37,11 @@ def process_user_input(user_input: str):
         code_output, eval_success, error_message, only_text, llm_response = agent.evaluate_code(
             retry_code, llm_response
         )
-        with st.spinner("Almost there..."):
-            final_response = get_final_response(agent, eval_success, code_output)
-
+        final_response = llm_response
+        if not only_text:
+            with st.spinner("Almost there..."):
+                final_response = get_final_response(agent, eval_success, code_output)
+        
     chat_entry = ChatHistoryEntry(
         role="assistant",
         final_response=final_response,
@@ -109,9 +111,10 @@ if user_input or st.session_state.selected_question:
         user_input = st.session_state.selected_question
         st.session_state.selected_question = None
 
-    st.session_state.first_question_asked = True
     st.session_state["user_input"] = user_input
-    st.rerun()
+    if not st.session_state.first_question_asked:
+        st.session_state["first_question_asked"] = True
+        st.rerun()
 
 if st.session_state.is_processing:
     user_input = st.session_state["user_input"]
