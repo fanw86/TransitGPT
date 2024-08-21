@@ -2,6 +2,7 @@ import datetime
 import sys
 import time
 import traceback
+import re
 
 ## For Evals
 import folium
@@ -74,7 +75,10 @@ class GTFS_Eval:
                    detailed error information if the evaluation failed, and a boolean indicating if response is only text.
         """
         # Format string input to extract only the code
-        if "```python" in code:
+        executable_pattern = r'```python\n(.*?)```'
+        executable_code = re.findall(executable_pattern, code, re.DOTALL)
+        if len(executable_code) > 0:
+            code = executable_code[0]
             code = (
                 code.split("```python")[1].split("```")[0]
                 if "```python" in code

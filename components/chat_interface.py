@@ -41,9 +41,23 @@ def safe_folium_display(folium_map):
                 }
             )
     else:
-        st.error("Expected a Folium Map object, but received a different type.")
-        st.write(f"Received object of type: {type(folium_map)}")
+        st.error(f"Expected a Folium Map object, but received a different type. Received object of type: {type(folium_map)}")
 
+def safe_fig_display(fig):
+    if isinstance(fig, plt.Figure):
+        try:
+            st.pyplot(fig, use_container_width=True)
+        except Exception as e:
+            st.error(f"Error displaying Matplotlib figure: {str(e)}")
+            st.write("Figure data (non-rendered):")
+    elif isinstance(fig, go.Figure):
+        try:
+            st.plotly_chart(fig, use_container_width=True)
+        except Exception as e:
+            st.error(f"Error displaying Plotly figure: {str(e)}")
+            st.write("Figure data (non-rendered):")
+    else:
+        st.error(f"Expected a Matplotlib or Plotly Figure object, but received a different type. Received object of type: {type(fig)}")
 
 def display_code_output(message, only_text=False):
     if "code_output" not in message or only_text:
@@ -58,10 +72,7 @@ def display_code_output(message, only_text=False):
         st.write(code_output)
     if isinstance(code_output, dict):
         if "plot" in code_output:
-            if isinstance(code_output['plot'],plt.Figure):
-                st.pyplot(code_output['plot'], use_container_width=True)
-            if isinstance(code_output['plot'],go.Figure):
-                st.plotly_chart(code_output['plot'], use_container_width=True)
+            safe_fig_display(code_output["plot"])
         if "map" in code_output:
             safe_folium_display(code_output["map"])
 
