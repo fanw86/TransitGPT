@@ -45,7 +45,7 @@ def pickle_gtfs_loaders(file_mapping, output_directory, mapping_file_path):
 
             # Create a filename based on the agency name
             filename = f"{agency_name}_gtfs_loader.pkl"
-            filepath = os.path.join(output_directory, filename)
+            filepath = output_directory + "/" + filename
 
             # Pickle and save the loader
             with open(filepath, 'wb') as f:
