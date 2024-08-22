@@ -20,4 +20,3 @@ google-api-python-client
 plotly
 nbformat
 streamlit_extras
-pickle
