@@ -206,7 +206,7 @@ class LLMAgent:
         self.logger.info(f"LLM Response: {response}")
         return response, call_success
 
-    def call_final_llm(self):
+    def call_final_llm(self, stream_placeholder):
         system_prompt = FINAL_LLM_SYSTEM_PROMPT
         last_interaction = self.chat_history[-1] if self.chat_history else None
 
@@ -228,11 +228,15 @@ class LLMAgent:
         model = "gpt-4o-mini"
         messages = self.create_messages(system_prompt, user_prompt, model)
 
+        full_response = ""
         client = self.clients["gpt"]
-        response = client.call(model, messages)
+        # Stream the response
+        for chunk in client.stream_call(model, messages):
+            full_response += chunk
+            stream_placeholder.markdown(full_response + "▌")
 
-        self.logger.info("Final response from LLM:\n %s", response)
-        return response
+        self.logger.info("Final response from LLM:\n %s", full_response)
+        return full_response
 
     def evaluate_code(self, retry_code, llm_response: str):
         with st.status("Evaluating code..."):

@@ -1,3 +1,4 @@
+import re
 import json
 import folium
 import pandas as pd
@@ -59,6 +60,18 @@ def safe_fig_display(fig):
     else:
         st.error(f"Expected a Matplotlib or Plotly Figure object, but received a different type. Received object of type: {type(fig)}")
 
+
+def apply_color_codes(text):
+    def color_replacer(match):
+        color = match.group(1)
+        return f'<span style="color: {color}">{color}</span>'
+
+    # Replace color codes with HTML spans
+    colored_text = re.sub(r'(#[0-9A-Fa-f]{6})', color_replacer, text)
+    
+    # Wrap the entire text in a paragraph tag to ensure inline HTML is rendered
+    return colored_text
+    
 def display_code_output(message, only_text=False):
     if "code_output" not in message or only_text:
         return
@@ -89,7 +102,7 @@ def display_llm_response(fb_agent, uuid, message, i):
     if not only_text:
         with st.expander("👨‍💻Code", expanded=False):
             # with st.expander("LLM Response", expanded=False):
-            st.write(message["code_response"])
+            st.markdown(message["code_response"])
 
     col1, col2, col3 = st.columns([6, 2, 1])
 
@@ -124,7 +137,8 @@ def display_llm_response(fb_agent, uuid, message, i):
         )
 
     if only_text or message["final_response"] != message["code_response"]:
-        st.write(message["final_response"])
+        colored_response = apply_color_codes(message["final_response"])
+        st.markdown(colored_response,unsafe_allow_html=True)
 
 
 def display_chat_history(fb_agent: FeedbackAgent, uuid: str):

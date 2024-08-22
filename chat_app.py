@@ -15,11 +15,10 @@ from components.chat_interface import (
 from utils.data_models import ChatHistoryEntry
 
 
-def get_final_response(agent, eval_success: bool, code_output):
+def get_final_response(agent, eval_success: bool, code_output, stream_placeholder):
     if eval_success and code_output is not None:
-        final_response, call_success = agent.call_final_llm()
-        if call_success:
-            return final_response
+        final_response = agent.call_final_llm(stream_placeholder)
+        return final_response
     return "Something went wrong. Please try again."
 
 
@@ -38,9 +37,10 @@ def process_user_input(user_input: str):
             retry_code, llm_response
         )
         final_response = llm_response
+        stream_placeholder = st.empty()
         if not only_text:
             with st.spinner("Almost there..."):
-                final_response = get_final_response(agent, eval_success, code_output)
+                final_response = get_final_response(agent, eval_success, code_output, stream_placeholder)
         
     chat_entry = ChatHistoryEntry(
         role="assistant",

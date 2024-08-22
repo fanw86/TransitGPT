@@ -1,5 +1,5 @@
 import logging
-from typing import Tuple
+from typing import Tuple, Generator
 from openai import OpenAI, OpenAIError
 from groq import Groq, GroqError
 from anthropic import Anthropic, AnthropicError
@@ -29,6 +29,19 @@ class OpenAIClient(LLMClient):
             self.logger.error(f"OpenAI API call failed: {str(e)}")
             return f"Error: OpenAI API call failed - {str(e)}", False
 
+    def stream_call(self, model, messages) -> Generator[str, None, None]:
+        try:
+            stream = self.client.chat.completions.create(
+                model=model,
+                messages=messages,
+                stream=True,
+            )
+            for chunk in stream:
+                if chunk.choices[0].delta.content is not None:
+                    yield chunk.choices[0].delta.content
+        except OpenAIError as e:
+            self.logger.error(f"OpenAI API streaming call failed: {str(e)}")
+            yield f"Error: OpenAI API streaming call failed - {str(e)}"
 
 class GroqClient(LLMClient):
     def __init__(self):
