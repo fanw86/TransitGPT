@@ -1,5 +1,6 @@
 import os
-import pickle
+import _pickle as cPickle
+import gzip
 import gtfs_kit as gk
 import pandas as pd
 import numpy as np
@@ -48,8 +49,8 @@ def pickle_gtfs_loaders(file_mapping, output_directory, mapping_file_path):
             filepath = output_directory + "/" + filename
 
             # Pickle and save the loader
-            with open(filepath, 'wb') as f:
-                pickle.dump(loader, f)
+            with gzip.open(filepath, 'wb') as f:
+                cPickle.dump(loader, f)
 
             print(f"Pickled and stored {agency_name} at {filepath}")
 
@@ -90,8 +91,8 @@ class GTFSLoader:
         # This method is called when unpickling
         self.__dict__.update(state)
         # Recreate the zipfile object if needed
-        if hasattr(self, "gtfs_path"):
-            self.zipfile = zipfile.ZipFile(self.gtfs_path)
+        # if hasattr(self, "gtfs_path"):
+        #     self.zipfile = zipfile.ZipFile(self.gtfs_path)
 
     def load_feed(self):
         """Load the GTFS feed using GTFS Kit."""

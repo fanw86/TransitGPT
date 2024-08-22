@@ -15,13 +15,19 @@ import pandas as pd
 import plotly
 import plotly.express as px
 import shapely
-import pickle
+import _pickle as cPickle
+import gzip
 from shapely.geometry import LineString, Point, Polygon
 
 from prompts.generate_prompt import generate_system_prompt
 from utils.gtfs_loader import GTFSLoader
 
 
+def load_zipped_pickle(filename):
+    with gzip.open(filename, 'rb') as f:
+        loaded_object = cPickle.load(f)
+        return loaded_object
+    
 class GTFS_Eval:
     def __init__(self, file_mapping):
         self.current_loader = None
@@ -31,8 +37,9 @@ class GTFS_Eval:
         self.distance_unit = None
         # Initialize GTFSLoader objects for each GTFS feed in the selectbox with feed_sfmta
         for key in self.file_mapping:
+            print(key)
             pickle_file = self.file_mapping[key]["pickle_loc"]
-            gtfs_loader = pickle.load(open(pickle_file, "rb"))
+            gtfs_loader = load_zipped_pickle(pickle_file)
             setattr(
                 self,
                 f"loader_{key.lower()}",
