@@ -23,34 +23,13 @@ These are the datatypes for all files within the current GTFS:
 
 agency.txt:
 	- agency_id: string
-	- agency_url: string
-	- agency_lang: string
 	- agency_name: string
-	- agency_phone: string
+	- agency_url: string
 	- agency_timezone: string
+	- agency_lang: string
+	- agency_phone: string
 	- agency_fare_url: string
-areas.txt:
-	- area_id: object
-booking_rules.txt:
-	- booking_rule_id: object
-	- booking_type: object
-	- prior_notice_duration_min: object
-	- prior_notice_duration_max: object
-	- prior_notice_start_day: object
-	- prior_notice_start_time: object
-	- prior_notice_last_day: object
-	- prior_notice_last_time: object
-	- prior_notice_service_id: object
-	- message: object
-	- pickup_message: object
-	- drop_off_message: object
-	- phone_number: object
-	- info_url: object
-	- booking_url: object
-calendar_dates.txt:
-	- service_id: string
-	- date: date
-	- exception_type: integer
+	- agency_email: string
 calendar.txt:
 	- service_id: string
 	- monday: integer
@@ -62,8 +41,72 @@ calendar.txt:
 	- sunday: integer
 	- start_date: date
 	- end_date: date
-fare_attributes.txt:
+calendar_dates.txt:
+	- service_id: string
+	- date: date
+	- exception_type: integer
+routes.txt:
+	- route_id: string
 	- agency_id: string
+	- route_short_name: string
+	- route_long_name: string
+	- route_desc: string
+	- route_type: integer
+	- route_url: string
+	- route_color: string
+	- route_text_color: string
+shapes.txt:
+	- shape_id: string
+	- shape_pt_lat: float
+	- shape_pt_lon: float
+	- shape_pt_sequence: integer
+	- shape_dist_traveled: float
+stops.txt:
+	- stop_id: string
+	- stop_code: string
+	- stop_name: string
+	- stop_desc: string
+	- stop_lat: float
+	- stop_lon: float
+	- zone_id: string
+	- stop_url: string
+	- location_type: integer
+	- parent_station: string
+	- stop_timezone: string
+	- wheelchair_boarding: integer
+	- platform_code: string
+stop_times.txt:
+	- trip_id: string
+	- arrival_time: time
+	- departure_time: time
+	- stop_id: string
+	- stop_sequence: integer
+	- stop_headsign: string
+	- pickup_type: integer
+	- drop_off_type: integer
+	- timepoint: integer
+	- shape_dist_traveled: float
+trips.txt:
+	- route_id: string
+	- service_id: string
+	- trip_id: string
+	- trip_headsign: string
+	- direction_id: integer
+	- block_id: string
+	- shape_id: string
+	- wheelchair_accessible: integer
+	- bikes_allowed: integer
+feed_info.txt:
+	- feed_publisher_name: string
+	- feed_publisher_url: string
+	- feed_lang: string
+	- default_lang: string
+	- feed_start_date: date
+	- feed_end_date: date
+	- feed_version: string
+	- feed_contact_email: string
+	- feed_contact_url: string
+fare_attributes.txt:
 	- fare_id: string
 	- price: float
 	- currency_type: string
@@ -76,146 +119,35 @@ fare_rules.txt:
 	- origin_id: string
 	- destination_id: string
 	- contains_id: string
-feed_info.txt:
-	- feed_publisher_url: string
-	- feed_publisher_name: string
-	- feed_lang: string
-	- feed_version: string
-	- feed_contact_email: string
-	- feed_contact_url: string
-	- feed_start_date: date
-	- feed_end_date: date
-location_groups.txt:
-	- location_group_id: object
-	- location_group_name: object
-routes.txt:
-	- agency_id: string
-	- route_id: string
-	- route_short_name: string
-	- route_long_name: string
-	- route_desc: string
-	- route_type: integer
-	- route_url: string
-	- route_color: string
-	- route_text_color: string
-	- route_sort_order: integer
-	- continuous_pickup: integer
-	- continuous_drop_off: integer
-shapes.txt:
-	- shape_id: string
-	- shape_pt_lat: float
-	- shape_pt_lon: float
-	- shape_pt_sequence: integer
-	- shape_dist_traveled: float
-stop_times.txt:
-	- trip_id: string
-	- arrival_time: time
-	- departure_time: time
-	- stop_id: string
-	- stop_sequence: integer
-	- stop_headsign: string
-	- pickup_type: integer
-	- drop_off_type: integer
-	- shape_dist_traveled: float
-	- timepoint: integer
-	- continuous_pickup: integer
-	- continuous_drop_off: integer
-	- pickup_booking_rule_id: string
-	- drop_off_booking_rule_id: string
-	- start_pickup_drop_off_window: time
-	- end_pickup_drop_off_window: time
-stops.txt:
-	- stop_id: string
-	- stop_code: string
-	- platform_code: string
-	- stop_name: string
-	- stop_desc: string
-	- stop_lat: float
-	- stop_lon: float
-	- zone_id: string
-	- stop_url: string
-	- location_type: integer
-	- parent_station: string
-	- stop_timezone: string
-	- wheelchair_boarding: integer
-	- tts_stop_name: string
-transfers.txt:
-	- from_stop_id: string
-	- to_stop_id: string
-	- transfer_type: integer
-	- min_transfer_time: integer
-trips.txt:
-	- route_id: string
-	- service_id: string
-	- trip_id: string
-	- trip_short_name: string
-	- trip_headsign: string
-	- direction_id: integer
-	- block_id: string
-	- shape_id: string
-	- bikes_allowed: integer
-	- wheelchair_accessible: integer
 
 
 ## Sample from the feed:
 ### agency.txt (feed.agency)
-agency_id,agency_url,agency_lang,agency_name,agency_phone,agency_timezone,agency_fare_url,tts_agency_name1000,http://www.caltrain.com,en,Caltrain,800-660-4287,America/Los_Angeles,https://www.caltrain.com/fares/farechart,
-### areas.txt (feed.areas)
-area_id,wkt
-### booking_rules.txt (feed.booking_rules)
-booking_rule_id,booking_type,prior_notice_duration_min,prior_notice_duration_max,prior_notice_start_day,prior_notice_start_time,prior_notice_last_day,prior_notice_last_time,prior_notice_service_id,message,pickup_message,drop_off_message,phone_number,info_url,booking_url
-### calendar_attributes.txt (feed.calendar_attributes)
-service_id,service_descriptionc_69888_b_81509_d_96,Year Round starting 9/23/2023 (Weekend)c_69888_b_81509_d_31,Year Round starting 9/23/2023 (Weekday)
-### calendar_dates.txt (feed.calendar_dates)
-service_id,date,holiday_name,exception_typec_70579_b_none_d_127,2024-06-30,SF Pride Parade,1c_69888_b_81509_d_96,2024-09-02,Labor Day,1c_69888_b_81509_d_96,2024-07-04,Independence Day - Weekend Service,1c_69888_b_81509_d_31,2024-09-02,Labor Day,2c_69888_b_81509_d_31,2024-07-04,Independence Day - Weekend Service,2
+agency_id,agency_name,agency_url,agency_timezone,agency_lang,agency_phone,agency_fare_url,agency_emailCUMTD,Champaign Urbana Mass Transit District,https://www.mtd.org/,America/Chicago,en,217-384-8188,,mtdweb@mtd.org
 ### calendar.txt (feed.calendar)
-service_id,service_name,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_datec_69888_b_81509_d_96,Year Round starting 9/23/2023 (Weekend),0,0,0,0,0,1,1,2023-09-23,2024-10-31c_69888_b_81509_d_31,Year Round starting 9/23/2023 (Weekday),1,1,1,1,1,0,0,2023-09-23,2024-10-31
-### directions.txt (feed.directions)
-route_id,direction_id,direction19601,1,South19601,0,North19600,1,South19600,0,North19599,1,South
-### fare_attributes.txt (feed.fare_attributes)
-agency_id,fare_id,price,currency_type,payment_method,transfers,transfer_duration1000,3525,3.75,USD,1,,144001000,3526,6.0,USD,1,,144001000,3527,8.25,USD,1,,144001000,3528,10.5,USD,1,,144001000,3529,12.75,USD,1,,14400
-### fare_rider_categories.txt (feed.fare_rider_categories)
-fare_id,rider_category_id,price3525,2,1.753525,5,1.753525,6,1.753525,15,1.753526,2,2.75
-### fare_rules.txt (feed.fare_rules)
-fare_id,route_id,origin_id,destination_id,contains_id3525,,2272,2272,3525,,2273,2273,3525,,2274,2274,3525,,2275,2275,3525,,2276,2276,
-### farezone_attributes.txt (feed.farezone_attributes)
-zone_id,zone_name2272,Zone 4-Lawrence to Tamien2273,Zone 5-Capitol & Blossom Hill2274,Zone 6-Morgan Hill to Gilroy2275,Zone 1-SF to San Bruno2276,Zone 2-Millbrae to Redwood City
-### feed_info.txt (feed.feed_info)
-feed_publisher_url,feed_publisher_name,feed_lang,feed_version,feed_license,feed_contact_email,feed_contact_url,feed_start_date,feed_end_date,feed_idhttp://www.trilliumtransit.com,"Trillium Solutions, Inc.",en,UTC: 25-Jun-2024 19:40,,support+test+caltrain-ca-us@trilliumtransit.com,http://support.trilliumtransit.com,2024-06-25,2024-10-31,caltrain-ca-us
-### linked_datasets.txt (feed.linked_datasets)
-url,trip_updates,vehicle_positions,service_alerts,authentication_type,authentication_info_url,api_key_parameter_namehttp://gtfs-realtime.trilliumtransit.com/gtfs-realtime/feed/caltrain-ca-us/service_alerts.proto,False,False,True,none,,
-### location_groups.txt (feed.location_groups)
-location_group_id,location_id,location_group_name
-### realtime_routes.txt (feed.realtime_routes)
-route_id,realtime_enabled,realtime_routename,realtime_routecode19597,1,Local,L119598,1,Local,L219599,1,LTD 3,L319600,1,LTD 4,L419601,1,LTD 5,L5
-### rider_categories.txt (feed.rider_categories)
-rider_category_id,rider_category_description2,Senior5,Youth6,Disabled15,Medicare Cardholder
-### route_attributes.txt (feed.route_attributes)
-route_id,category,subcategory,running_way12867,1,101,119597,1,101,119598,1,101,119599,1,101,119600,1,101,1
+service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_dateL1_SU,0,0,0,0,0,0,0,2024-08-11,2024-12-21B3_NOSCH_MF,0,0,0,0,0,0,0,2024-08-11,2024-12-21GR4_SU,0,0,0,0,0,0,0,2024-08-11,2024-12-2116B_1_SHOW_MF,0,0,0,0,0,0,0,2024-08-11,2024-12-21Y1_MF,0,0,0,0,0,0,0,2024-08-11,2024-12-21
+### calendar_dates.txt (feed.calendar_dates)
+service_id,date,exception_type16B_2_SHO_K12EO,2024-09-09,116B_2_SHO_K12EO,2024-10-07,116B_2_SHO_K12EO,2024-11-04,116B_2_SHO_K12EO,2024-12-02,1L1_SU,2024-08-11,1
 ### routes.txt (feed.routes)
-agency_id,route_id,route_short_name,route_long_name,route_desc,route_type,route_url,route_color,route_text_color,route_sort_order,min_headway_minutes,eligibility_restricted,continuous_pickup,continuous_drop_off,tts_route_short_name,tts_route_long_name1000,19597,L1,Local,,2,,c5c5c5,000000,0,,0,1,1,,1000,19598,L2,Local,,2,,c5c5c5,000000,1,,0,1,1,,1000,19599,L3,LTD 3,,2,,fcedc7,000000,2,,0,1,1,,1000,19600,L4,LTD 4,,2,,fcedc7,000000,3,,0,1,1,,1000,19601,L5,LTD 5,,2,,fcedc7,000000,4,,0,1,1,,
-### runcut.txt (feed.runcut)
-runs_id,service_id,block_id,run_number,piece_number,start_trip_id,start_stop_id,end_trip_id,end_stop_id
+route_id,agency_id,route_short_name,route_long_name,route_desc,route_type,route_url,route_color,route_text_colorTEAL_SUNDAY,CUMTD,120-TEAL_SUNDAY,Teal Sunday,,3,https://mtd.org/maps-and-schedules/to-schedule/561875bc4cd84124b67031474c033949/,006991,ffffffRUBY_SUNDAY,CUMTD,110-RUBY_SUNDAY,Ruby Sunday,,3,https://mtd.org/maps-and-schedules/to-schedule/178f799322dd4b9982ec00cfb5a33fa0/,eb008b,000000ILLINI_LIMITED_SATURDAY,CUMTD,220-ILLINI_LIMITED_SATURDAY,Illini Limited Saturday,,3,https://mtd.org/maps-and-schedules/to-schedule/d5a1a2df7dce48e1b9d525f831e4d213/,5a1d5a,ffffffTEAL_SATURDAY,CUMTD,120-TEAL_SATURDAY,Teal Saturday,,3,https://mtd.org/maps-and-schedules/to-schedule/00b03ca2bfe4461cb0bc9784e1b0938a/,006991,ffffffSILVER_SATURDAY,CUMTD,130-SILVER_SATURDAY,Silver Saturday,,3,https://mtd.org/maps-and-schedules/to-schedule/9feacb4a87834e96997f7aa433bf9180/,cccccc,000000
 ### shapes.txt (feed.shapes)
-shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence,shape_dist_traveledp_1277284,37.003512297983,-121.566145420074,1,0.0p_1277284,37.0070850840517,-121.567754745483,2,421.57963671p_1277284,37.0099123496881,-121.569085121154,3,756.9415367500001p_1277284,37.0129965195345,-121.570447683334,4,1120.06307914p_1277284,37.0149069286358,-121.571542024612,5,1353.3754666700002
-### stop_attributes.txt (feed.stop_attributes)
-stop_id,accessibility_id,cardinal_direction,relative_position,stop_city70011,2,EA,,San Francisco70012,2,WE,,San Francisco70021,2,EA,,San Francisco70022,2,WE,,San Francisco70031,2,EA,,San Francisco
-### stop_times.txt (feed.stop_times)
-trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,shape_dist_traveled,timepoint,start_service_area_id,end_service_area_id,start_service_area_radius,end_service_area_radius,continuous_pickup,continuous_drop_off,pickup_booking_rule_id,drop_off_booking_rule_id,start_pickup_drop_off_window,end_pickup_drop_off_window,mean_duration_factor,mean_duration_offset,safe_duration_factor,safe_duration_offset,tts_stop_headsign,min_arrival_time,max_departure_time119,45960.0,45960.0,70271,1,,0,0,0.0,1,,,,,1,1,,,,,,,,,,,119,46320.0,46320.0,70261,2,,0,0,2898.264316374441,1,,,,,1,1,,,,,,,,,,,119,46680.0,46680.0,70241,3,,0,0,7055.196573616811,1,,,,,1,1,,,,,,,,,,,119,47040.0,47040.0,70231,4,,0,0,12942.903799556248,1,,,,,1,1,,,,,,,,,,,119,47280.0,47280.0,70221,5,,0,0,16130.743978750916,1,,,,,1,1,,,,,,,,,,,
+shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence,shape_dist_traveled[@124.0.102302343@]1,40.115935,-88.24094667,1,0.0[@124.0.102302343@]1,40.1159153,-88.240893,2,5.059103617073224[@124.0.102302343@]1,40.115502,-88.24105,3,52.90116244855051[@124.0.102302343@]1,40.115384,-88.241155,4,68.90795598338649[@124.0.102302343@]1,40.115319,-88.241312,5,84.09044354751579
 ### stops.txt (feed.stops)
-stop_id,stop_code,platform_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,location_type,parent_station,stop_timezone,position,direction,wheelchair_boarding,tts_stop_name22nd_street,22nd_street,,22nd Street Station,,37.756972,-122.392492,,,1,,America/Los_Angeles,,,0,70011,70011,,San Francisco Caltrain Northbound,,37.77639,-122.394992,2275,,0,san_francisco,,,,1,70012,70012,,San Francisco Caltrain Southbound,,37.776348,-122.394935,2275,,0,san_francisco,,,,1,70021,70021,,22nd Street Caltrain Northbound,,37.757599,-122.39188,2275,,0,22nd_street,,,,2,70022,70022,,22nd Street Caltrain Southbound,,37.757583,-122.392404,2275,,0,22nd_street,,,,2,
-### timetable_stop_order.txt (feed.timetable_stop_order)
-timetable_id,stop_id,stop_sequence,stop_name,connected_routes
-### timetables.txt (feed.timetables)
-timetable_id,route_id,direction_id,start_date,end_date,monday,tuesday,wednesday,thursday,friday,saturday,sunday,timetable_label,service_notes,direction_label,orientation
-### transfers.txt (feed.transfers)
-from_stop_id,to_stop_id,transfer_type,min_transfer_time70261,70261,1,70262,70262,1,
+stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,location_type,parent_station,stop_timezone,wheelchair_boarding,platform_code150DALE:1,5437,U.S. 150 & Dale (NE Corner),,40.11451167,-88.18067333,f,https://mtd.org/maps-and-schedules/bus-stops/info/150dale-1/,0,,America/Chicago,0,150DALE:3,5437,U.S. 150 & Dale (South Side),,40.11450333,-88.18084833,f,https://mtd.org/maps-and-schedules/bus-stops/info/150dale-3/,0,,America/Chicago,0,150DOD:5,2634,U.S. 150 & Dodson (NE Far Side),,40.11415833,-88.173105,f,https://mtd.org/maps-and-schedules/bus-stops/info/150dod-5/,0,,America/Chicago,0,150UNI:4,6741,U.S. 150 & University (NW Corner),,40.11654167,-88.18384,f,https://mtd.org/maps-and-schedules/bus-stops/info/150uni-4/,0,,America/Chicago,0,150UNI:8,6741,U.S. 150 & University (NW Far Side),,40.11603333,-88.18417832999998,f,https://mtd.org/maps-and-schedules/bus-stops/info/150uni-8/,0,,America/Chicago,0,
+### stop_times.txt (feed.stop_times)
+trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,timepoint,shape_dist_traveled1GN500__GN1_MF,20760.0,20760.0,LSE:8,0,,0,0,0,0.01GN500__GN1_MF,20785.0,20785.0,GRNRACE:4,1,,0,0,0,157.89750710616461GN500__GN1_MF,20825.0,20825.0,GRNBRCH:1,2,,0,0,0,433.32492266649091GN500__GN1_MF,20860.0,20860.0,GRNORCH:1,3,,0,0,0,686.38440623059811GN500__GN1_MF,20900.0,20900.0,GRNBUSEY:8,4,,0,0,0,988.2460940007865
 ### trips.txt (feed.trips)
-route_id,service_id,trip_id,trip_short_name,trip_headsign,direction_id,block_id,shape_id,bikes_allowed,wheelchair_accessible,trip_type,drt_max_travel_time,drt_avg_travel_time,drt_advance_book_min,drt_pickup_message,drt_drop_off_message,continuous_pickup_message,continuous_drop_off_message,tts_trip_headsign,tts_trip_short_name12867,c_69888_b_81509_d_31,703,703,San Francisco,0,,p_1277413,,,,,,,,,,,,12867,c_69888_b_81509_d_31,705,705,San Francisco,0,,p_1277413,,,,,,,,,,,,12867,c_69888_b_81509_d_31,707,707,San Francisco,0,,p_1277387,,,,,,,,,,,,12867,c_69888_b_81509_d_31,709,709,San Francisco,0,,p_1277387,,,,,,,,,,,,12867,c_69888_b_81509_d_31,701,701,San Francisco,0,,p_1277413,,,,,,,,,,,,
+route_id,service_id,trip_id,trip_headsign,direction_id,block_id,shape_id,wheelchair_accessible,bikes_allowedGREENHOPPER,GN8_MF,[@7.0.41101146@][4][1237930167062]/24__GN8_MF,Parkland College,1,GN8_MF,5W_HOPPER_81,0,0SILVER_LIMITED_SUNDAY,SV1_NONUI_SU,[@124.0.92241454@][1484326515007]/37__SV1_NONUI_SU,Lincoln Square,0,SV1_NONUI_SU,[@124.0.92241454@]4,0,0ORANGE,O4_RUBY_MF_(V001),[@6.0.54216924@][1723045917795]/107__O4_RUBY_MF_(V001),Butzow & Lierman,0,O4_RUBY_MF_(V001),[@6.0.54216924@]7,0,0LINK,LN1_MF,[@6.0.15252684@][1][1622671674683]/50__LN1_MF,University and Wright,0,LN1_MF,[@6.0.15252684@]1,0,0NAVY,N2_MF,[@124.0.103534744@][32][1510344802986]/3__N2_MF,Kirby & Mullikin,1,N2_MF,[@6.0.40494377@]8,0,0
+### feed_info.txt (feed.feed_info)
+feed_publisher_name,feed_publisher_url,feed_lang,default_lang,feed_start_date,feed_end_date,feed_version,feed_contact_email,feed_contact_urlChampaign-Urbana Mass Transit District,https://mtd.org/,en,en,2024-08-11,2024-12-21,GTFS Feed 11/08/2024 – 21/12/2024 (Generated: 10/08/2024 11:21:45),mtdweb@mtd.org,https://mtd.org/inside/contact/
+### fare_attributes.txt (feed.fare_attributes)
+fare_id,price,currency_type,payment_method,transfers,transfer_durationFULL,1.0,USD,0,1,0ISTOP,0.0,USD,1,0,0
+### fare_rules.txt (feed.fare_rules)
+fare_id,route_id,origin_id,destination_id,contains_idFULL,,f,,FULL,1_YELLOW_ALT,i,,FULL,10W_GOLD_ALT,i,,FULL,1N_YELLOW_ALT,i,,FULL,1N_YELLOW_ALT_PM,i,,
 
 ## Task Instructions
 
-1. Use Python with numpy (np), pandas (pd), shapely, geopandas (gpd), folium, plotly.express (px), and matplotlib.pyplot (plt) libraries only.
+1. Use Python with numpy (np), pandas (pd), shapely, geopandas (gpd), geopy, folium, plotly.express (px), and matplotlib.pyplot (plt) libraries only.
 2. Assume `feed` variable is pre-loaded. Don't import dependencies or read/write to disk.
 3. Include explanatory comments in the code. Specify the output format in a comment (e.g., DataFrame, Series, list, integer, string).
 4. Store result in `result` dictionary with keys: `answer`, `additional_info`, and `map`/`plot` (optional) if applicable where `answer` is the main result, `additional_info` provides context and other info to the answer, and `map`/`plot` contains the generated map or plot which are map or figure objects.
@@ -226,8 +158,9 @@ route_id,service_id,trip_id,trip_short_name,trip_headsign,direction_id,block_id,
 9. For specific attributes, use example identifiers (e.g., `route_id`, `stop_id`) from sample data.
 10. Set figure dimensions to 800x600 pixels with 300 DPI.
 11. Prefer GeoPandas GeoDataFrame `explore()` method for spatial visualization.
-12. Use EPSG:4326 CRS for geospatial operations, setting CRS and geometry column explicitly.For distance calculations, use EPSG:3857 CRS, then reproject to EPSG:4326 for plotting.
+12. Use EPSG:4326 CRS for geospatial operations, setting CRS and geometry column explicitly.For distance calculations, use EPSG:3857 CRS where distance units is meters, then reproject to EPSG:4326 for plotting. Always report distances in meters or kilometers.
 13. Create interactive maps with markers, popups, and relevant info. Use `CartoDB Positron` for base map tiles. The `map` key should be folium.Map, folium.Figure, or branca.element.Figure object 
+14. To search for geographical locations, use the `geopy` library with Nominatim geocoder. Use the city name and country code for accurate results. Use `gtfs2code` as the user_agent.
 
 ### Helpful Tips and Facts
 

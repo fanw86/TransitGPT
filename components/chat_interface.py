@@ -71,9 +71,9 @@ def display_code_output(message, only_text=False):
     with st.expander("✅Code Evaluation Result:", expanded=False):
         st.write(code_output)
     if isinstance(code_output, dict):
-        if "plot" in code_output:
+        if "plot" in code_output and code_output["plot"] is not None:
             safe_fig_display(code_output["plot"])
-        if "map" in code_output:
+        if "map" in code_output and code_output["map"] is not None:
             safe_folium_display(code_output["map"])
 
 def display_figure(fig):

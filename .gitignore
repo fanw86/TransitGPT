@@ -8,6 +8,7 @@ generated_prompt.md
 firestore-key.json
 *.excalidraw
 *.png
+cumtd_calendar.txt
 # gtfs_data/*
 # !gtfs_data/file_mapping.json
 # !gtfs_data/feed_pickles/
