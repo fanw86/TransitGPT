@@ -31,12 +31,11 @@ def yaml_to_examples(yaml_file):
         
     return '\n'.join(examples)
 
-@lru_cache(maxsize=None)
-def generate_fileinfo_dtypes(feed: GTFSLoader, distance_unit: str):
-    files = feed.file_list
+# @lru_cache(maxsize=None)
+def generate_fileinfo_dtypes(feed: GTFSLoader, file_list,  distance_unit: str):
     FILE_INFO = """\n\n## Sample from the feed:\n"""
     GTFS_FEED_DATATYPES = BASE_GTFS_FEED_DATATYPES.format(distance_unit=distance_unit)
-    for file_name in files:
+    for file_name in file_list:
         try:
             file = file_name.split(".txt")[0]
             df = getattr(feed, file)
@@ -60,11 +59,13 @@ def generate_fileinfo_dtypes(feed: GTFSLoader, distance_unit: str):
     return FILE_INFO, GTFS_FEED_DATATYPES
 
 
-def generate_system_prompt(
-    GTFS: str, feed: GTFSLoader, distance_unit: str
-) -> str:  # -> Any | str:
+def generate_system_prompt(loader: GTFSLoader) -> str:
+    distance_unit = loader.distance_unit
+    GTFS = loader.gtfs
+    feed = loader.feed
+    file_list = loader.file_list
     distance_unit = "`Meters`" if distance_unit == "m" else "`Kilometers`"
-    FILE_INFO, GTFS_FEED_DATATYPES = generate_fileinfo_dtypes(feed, distance_unit)
+    FILE_INFO, GTFS_FEED_DATATYPES = generate_fileinfo_dtypes(feed, file_list, distance_unit)
     EXAMPLE_CODE = yaml_to_examples(FEW_SHOT_EXAMPLES_FILE)
     print(
         f"Prompt generated for {GTFS} with distance units {distance_unit}: {time.ctime()}"

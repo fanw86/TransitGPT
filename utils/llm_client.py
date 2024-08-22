@@ -53,10 +53,17 @@ class AnthropicClient(LLMClient):
         self.logger = logging.getLogger(__name__)
 
     def call(self, model, messages, system_prompt) -> Tuple[str, bool]:
+        cache_system_prompt = [
+            {
+                "type": "text",
+                "text": system_prompt,
+                "cache_control": {"type": "ephemeral"},
+            }
+        ]
         try:
             response = self.client.beta.prompt_caching.messages.create(
                 model=model,
-                system=system_prompt,
+                system=cache_system_prompt,
                 messages=messages,
                 max_tokens=4096,
             )

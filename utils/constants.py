@@ -1,3 +1,4 @@
+import json
 # File to store sample questions
 QUESTIONS_FILE = "data/sample_questions.json"
 QUESTION_LIMIT = 3
@@ -12,40 +13,8 @@ FEW_SHOT_EXAMPLES_FILE = "data/few_shot.yaml"
 # Define the maximum number of messages to keep in the chat history
 MAX_MESSAGES = 10
 
-file_mapping = {
-    "DART": {
-        "file_loc": "gtfs_data/Dallas-Dallas Area Rapid Transit (DART)-TX/gtfs.zip",
-        "distance_unit": "km",
-    },
-    "SFMTA": {
-        "file_loc": "gtfs_data/San Francisco-San Francisco Municipal Transportation Agency (SFMTA, Muni)-CA/gtfs.zip",
-        "distance_unit": "km",
-    },
-    "MBTA": {
-        "file_loc": "gtfs_data/Boston-Massachusetts Bay Transportation Authority (MBTA)-MA/gtfs.zip",
-        "distance_unit": None,
-    },
-    "CUMTD": {
-        "file_loc": "gtfs_data/Urbana-Champaign Urbana Mass Transit District (MTD)-IL/gtfs.zip",
-        "distance_unit": "m",
-    },
-    "VTA": {
-        "file_loc": "gtfs_data/San Jose-Santa Clara Valley Transportation Authority (VTA)-CA/gtfs.zip",
-        "distance_unit": "km",
-    },
-    "AC Transit": {
-        "file_loc": "gtfs_data/Oakland-Alameda-Contra Costa Transit District (AC Transit)-CA/gtfs.zip",
-        "distance_unit": "m",
-    },
-    "samTrans": {
-        "file_loc": "gtfs_data/San Mateo-San Mateo County Transit District (samTrans)-CA/gtfs.zip",
-        "distance_unit": None,
-    },
-    "Caltrain": {
-        "file_loc": "gtfs_data/San Francisco-Caltrain-CA/gtfs.zip",
-        "distance_unit": "m",
-    },
-}
+FILE_MAPPING_LOC = "gtfs_data/file_mapping.json"
+file_mapping = json.loads(open(FILE_MAPPING_LOC).read())
 
 LLMs = [
     "claude-3-5-sonnet-20240620",

@@ -177,10 +177,10 @@ These are the datatypes for every possible GTFS file:
 TASK_INSTRUCTION = """
 ## Task Instructions
 
-1. Use Python with numpy (np), pandas (pd), shapely, geopandas (gpd), folium, plotly.express (px), and matplotlib.pyplot (plt) libraries only.
+1. Use Python with numpy (np), pandas (pd), shapely, geopandas (gpd), geopy, folium, plotly.express (px), and matplotlib.pyplot (plt) libraries only.
 2. Assume `feed` variable is pre-loaded. Don't import dependencies or read/write to disk.
 3. Include explanatory comments in the code. Specify the output format in a comment (e.g., DataFrame, Series, list, integer, string).
-4. Store result in `result` dictionary with keys: `answer`, `additional_info`, and `map`/`plot` if applicable where `answer` is the main result, `additional_info` provides context and other info to the answer, and `map`/`plot` contains the generated map or plot which are map or figure objects.
+4. Store result in `result` dictionary with keys: `answer`, `additional_info`, and `map`/`plot` (optional) if applicable where `answer` is the main result, `additional_info` provides context and other info to the answer, and `map`/`plot` contains the generated map or plot which are map or figure objects.
 5. Handle potential errors and missing data in the GTFS feed.
 6. Optimize performance for large datasets when relevant.
 7. Validate GTFS data integrity and consistency as needed.
@@ -188,14 +188,15 @@ TASK_INSTRUCTION = """
 9. For specific attributes, use example identifiers (e.g., `route_id`, `stop_id`) from sample data.
 10. Set figure dimensions to 800x600 pixels with 300 DPI.
 11. Prefer GeoPandas GeoDataFrame `explore()` method for spatial visualization.
-12. Use EPSG:4326 CRS for geospatial operations, setting CRS and geometry column explicitly.For distance calculations, use EPSG:3857 CRS, then reproject to EPSG:4326 for plotting.
+12. Use EPSG:4326 CRS for geospatial operations, setting CRS and geometry column explicitly.For distance calculations, use EPSG:3857 CRS where distance units is meters, then reproject to EPSG:4326 for plotting. Always report distances in meters or kilometers.
 13. Create interactive maps with markers, popups, and relevant info. Use `CartoDB Positron` for base map tiles. The `map` key should be folium.Map, folium.Figure, or branca.element.Figure object 
+14. To search for geographical locations, use the `geopy` library with Nominatim geocoder. Use the city name and country code for accurate results. Use `gtfs2code` as the user_agent.
 """
 
 TASK_INSTRUCTION_WITH_COT = """
 ## Task Instructions
 
-1. Write the code in Python using only the `numpy`,`shapely` `geopandas` and `pandas` libraries.
+1. Write the code in Python using only the `numpy`,`shapely` `geopandas`, and `pandas` libraries.
 2. Do not import any dependencies. Assume aliases for `numpy`, `pandas` and `geopandas` are `np`, `pd`, `gpd`.
 3. Have comments within the code to explain the functionality and logic.
 4. Do not add print or return statements.

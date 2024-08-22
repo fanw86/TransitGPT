@@ -28,7 +28,7 @@ class LLMAgent:
         self.model = model
         # Initialize with first entry of file_mapping
         self.GTFS = list(file_mapping.keys())[0]
-        self.distance_unit = file_mapping[self.GTFS]['distance_unit']
+        self.distance_unit = file_mapping[self.GTFS]["distance_unit"]
 
         # Set Hyperparameters
         self.max_retry = max_retry
@@ -48,9 +48,15 @@ class LLMAgent:
         self.result = None
         self.last_response = None
         self.chat_history = []
-
+        self.load_system_prompt()
+        
+    def load_system_prompt(self):
         ## Load system prompt
-        self.system_prompt = self.evaluator.load_system_prompt(self.GTFS, self.distance_unit)
+        self.system_prompt = self.evaluator.get_system_prompt(
+            self.GTFS, self.distance_unit
+        )
+        self.logger.info(f"Loaded system prompt for GTFS: {self.GTFS} with distance unit: {self.distance_unit}")
+        
 
     def _setup_logger(self, log_file):
         logger = logging.getLogger(__name__)
@@ -146,36 +152,47 @@ class LLMAgent:
     def evaluate_with_retry(
         self, llm_response: str
     ) -> Tuple[Any, bool, str, bool, str]:
-        call_success = True
+        calls_made = 1  # Initialize with 1 for the initial evaluation
+
         for retry in range(self.max_retry):
-            if call_success:
-                result, success, error, only_text = self.evaluate(llm_response)
-                if success or only_text:
-                    return result, success, error, only_text, llm_response
+            result, success, error, only_text = self.evaluate(llm_response)
+            if success or only_text:
+                return result, success, error, only_text, llm_response
+
+            if retry < self.max_retry - 1:  # Don't increment on the last iteration
+                calls_made += 1
+
             st.write(f"Something wasn't right, retrying: attempt {retry + 1}")
             self.logger.info(
                 f"Evaluation failed with error: {error}. Retrying attempt {retry + 1}"
             )
+
             llm_response, call_success = self.call_llm_retry(error)
-        error_message = "Evaluation failed after max retries\nLast Error:\n" + error
+            if not call_success:
+                self.logger.error(f"LLM call failed on retry {retry + 1}")
+                break
+
+        error_message = f"Evaluation failed after {calls_made} {'call' if calls_made == 1 else 'calls'}\nLast Error:\n{error}"
         return None, False, error_message, False, llm_response
 
     def get_retry_messages(self, error: str) -> List[Dict[str, str]]:
         messages = []
         for interaction in self.chat_history:
             messages.append({"role": "user", "content": interaction.user_prompt})
-            messages.append({"role": "assistant", "content": interaction.assistant_response})
-        
+            messages.append(
+                {"role": "assistant", "content": interaction.assistant_response}
+            )
+
         # Add the error message as part of the last assistant's response
         if messages and messages[-1]["role"] == "assistant":
             messages[-1]["content"] += f"\n\nError: {error}"
         else:
             # If the last message was not from the assistant, add a new assistant message with the error
             messages.append({"role": "assistant", "content": f"Error: {error}"})
-        
+
         # Add the retry prompt as a new user message
         messages.append({"role": "user", "content": RETRY_PROMPT.format(error=error)})
-        
+
         return messages
 
     def call_llm_retry(self, error: str) -> str:
@@ -236,7 +253,7 @@ class LLMAgent:
         self.GTFS = GTFS
         self.model = model
         self.distance_unit = distance_unit
-        self.system_prompt = self.evaluator.load_system_prompt(GTFS, distance_unit)
         self.logger.info(
             f"Updating LLMAgent with model: {model}, GTFS: {GTFS} and distance unit: {distance_unit}"
         )
+        self.load_system_prompt()
