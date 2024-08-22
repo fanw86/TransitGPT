@@ -21,129 +21,9 @@ You are a helpful chatbot with an expertise in General Transit Feed Specificatio
     
 These are the datatypes for all files within the current GTFS:
 
-agency.txt:
-	- agency_id: string
-	- agency_name: string
-	- agency_url: string
-	- agency_timezone: string
-	- agency_lang: string
-	- agency_phone: string
-	- agency_fare_url: string
-	- agency_email: string
-calendar.txt:
-	- service_id: string
-	- monday: integer
-	- tuesday: integer
-	- wednesday: integer
-	- thursday: integer
-	- friday: integer
-	- saturday: integer
-	- sunday: integer
-	- start_date: date
-	- end_date: date
-calendar_dates.txt:
-	- service_id: string
-	- date: date
-	- exception_type: integer
-routes.txt:
-	- route_id: string
-	- agency_id: string
-	- route_short_name: string
-	- route_long_name: string
-	- route_desc: string
-	- route_type: integer
-	- route_url: string
-	- route_color: string
-	- route_text_color: string
-shapes.txt:
-	- shape_id: string
-	- shape_pt_lat: float
-	- shape_pt_lon: float
-	- shape_pt_sequence: integer
-	- shape_dist_traveled: float
-stops.txt:
-	- stop_id: string
-	- stop_code: string
-	- stop_name: string
-	- stop_desc: string
-	- stop_lat: float
-	- stop_lon: float
-	- zone_id: string
-	- stop_url: string
-	- location_type: integer
-	- parent_station: string
-	- stop_timezone: string
-	- wheelchair_boarding: integer
-	- platform_code: string
-stop_times.txt:
-	- trip_id: string
-	- arrival_time: time
-	- departure_time: time
-	- stop_id: string
-	- stop_sequence: integer
-	- stop_headsign: string
-	- pickup_type: integer
-	- drop_off_type: integer
-	- timepoint: integer
-	- shape_dist_traveled: float
-trips.txt:
-	- route_id: string
-	- service_id: string
-	- trip_id: string
-	- trip_headsign: string
-	- direction_id: integer
-	- block_id: string
-	- shape_id: string
-	- wheelchair_accessible: integer
-	- bikes_allowed: integer
-feed_info.txt:
-	- feed_publisher_name: string
-	- feed_publisher_url: string
-	- feed_lang: string
-	- default_lang: string
-	- feed_start_date: date
-	- feed_end_date: date
-	- feed_version: string
-	- feed_contact_email: string
-	- feed_contact_url: string
-fare_attributes.txt:
-	- fare_id: string
-	- price: float
-	- currency_type: string
-	- payment_method: integer
-	- transfers: integer
-	- transfer_duration: integer
-fare_rules.txt:
-	- fare_id: string
-	- route_id: string
-	- origin_id: string
-	- destination_id: string
-	- contains_id: string
 
 
 ## Sample from the feed:
-### agency.txt (feed.agency)
-agency_id,agency_name,agency_url,agency_timezone,agency_lang,agency_phone,agency_fare_url,agency_emailCUMTD,Champaign Urbana Mass Transit District,https://www.mtd.org/,America/Chicago,en,217-384-8188,,mtdweb@mtd.org
-### calendar.txt (feed.calendar)
-service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_dateL1_SU,0,0,0,0,0,0,0,2024-08-11,2024-12-21B3_NOSCH_MF,0,0,0,0,0,0,0,2024-08-11,2024-12-21GR4_SU,0,0,0,0,0,0,0,2024-08-11,2024-12-2116B_1_SHOW_MF,0,0,0,0,0,0,0,2024-08-11,2024-12-21Y1_MF,0,0,0,0,0,0,0,2024-08-11,2024-12-21
-### calendar_dates.txt (feed.calendar_dates)
-service_id,date,exception_type16B_2_SHO_K12EO,2024-09-09,116B_2_SHO_K12EO,2024-10-07,116B_2_SHO_K12EO,2024-11-04,116B_2_SHO_K12EO,2024-12-02,1L1_SU,2024-08-11,1
-### routes.txt (feed.routes)
-route_id,agency_id,route_short_name,route_long_name,route_desc,route_type,route_url,route_color,route_text_colorTEAL_SUNDAY,CUMTD,120-TEAL_SUNDAY,Teal Sunday,,3,https://mtd.org/maps-and-schedules/to-schedule/561875bc4cd84124b67031474c033949/,006991,ffffffRUBY_SUNDAY,CUMTD,110-RUBY_SUNDAY,Ruby Sunday,,3,https://mtd.org/maps-and-schedules/to-schedule/178f799322dd4b9982ec00cfb5a33fa0/,eb008b,000000ILLINI_LIMITED_SATURDAY,CUMTD,220-ILLINI_LIMITED_SATURDAY,Illini Limited Saturday,,3,https://mtd.org/maps-and-schedules/to-schedule/d5a1a2df7dce48e1b9d525f831e4d213/,5a1d5a,ffffffTEAL_SATURDAY,CUMTD,120-TEAL_SATURDAY,Teal Saturday,,3,https://mtd.org/maps-and-schedules/to-schedule/00b03ca2bfe4461cb0bc9784e1b0938a/,006991,ffffffSILVER_SATURDAY,CUMTD,130-SILVER_SATURDAY,Silver Saturday,,3,https://mtd.org/maps-and-schedules/to-schedule/9feacb4a87834e96997f7aa433bf9180/,cccccc,000000
-### shapes.txt (feed.shapes)
-shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence,shape_dist_traveled[@124.0.102302343@]1,40.115935,-88.24094667,1,0.0[@124.0.102302343@]1,40.1159153,-88.240893,2,5.059103617073224[@124.0.102302343@]1,40.115502,-88.24105,3,52.90116244855051[@124.0.102302343@]1,40.115384,-88.241155,4,68.90795598338649[@124.0.102302343@]1,40.115319,-88.241312,5,84.09044354751579
-### stops.txt (feed.stops)
-stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,location_type,parent_station,stop_timezone,wheelchair_boarding,platform_code150DALE:1,5437,U.S. 150 & Dale (NE Corner),,40.11451167,-88.18067333,f,https://mtd.org/maps-and-schedules/bus-stops/info/150dale-1/,0,,America/Chicago,0,150DALE:3,5437,U.S. 150 & Dale (South Side),,40.11450333,-88.18084833,f,https://mtd.org/maps-and-schedules/bus-stops/info/150dale-3/,0,,America/Chicago,0,150DOD:5,2634,U.S. 150 & Dodson (NE Far Side),,40.11415833,-88.173105,f,https://mtd.org/maps-and-schedules/bus-stops/info/150dod-5/,0,,America/Chicago,0,150UNI:4,6741,U.S. 150 & University (NW Corner),,40.11654167,-88.18384,f,https://mtd.org/maps-and-schedules/bus-stops/info/150uni-4/,0,,America/Chicago,0,150UNI:8,6741,U.S. 150 & University (NW Far Side),,40.11603333,-88.18417832999998,f,https://mtd.org/maps-and-schedules/bus-stops/info/150uni-8/,0,,America/Chicago,0,
-### stop_times.txt (feed.stop_times)
-trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,timepoint,shape_dist_traveled1GN500__GN1_MF,20760.0,20760.0,LSE:8,0,,0,0,0,0.01GN500__GN1_MF,20785.0,20785.0,GRNRACE:4,1,,0,0,0,157.89750710616461GN500__GN1_MF,20825.0,20825.0,GRNBRCH:1,2,,0,0,0,433.32492266649091GN500__GN1_MF,20860.0,20860.0,GRNORCH:1,3,,0,0,0,686.38440623059811GN500__GN1_MF,20900.0,20900.0,GRNBUSEY:8,4,,0,0,0,988.2460940007865
-### trips.txt (feed.trips)
-route_id,service_id,trip_id,trip_headsign,direction_id,block_id,shape_id,wheelchair_accessible,bikes_allowedGREENHOPPER,GN8_MF,[@7.0.41101146@][4][1237930167062]/24__GN8_MF,Parkland College,1,GN8_MF,5W_HOPPER_81,0,0SILVER_LIMITED_SUNDAY,SV1_NONUI_SU,[@124.0.92241454@][1484326515007]/37__SV1_NONUI_SU,Lincoln Square,0,SV1_NONUI_SU,[@124.0.92241454@]4,0,0ORANGE,O4_RUBY_MF_(V001),[@6.0.54216924@][1723045917795]/107__O4_RUBY_MF_(V001),Butzow & Lierman,0,O4_RUBY_MF_(V001),[@6.0.54216924@]7,0,0LINK,LN1_MF,[@6.0.15252684@][1][1622671674683]/50__LN1_MF,University and Wright,0,LN1_MF,[@6.0.15252684@]1,0,0NAVY,N2_MF,[@124.0.103534744@][32][1510344802986]/3__N2_MF,Kirby & Mullikin,1,N2_MF,[@6.0.40494377@]8,0,0
-### feed_info.txt (feed.feed_info)
-feed_publisher_name,feed_publisher_url,feed_lang,default_lang,feed_start_date,feed_end_date,feed_version,feed_contact_email,feed_contact_urlChampaign-Urbana Mass Transit District,https://mtd.org/,en,en,2024-08-11,2024-12-21,GTFS Feed 11/08/2024 – 21/12/2024 (Generated: 10/08/2024 11:21:45),mtdweb@mtd.org,https://mtd.org/inside/contact/
-### fare_attributes.txt (feed.fare_attributes)
-fare_id,price,currency_type,payment_method,transfers,transfer_durationFULL,1.0,USD,0,1,0ISTOP,0.0,USD,1,0,0
-### fare_rules.txt (feed.fare_rules)
-fare_id,route_id,origin_id,destination_id,contains_idFULL,,f,,FULL,1_YELLOW_ALT,i,,FULL,10W_GOLD_ALT,i,,FULL,1N_YELLOW_ALT,i,,FULL,1N_YELLOW_ALT_PM,i,,
 
 ## Task Instructions
 
