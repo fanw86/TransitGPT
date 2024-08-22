@@ -18,7 +18,7 @@
     "error": "GTFSLoader.__init__() got an unexpected keyword argument 'name'"
   },
   "CUMTD": {
-    "file_loc": "gtfs_data/Urbana-Champaign Urbana Mass Transit District (MTD)-IL/gtfs.zip",
+    "file_loc": "gtfs_data/Urbana-Champaign Urbana Mass Transit District (MTD)-IL/gtfs_mod.zip",
     "distance_unit": "m",
     "pickle_loc": "gtfs_data/feed_pickles/CUMTD_gtfs_loader.pkl",
     "error": "GTFSLoader.__init__() got an unexpected keyword argument 'name'"
