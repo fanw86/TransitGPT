@@ -37,7 +37,6 @@ class GTFS_Eval:
         self.distance_unit = None
         # Initialize GTFSLoader objects for each GTFS feed in the selectbox with feed_sfmta
         for key in self.file_mapping:
-            print(key)
             pickle_file = self.file_mapping[key]["pickle_loc"]
             gtfs_loader = load_zipped_pickle(pickle_file)
             setattr(

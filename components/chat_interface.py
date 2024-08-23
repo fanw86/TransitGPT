@@ -83,11 +83,12 @@ def display_code_output(message, only_text=False):
     code_output = message["code_output"]
     with st.expander("✅Code Evaluation Result:", expanded=False):
         st.write(code_output)
-    if isinstance(code_output, dict):
-        if "plot" in code_output and code_output["plot"] is not None:
-            safe_fig_display(code_output["plot"])
-        if "map" in code_output and code_output["map"] is not None:
-            safe_folium_display(code_output["map"])
+        
+def display_fig_map(code_output):
+    if "plot" in code_output and code_output["plot"] is not None:
+        safe_fig_display(code_output["plot"])
+    if "map" in code_output and code_output["map"] is not None:
+        safe_folium_display(code_output["map"])
 
 def display_figure(fig):
     if isinstance(fig, go.Figure):
@@ -104,8 +105,7 @@ def display_llm_response(fb_agent, uuid, message, i):
             # with st.expander("LLM Response", expanded=False):
             st.markdown(message["code_response"])
 
-    col1, col2, col3 = st.columns([6, 2, 1])
-
+    col1, col2, col3 = st.columns([6, 2, 1])    
     with col1:
         if "code_output" in message and only_text is False:
             if message.get("eval_success", False):  # Default to False
@@ -135,10 +135,13 @@ def display_llm_response(fb_agent, uuid, message, i):
             key=f"{message_id}_comment",
             on_change=fb_agent.on_feedback_change,
         )
-
     if only_text or message["final_response"] != message["code_response"]:
         colored_response = apply_color_codes(message["final_response"])
         st.markdown(colored_response,unsafe_allow_html=True)
+    
+    if isinstance(message["code_output"], dict):
+        display_fig_map(message["code_output"])
+    
 
 
 def display_chat_history(fb_agent: FeedbackAgent, uuid: str):

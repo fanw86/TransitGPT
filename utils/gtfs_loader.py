@@ -8,12 +8,12 @@ import zipfile
 import datetime
 import traceback
 import json
-from typing import Optional
+from typing import Optional, Any
 from functools import lru_cache
 from utils.helper import list_files_in_zip
 
 DATE_FORMAT = "%Y%m%d"
-
+DATE_FORMAT_ALT = "%Y-%m-%d"
 
 def pickle_gtfs_loaders(file_mapping, output_directory, mapping_file_path):
     """
@@ -166,7 +166,7 @@ class GTFSLoader:
             del self.zipfile
 
     @lru_cache(maxsize=2**18)
-    def parse_time(self, val: str) -> np.float32:
+    def parse_time(self, val: Any) -> np.float32:
         """
         The function `parse_time` takes a string representing a time value in the format "hh:mm:ss" and
         returns the equivalent time in seconds as a numpy int, or returns the input value if it is
@@ -178,16 +178,20 @@ class GTFSLoader:
         Returns:
         a value of type np.float32.
         """
+            
         if isinstance(val, float) or (
             isinstance(val, float) and np.isnan(val)
         ):  # Corrected handling for np.nan
             return val
         if str(val) == "":
             return np.nan
-        val = str(val).strip()
-
-        h, m, s = map(float, val.split(":"))
-        return np.float32(h * 3600 + m * 60 + s)
+        try:
+            val = np.float32(val)
+            return val
+        except ValueError: 
+            val = str(val).strip()
+            h, m, s = map(float, val.split(":"))
+            return np.float32(h * 3600 + m * 60 + s)
 
     @lru_cache(maxsize=2**18)
     def parse_date(self, val: str) -> datetime.date:
@@ -203,4 +207,7 @@ class GTFSLoader:
         """
         if isinstance(val, datetime.date):
             return val
-        return datetime.datetime.strptime(val, DATE_FORMAT).date()
+        try:
+            return datetime.datetime.strptime(val, DATE_FORMAT).date()
+        except ValueError:
+            return datetime.datetime.strptime(val, DATE_FORMAT_ALT).date() 

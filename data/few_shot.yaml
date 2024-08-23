@@ -173,14 +173,6 @@ example_4:
 example_5:
   question: Identify the date when a specific route had the fewest trips in the GTFS feed.
   answer: |
-    To identify the date when a specific route had the fewest trips, we need to consider several factors:
-
-    1. GTFS feeds use a combination of calendar entries and exceptions to define service patterns.
-    2. We need to calculate the number of trips for each day within the feed's date range.
-    3. We must account for regular service defined in the calendar, as well as any exceptions defined in calendar_dates.
-    4. Some dates might have no service at all, which we should exclude from our analysis.
-    5. Visualizing the trip counts over time can provide additional insights into service patterns.
-
     Our approach will be:
     - Identify all trips associated with the specified route.
     - Determine the valid date range from the feed info.
@@ -258,3 +250,153 @@ example_5:
     ```
 
     This code identifies the date with the fewest trips for the specified route, provides the trip count for that date, and creates a line plot showing how the number of trips varies over time. The additional information includes the date range of the analysis and the route ID that was analyzed.
+
+example_6:
+  question: Map all routes that pass through Illinois Terminal
+  answer: |
+    To map all routes that pass through Illinois Terminal, we can follow these steps:
+    ```python
+    import pandas as pd
+    import geopandas as gpd
+    import folium
+    from shapely.geometry import LineString
+
+    # Step 1: Identify the stop ID for Illinois Terminal
+    illinois_terminal = feed.stops[feed.stops['stop_name'].str.contains('Illinois Terminal', case=False, na=False)]
+    if illinois_terminal.empty:
+        result = {
+            'answer': None,
+            'additional_info': "Illinois Terminal stop not found in the GTFS data."
+        }
+    else:
+        illinois_terminal_id = illinois_terminal.iloc[0]['stop_id']
+
+        # Step 2: Find all trips that pass through this stop
+        trips_through_terminal = feed.stop_times[feed.stop_times['stop_id'] == illinois_terminal_id]['trip_id'].unique()
+
+        # Step 3: Identify the unique routes these trips belong to
+        routes_through_terminal = feed.trips[feed.trips['trip_id'].isin(trips_through_terminal)]['route_id'].unique()
+
+        # Step 4: Get the shapes for these routes
+        shapes_through_terminal = feed.trips[feed.trips['route_id'].isin(routes_through_terminal)]['shape_id'].unique()
+
+        # Create a GeoDataFrame with the shapes
+        shapes_gdf = feed.shapes[feed.shapes['shape_id'].isin(shapes_through_terminal)].copy()
+        shapes_gdf['geometry'] = shapes_gdf.apply(lambda row: (row['shape_pt_lon'], row['shape_pt_lat']), axis=1)
+        shapes_gdf = shapes_gdf.groupby('shape_id').agg({'geometry': lambda x: LineString(x.tolist())})
+        shapes_gdf = gpd.GeoDataFrame(shapes_gdf, geometry='geometry', crs="EPSG:4326")
+        shapes_gdf = shapes_gdf.reset_index().merge(feed.trips[['shape_id', 'route_id']], on='shape_id', how='left')
+
+        # Step 5: Create a map with all these routes
+        m = folium.Map(location=[illinois_terminal.iloc[0]['stop_lat'], illinois_terminal.iloc[0]['stop_lon']], 
+                    zoom_start=12, tiles='CartoDB positron')
+
+        # Add routes to the map
+        shapes_gdf.explore(
+            column="route_id",
+            m=m,
+            legend=True,
+            legend_kwds={"label": "Route ID"},
+            name="Routes",
+            tooltip=["route_id"],
+            style_kwds={"weight": 2, "opacity": 0.7}
+        )
+
+        # Add Illinois Terminal marker
+        folium.Marker(
+            [illinois_terminal.iloc[0]['stop_lat'], illinois_terminal.iloc[0]['stop_lon']],
+            popup='Illinois Terminal',
+            icon=folium.Icon(color='red', icon='info-sign')
+        ).add_to(m)
+
+        # Fit the map bounds to the shapes
+        m.fit_bounds(shapes_gdf.total_bounds.tolist())
+
+        # Add layer control
+        folium.LayerControl().add_to(m)
+
+        result = {
+            'answer': f"{len(routes_through_terminal)} routes pass through Illinois Terminal.",
+            'additional_info': f"These routes use {len(shapes_through_terminal)} unique shapes.",
+            'map': m
+        }
+        ```
+example_7:
+    question: Find the next five departures from a specific stop
+    answer: |
+        To find the next five departures from a specific stop, we can follow these steps:
+
+        1. Identify the stop ID for the specified stop.
+        2. Get the current date, day of the week, and time.
+        3. Determine the service IDs that are active on the current date. Consider any exceptions to the regular service schedule for the current date.
+        4. Find the next five departures by filtering stop times based on the current time.
+
+        This approach allows us to provide real-time information about upcoming departures from the stop, which can be valuable for passengers and service planning.
+
+        Here's the code to implement this analysis:
+
+        ```python
+        from datetime import datetime, timedelta
+        import pandas as pd
+
+        # Step 1: Identify the stop ID for Illinois Terminal
+        illinois_terminal = feed.stops[feed.stops['stop_name'].str.contains('Illinois Terminal', case=False, na=False)]
+        if illinois_terminal.empty:
+            result = {
+                'answer': None,
+                'additional_info': "Illinois Terminal stop not found in the GTFS data."
+            }
+
+
+        # Step 2: Get current date, day of the week and time
+        datetime_now = datetime.now()
+        today = datetime_now.date()
+        current_time = datetime_now.time().strftime("%H:%M:%S")
+        h, m, s = current_time.split(':')
+        current_time_seconds = 60*60*int(h) + 60*int(m) + int(s)
+        day_of_week = today.strftime("%A").lower()
+
+        service_ids = feed.calendar[
+            (feed.calendar["start_date"] <= today)
+            & (feed.calendar["end_date"] >= today)
+            & (feed.calendar[day_of_week] == 1)
+        ]["service_id"].unique()
+
+        # Step 3: Get current service IDs considering exceptions
+        date_exceptions = feed.calendar_dates[feed.calendar_dates["date"] == today]
+        added_service_ids = date_exceptions[date_exceptions["exception_type"] == 1]["service_id"].unique()
+        removed_service_ids = date_exceptions[date_exceptions["exception_type"] == 2]["service_id"].unique()
+        final_service_ids = list(set(service_ids) | set(added_service_ids) - set(removed_service_ids))
+
+        # Step 4: Find the next five departures by filtering stop times
+        trips_today = feed.trips[feed.trips["service_id"].isin(final_service_ids)]
+        trips_today = trips_today.merge(feed.routes, on="route_id")
+        stop_times_merged = feed.stop_times.merge(trips_today[["trip_id","route_id","direction_id","route_long_name","trip_headsign"]], on="trip_id")
+        stop_times_today = stop_times_merged[stop_times_merged["trip_id"].isin(trips_today["trip_id"])]
+        future_stop_times = stop_times_today[stop_times_today["departure_time"] >= current_time_seconds]
+        stop_times_terminal = future_stop_times[future_stop_times["stop_id"].isin(illinois_terminal["stop_id"])]
+        stop_times_terminal = stop_times_terminal.sort_values("departure_time")
+
+        result_data = []
+        for _, departure in stop_times_terminal.head(5).iterrows():
+            departure_time = int(departure["departure_time"])
+            hours, remainder = divmod(departure_time, 3600)
+            minutes, seconds = divmod(remainder, 60)
+            
+            # Format as HH:MM:SS
+            departure_time =  f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+            result_data.append({
+                "route_id":departure['route_id'],
+                "departure_time": departure_time,
+                "route_name": departure["route_long_name"],
+                "trip_headsign": departure["trip_headsign"],
+                "direction_id": departure["direction_id"]
+            })
+            
+        result = {
+                'answer': result_data,
+                'additional_info': f"These are the next 5 buses leaving from Illinois Terminal (Stop ID: {illinois_terminal.stop_id.to_list()}) after {current_time}."
+            }
+        ```
+
+        This code identifies the next departures from the specified stop and provides information about the upcoming trips, including their route ID, departure time, route name, and trip headsign. The additional information includes the stop ID and the time at which the departures were queried.
