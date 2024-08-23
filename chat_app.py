@@ -64,7 +64,7 @@ def process_user_input(user_input: str):
 
 
 # Set the page to wide mode
-st.set_page_config(layout="wide")
+st.set_page_config(page_title="GTFS2CODE", page_icon="🚍", layout="wide", initial_sidebar_state="auto")
 
 # Call this function at the beginning of your Streamlit app
 load_session_state()
