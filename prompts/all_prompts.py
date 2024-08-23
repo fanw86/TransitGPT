@@ -191,6 +191,7 @@ TASK_INSTRUCTION = """
 12. Use EPSG:4326 CRS for geospatial operations, setting CRS and geometry column explicitly.For distance calculations, use EPSG:3857 CRS where distance units is meters, then reproject to EPSG:4326 for plotting. Always report distances in meters or kilometers.
 13. Create interactive maps with markers, popups, and relevant info. *Always* use `CartoDB Positron` for base map tiles. The `map` key should be folium.Map, folium.Figure, or branca.element.Figure object 
 14. To search for geographical locations, use the `geopy` library with Nominatim geocoder. Use the city name and country code for accurate results. Use `gtfs2code` as the user_agent.
+15. Never use print statements for output. Return all the results in the `result` dictionary.
 """
 
 TASK_TIPS = """
