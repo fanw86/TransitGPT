@@ -9,13 +9,14 @@ def load_session_state():
         "chat_history": [],
         "first_question_asked": False,
         "current_message_id": None,
-        "selected_question": "",
+        "selected_question": None,
         "uuid": str(uuid.uuid4()),
         "questions": load_questions(),
         "fb_agent": get_feedback(),
         "show_limit_popup": False,
         "is_chat_input_disabled": False,
         "is_processing": False,
+        "user_input":None
     }
 
     for key, default_value in default_values.items():
@@ -34,6 +35,7 @@ def reset_session_state():
         "show_limit_popup",
         "is_chat_input_disabled",
         "is_processing",
+        "user_input"
     ]
     for key in reset_keys:
         del st.session_state[key]

@@ -12,7 +12,7 @@ from components.chat_interface import (
     display_chat_history,
     clear_chat,
 )
-
+from components.chat_input_box import set_chat_box
 
 st.set_page_config(
     page_title="GTFS2CODE", page_icon="🚍", layout="wide", initial_sidebar_state="auto"
@@ -41,47 +41,38 @@ if st.session_state["show_limit_popup"]:
     st.session_state["is_chat_input_disabled"] = True
     clear_chat()
 
-user_input = st.chat_input(
-    "Type your query here...",
-    disabled=st.session_state.is_processing or st.session_state.is_chat_input_disabled,
-)
-# Display sample questions above the message bar only if it's the first question
-if not st.session_state.first_question_asked and not user_input:
+# Display sample questions only if it's the first question and no question has been selected
+if not st.session_state.first_question_asked and not st.session_state.selected_question:
     st.write("Sample Questions:")
     for i, question in enumerate(st.session_state.questions):
         if st.button(question, key=f"q_{i}"):
             st.session_state.selected_question = question
-            # st.rerun()
+            st.session_state.user_input = question  # Set user_input when a question is selected
+            st.session_state.first_question_asked = True  # Mark that a question has been selected
+            st.rerun()  # Rerun to remove the sample questions
 
-js = f"""
-        <script>
-            function insertText(dummy_var_to_force_repeat_execution) {{
-                var chatInput = parent.document.querySelector('textarea[data-testid="stChatInputTextArea"]');
-                var nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value").set;
-                nativeInputValueSetter.call(chatInput, "{st.session_state.selected_question}");
-                var event = new Event('input', {{ bubbles: true}});
-                chatInput.dispatchEvent(event);
-            }}
-            insertText({len(st.session_state.chat_history)});
-        </script>
-        """
-st.components.v1.html(js)
-
+if st.session_state.user_input:
+    set_chat_box(st.session_state.user_input, len(st.session_state.chat_history))
+elif st.session_state.selected_question:
+    set_chat_box(st.session_state.selected_question, len(st.session_state.chat_history))
+else:
+    set_chat_box("", len(st.session_state.chat_history))
+        
+# Process user input
+user_input = st.chat_input(
+    "Type your query here...",
+    disabled=st.session_state.is_processing or st.session_state.is_chat_input_disabled,
+)
 # Process user input or selected question
 if user_input:
-    # Disable chat input after user input
-    st.session_state["is_processing"] = True
+   # Use the edited input from the chat box
+    st.session_state.user_input = user_input
+    st.session_state.is_processing = True
+    st.session_state.selected_question = None  # Clear the selected question
 
-    if st.session_state.selected_question:
-        print(st.session_state.selected_question)
-        user_input = st.session_state.selected_question
-        st.session_state.selected_question = None
-
-    st.session_state["user_input"] = user_input
     if not st.session_state.first_question_asked:
-        st.session_state["first_question_asked"] = True
-        st.session_state.selected_question = ""
-        st.rerun()
+        st.session_state.first_question_asked = True
+    st.rerun()
 
 if st.session_state.is_processing:
     user_input = st.session_state["user_input"]
@@ -91,7 +82,6 @@ if st.session_state.is_processing:
     st.session_state.chat_history.append({"role": "user", "content": user_input})
     process_user_input(user_input)
     # Clear the input box after processing
-    st.session_state.user_input = ""
+    st.session_state.user_input = None
     st.session_state.is_processing = False
-
     st.rerun()
