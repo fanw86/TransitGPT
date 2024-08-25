@@ -13,7 +13,7 @@ def load_agent_evaluator():
     # Clear chat history on change of model or GTFS feed or units
     if len(st.session_state.chat_history) > 0:
         clear_chat_history()
-    print("<<<========================================>>>")
+    print("<<<==================Initializing Chat App=====================>>>")
     print(f"Call count: {st.session_state['call_count']}, time: {time.ctime()}")
     GTFS = st.session_state["GTFS"]
     with st.spinner(f"Loading `{GTFS}` GTFS Feed and setting up LLM Agent..."):

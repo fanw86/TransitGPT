@@ -21,3 +21,5 @@ plotly
 nbformat
 streamlit_extras
 geopy
+thefuzz
+tabulate

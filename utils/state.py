@@ -9,7 +9,7 @@ def load_session_state():
         "chat_history": [],
         "first_question_asked": False,
         "current_message_id": None,
-        "selected_question": None,
+        "selected_question": "",
         "uuid": str(uuid.uuid4()),
         "questions": load_questions(),
         "fb_agent": get_feedback(),

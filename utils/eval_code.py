@@ -18,7 +18,7 @@ import shapely
 import _pickle as cPickle
 import gzip
 from shapely.geometry import LineString, Point, Polygon
-
+from thefuzz import process, fuzz
 from prompts.generate_prompt import generate_system_prompt
 from utils.gtfs_loader import GTFSLoader
 

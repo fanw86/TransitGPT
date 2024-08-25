@@ -1,3 +1,4 @@
+
 from pydantic import BaseModel, Field
 from typing import Any, Optional, Union, Literal
 from datetime import datetime
@@ -15,8 +16,8 @@ class ChatInteraction(BaseModel):
 
 class ChatHistoryEntry(BaseModel):
     role: Literal["assistant"]  # Since this is always "assistant" in the given context
-    final_response: Union[str, None]
-    code_response: Union[str, None]
+    final_response: Optional[Union[str, None]]
+    code_response: Optional[Union[str, None]]
     code_output: Optional[Any] = None
     eval_success: bool = False
     error_message: Optional[str] = None
@@ -35,3 +36,4 @@ class FeedbackEntry(BaseModel):
     user_comment: Optional[str] = None
     code_eval_result: Optional[str] = None
     figure: Optional[str] = None
+    final_response : Optional[str]

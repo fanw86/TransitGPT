@@ -31,7 +31,6 @@ def yaml_to_examples(yaml_file):
         
     return '\n'.join(examples)
 
-# @lru_cache(maxsize=None)
 def generate_fileinfo_dtypes(feed: GTFSLoader, file_list,  distance_unit: str):
     FILE_INFO = """\n\n## Sample from the feed:\n"""
     GTFS_FEED_DATATYPES = BASE_GTFS_FEED_DATATYPES.format(distance_unit=distance_unit)
@@ -39,7 +38,7 @@ def generate_fileinfo_dtypes(feed: GTFSLoader, file_list,  distance_unit: str):
         try:
             file = file_name.split(".txt")[0]
             df = getattr(feed, file)
-            df_string = df.head().to_csv(index=False).replace("\n", "")
+            df_string = df.head().to_markdown(index=False)
             FILE_INFO += f"### {file_name} (feed.{file})\n"
             FILE_INFO += df_string + "\n"
             if file_name in GTFS_FILE_FIELD_TYPE_MAPPING:

@@ -123,27 +123,82 @@ trips.txt:
 
 ## Sample from the feed:
 ### agency.txt (feed.agency)
-agency_id,agency_name,agency_url,agency_timezone,agency_lang,agency_phone,agency_fare_url,agency_emailCUMTD,Champaign Urbana Mass Transit District,https://www.mtd.org/,America/Chicago,en,217-384-8188,,mtdweb@mtd.org
+| agency_id   | agency_name                            | agency_url           | agency_timezone   | agency_lang   | agency_phone   |   agency_fare_url | agency_email   |
+|:------------|:---------------------------------------|:---------------------|:------------------|:--------------|:---------------|------------------:|:---------------|
+| CUMTD       | Champaign Urbana Mass Transit District | https://www.mtd.org/ | America/Chicago   | en            | 217-384-8188   |               nan | mtdweb@mtd.org |
 ### calendar.txt (feed.calendar)
-service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_dateL1_SU,0,0,0,0,0,0,1,2024-08-11,2024-12-21B3_NOSCH_MF,1,1,1,1,1,0,0,2024-08-11,2024-12-21GR4_SU,0,0,0,0,0,0,1,2024-08-11,2024-12-21Y1_MF,1,1,1,1,1,0,0,2024-08-11,2024-12-21N1_MF,1,1,1,1,1,0,0,2024-08-11,2024-12-21
+| service_id   |   monday |   tuesday |   wednesday |   thursday |   friday |   saturday |   sunday | start_date   | end_date   |
+|:-------------|---------:|----------:|------------:|-----------:|---------:|-----------:|---------:|:-------------|:-----------|
+| L1_SU        |        0 |         0 |           0 |          0 |        0 |          0 |        1 | 2024-08-11   | 2024-12-21 |
+| B3_NOSCH_MF  |        1 |         1 |           1 |          1 |        1 |          0 |        0 | 2024-08-11   | 2024-12-21 |
+| GR4_SU       |        0 |         0 |           0 |          0 |        0 |          0 |        1 | 2024-08-11   | 2024-12-21 |
+| Y1_MF        |        1 |         1 |           1 |          1 |        1 |          0 |        0 | 2024-08-11   | 2024-12-21 |
+| N1_MF        |        1 |         1 |           1 |          1 |        1 |          0 |        0 | 2024-08-11   | 2024-12-21 |
 ### calendar_dates.txt (feed.calendar_dates)
-service_id,date,exception_typeL1_SU,2024-08-11,1L1_SU,2024-08-18,1L1_SU,2024-08-25,1L1_SU,2024-09-01,1L1_SU,2024-09-08,1
+| service_id   | date       |   exception_type |
+|:-------------|:-----------|-----------------:|
+| L1_SU        | 2024-08-11 |                1 |
+| L1_SU        | 2024-08-18 |                1 |
+| L1_SU        | 2024-08-25 |                1 |
+| L1_SU        | 2024-09-01 |                1 |
+| L1_SU        | 2024-09-08 |                1 |
 ### fare_attributes.txt (feed.fare_attributes)
-fare_id,price,currency_type,payment_method,transfers,transfer_durationFULL,1.0,USD,0,1,0ISTOP,0.0,USD,1,0,0
+| fare_id   |   price | currency_type   |   payment_method |   transfers |   transfer_duration |
+|:----------|--------:|:----------------|-----------------:|------------:|--------------------:|
+| FULL      |       1 | USD             |                0 |           1 |                   0 |
+| ISTOP     |       0 | USD             |                1 |           0 |                   0 |
 ### fare_rules.txt (feed.fare_rules)
-fare_id,route_id,origin_id,destination_id,contains_idFULL,,f,,FULL,1_YELLOW_ALT,i,,FULL,10W_GOLD_ALT,i,,FULL,1N_YELLOW_ALT,i,,FULL,1N_YELLOW_ALT_PM,i,,
+| fare_id   | route_id         | origin_id   |   destination_id |   contains_id |
+|:----------|:-----------------|:------------|-----------------:|--------------:|
+| FULL      | nan              | f           |              nan |           nan |
+| FULL      | 1_YELLOW_ALT     | i           |              nan |           nan |
+| FULL      | 10W_GOLD_ALT     | i           |              nan |           nan |
+| FULL      | 1N_YELLOW_ALT    | i           |              nan |           nan |
+| FULL      | 1N_YELLOW_ALT_PM | i           |              nan |           nan |
 ### feed_info.txt (feed.feed_info)
-feed_publisher_name,feed_publisher_url,feed_lang,default_lang,feed_start_date,feed_end_date,feed_version,feed_contact_email,feed_contact_urlChampaign-Urbana Mass Transit District,https://mtd.org/,en,en,2024-08-11,2024-12-21,GTFS Feed 11/08/2024 – 21/12/2024 (Generated: 10/08/2024 11:21:45),mtdweb@mtd.org,https://mtd.org/inside/contact/
+| feed_publisher_name                    | feed_publisher_url   | feed_lang   | default_lang   | feed_start_date   | feed_end_date   | feed_version                                                       | feed_contact_email   | feed_contact_url                |
+|:---------------------------------------|:---------------------|:------------|:---------------|:------------------|:----------------|:-------------------------------------------------------------------|:---------------------|:--------------------------------|
+| Champaign-Urbana Mass Transit District | https://mtd.org/     | en          | en             | 2024-08-11        | 2024-12-21      | GTFS Feed 11/08/2024 – 21/12/2024 (Generated: 10/08/2024 11:21:45) | mtdweb@mtd.org       | https://mtd.org/inside/contact/ |
 ### routes.txt (feed.routes)
-route_id,agency_id,route_short_name,route_long_name,route_desc,route_type,route_url,route_color,route_text_colorTEAL_SUNDAY,CUMTD,120-TEAL_SUNDAY,Teal Sunday,,3,https://mtd.org/maps-and-schedules/to-schedule/561875bc4cd84124b67031474c033949/,006991,ffffffRUBY_SUNDAY,CUMTD,110-RUBY_SUNDAY,Ruby Sunday,,3,https://mtd.org/maps-and-schedules/to-schedule/178f799322dd4b9982ec00cfb5a33fa0/,eb008b,000000ILLINI_LIMITED_SATURDAY,CUMTD,220-ILLINI_LIMITED_SATURDAY,Illini Limited Saturday,,3,https://mtd.org/maps-and-schedules/to-schedule/d5a1a2df7dce48e1b9d525f831e4d213/,5a1d5a,ffffffTEAL_SATURDAY,CUMTD,120-TEAL_SATURDAY,Teal Saturday,,3,https://mtd.org/maps-and-schedules/to-schedule/00b03ca2bfe4461cb0bc9784e1b0938a/,006991,ffffffSILVER_SATURDAY,CUMTD,130-SILVER_SATURDAY,Silver Saturday,,3,https://mtd.org/maps-and-schedules/to-schedule/9feacb4a87834e96997f7aa433bf9180/,cccccc,000000
+| route_id                | agency_id   | route_short_name            | route_long_name         |   route_desc |   route_type | route_url                                                                        | route_color   | route_text_color   |
+|:------------------------|:------------|:----------------------------|:------------------------|-------------:|-------------:|:---------------------------------------------------------------------------------|:--------------|:-------------------|
+| TEAL_SUNDAY             | CUMTD       | 120-TEAL_SUNDAY             | Teal Sunday             |          nan |            3 | https://mtd.org/maps-and-schedules/to-schedule/561875bc4cd84124b67031474c033949/ | 006991        | ffffff             |
+| RUBY_SUNDAY             | CUMTD       | 110-RUBY_SUNDAY             | Ruby Sunday             |          nan |            3 | https://mtd.org/maps-and-schedules/to-schedule/178f799322dd4b9982ec00cfb5a33fa0/ | eb008b        | 000000             |
+| ILLINI_LIMITED_SATURDAY | CUMTD       | 220-ILLINI_LIMITED_SATURDAY | Illini Limited Saturday |          nan |            3 | https://mtd.org/maps-and-schedules/to-schedule/d5a1a2df7dce48e1b9d525f831e4d213/ | 5a1d5a        | ffffff             |
+| TEAL_SATURDAY           | CUMTD       | 120-TEAL_SATURDAY           | Teal Saturday           |          nan |            3 | https://mtd.org/maps-and-schedules/to-schedule/00b03ca2bfe4461cb0bc9784e1b0938a/ | 006991        | ffffff             |
+| SILVER_SATURDAY         | CUMTD       | 130-SILVER_SATURDAY         | Silver Saturday         |          nan |            3 | https://mtd.org/maps-and-schedules/to-schedule/9feacb4a87834e96997f7aa433bf9180/ | cccccc        | 000000             |
 ### shapes.txt (feed.shapes)
-shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence,shape_dist_traveled[@124.0.102302343@]1,40.115935,-88.24094667,1,0.0[@124.0.102302343@]1,40.1159153,-88.240893,2,5.059103617073224[@124.0.102302343@]1,40.115502,-88.24105,3,52.90116244855051[@124.0.102302343@]1,40.115384,-88.241155,4,68.90795598338649[@124.0.102302343@]1,40.115319,-88.241312,5,84.09044354751579
+| shape_id             |   shape_pt_lat |   shape_pt_lon |   shape_pt_sequence |   shape_dist_traveled |
+|:---------------------|---------------:|---------------:|--------------------:|----------------------:|
+| [@124.0.102302343@]1 |        40.1159 |       -88.2409 |                   1 |                0      |
+| [@124.0.102302343@]1 |        40.1159 |       -88.2409 |                   2 |                5.0591 |
+| [@124.0.102302343@]1 |        40.1155 |       -88.2411 |                   3 |               52.9012 |
+| [@124.0.102302343@]1 |        40.1154 |       -88.2412 |                   4 |               68.908  |
+| [@124.0.102302343@]1 |        40.1153 |       -88.2413 |                   5 |               84.0904 |
 ### stop_times.txt (feed.stop_times)
-trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,timepoint,shape_dist_traveled1GN500__GN1_MF,20760.0,20760.0,LSE:8,0,,0,0,0,1GN500__GN1_MF,20785.0,20785.0,GRNRACE:4,1,,0,0,0,1GN500__GN1_MF,20825.0,20825.0,GRNBRCH:1,2,,0,0,0,1GN500__GN1_MF,20860.0,20860.0,GRNORCH:1,3,,0,0,0,1GN500__GN1_MF,20900.0,20900.0,GRNBUSEY:8,4,,0,0,0,
+| trip_id        |   arrival_time |   departure_time | stop_id    |   stop_sequence |   stop_headsign |   pickup_type |   drop_off_type |   timepoint |   shape_dist_traveled |
+|:---------------|---------------:|-----------------:|:-----------|----------------:|----------------:|--------------:|----------------:|------------:|----------------------:|
+| 1GN500__GN1_MF |          20760 |            20760 | LSE:8      |               0 |             nan |             0 |               0 |           0 |                   nan |
+| 1GN500__GN1_MF |          20785 |            20785 | GRNRACE:4  |               1 |             nan |             0 |               0 |           0 |                   nan |
+| 1GN500__GN1_MF |          20825 |            20825 | GRNBRCH:1  |               2 |             nan |             0 |               0 |           0 |                   nan |
+| 1GN500__GN1_MF |          20860 |            20860 | GRNORCH:1  |               3 |             nan |             0 |               0 |           0 |                   nan |
+| 1GN500__GN1_MF |          20900 |            20900 | GRNBUSEY:8 |               4 |             nan |             0 |               0 |           0 |                   nan |
 ### stops.txt (feed.stops)
-stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,location_type,parent_station,stop_timezone,wheelchair_boarding,platform_code150DALE:1,5437,U.S. 150 & Dale (NE Corner),,40.11451167,-88.18067333,f,https://mtd.org/maps-and-schedules/bus-stops/info/150dale-1/,0,,America/Chicago,0,150DALE:3,5437,U.S. 150 & Dale (South Side),,40.11450333,-88.18084833,f,https://mtd.org/maps-and-schedules/bus-stops/info/150dale-3/,0,,America/Chicago,0,150DOD:5,2634,U.S. 150 & Dodson (NE Far Side),,40.11415833,-88.173105,f,https://mtd.org/maps-and-schedules/bus-stops/info/150dod-5/,0,,America/Chicago,0,150UNI:4,6741,U.S. 150 & University (NW Corner),,40.11654167,-88.18384,f,https://mtd.org/maps-and-schedules/bus-stops/info/150uni-4/,0,,America/Chicago,0,150UNI:8,6741,U.S. 150 & University (NW Far Side),,40.11603333,-88.18417832999998,f,https://mtd.org/maps-and-schedules/bus-stops/info/150uni-8/,0,,America/Chicago,0,
+| stop_id   |   stop_code | stop_name                           |   stop_desc |   stop_lat |   stop_lon | zone_id   | stop_url                                                     |   location_type |   parent_station | stop_timezone   |   wheelchair_boarding |   platform_code |
+|:----------|------------:|:------------------------------------|------------:|-----------:|-----------:|:----------|:-------------------------------------------------------------|----------------:|-----------------:|:----------------|----------------------:|----------------:|
+| 150DALE:1 |        5437 | U.S. 150 & Dale (NE Corner)         |         nan |    40.1145 |   -88.1807 | f         | https://mtd.org/maps-and-schedules/bus-stops/info/150dale-1/ |               0 |              nan | America/Chicago |                     0 |             nan |
+| 150DALE:3 |        5437 | U.S. 150 & Dale (South Side)        |         nan |    40.1145 |   -88.1808 | f         | https://mtd.org/maps-and-schedules/bus-stops/info/150dale-3/ |               0 |              nan | America/Chicago |                     0 |             nan |
+| 150DOD:5  |        2634 | U.S. 150 & Dodson (NE Far Side)     |         nan |    40.1142 |   -88.1731 | f         | https://mtd.org/maps-and-schedules/bus-stops/info/150dod-5/  |               0 |              nan | America/Chicago |                     0 |             nan |
+| 150UNI:4  |        6741 | U.S. 150 & University (NW Corner)   |         nan |    40.1165 |   -88.1838 | f         | https://mtd.org/maps-and-schedules/bus-stops/info/150uni-4/  |               0 |              nan | America/Chicago |                     0 |             nan |
+| 150UNI:8  |        6741 | U.S. 150 & University (NW Far Side) |         nan |    40.116  |   -88.1842 | f         | https://mtd.org/maps-and-schedules/bus-stops/info/150uni-8/  |               0 |              nan | America/Chicago |                     0 |             nan |
 ### trips.txt (feed.trips)
-route_id,service_id,trip_id,trip_headsign,direction_id,block_id,shape_id,wheelchair_accessible,bikes_allowedGREENHOPPER,GN8_MF,[@7.0.41101146@][4][1237930167062]/24__GN8_MF,Parkland College,1,GN8_MF,5W_HOPPER_81,0,0SILVER_LIMITED_SUNDAY,SV1_NONUI_SU,[@124.0.92241454@][1484326515007]/37__SV1_NONUI_SU,Lincoln Square,0,SV1_NONUI_SU,[@124.0.92241454@]4,0,0ORANGE,O4_RUBY_MF_(V001),[@6.0.54216924@][1723045917795]/107__O4_RUBY_MF_(V001),Butzow & Lierman,0,O4_RUBY_MF_(V001),[@6.0.54216924@]7,0,0LINK,LN1_MF,[@6.0.15252684@][1][1622671674683]/50__LN1_MF,University and Wright,0,LN1_MF,[@6.0.15252684@]1,0,0NAVY,N2_MF,[@124.0.103534744@][32][1510344802986]/3__N2_MF,Kirby & Mullikin,1,N2_MF,[@6.0.40494377@]8,0,0
+| route_id              | service_id        | trip_id                                                | trip_headsign         |   direction_id | block_id          | shape_id            |   wheelchair_accessible |   bikes_allowed |
+|:----------------------|:------------------|:-------------------------------------------------------|:----------------------|---------------:|:------------------|:--------------------|------------------------:|----------------:|
+| GREENHOPPER           | GN8_MF            | [@7.0.41101146@][4][1237930167062]/24__GN8_MF          | Parkland College      |              1 | GN8_MF            | 5W_HOPPER_81        |                       0 |               0 |
+| SILVER_LIMITED_SUNDAY | SV1_NONUI_SU      | [@124.0.92241454@][1484326515007]/37__SV1_NONUI_SU     | Lincoln Square        |              0 | SV1_NONUI_SU      | [@124.0.92241454@]4 |                       0 |               0 |
+| ORANGE                | O4_RUBY_MF_(V001) | [@6.0.54216924@][1723045917795]/107__O4_RUBY_MF_(V001) | Butzow & Lierman      |              0 | O4_RUBY_MF_(V001) | [@6.0.54216924@]7   |                       0 |               0 |
+| LINK                  | LN1_MF            | [@6.0.15252684@][1][1622671674683]/50__LN1_MF          | University and Wright |              0 | LN1_MF            | [@6.0.15252684@]1   |                       0 |               0 |
+| NAVY                  | N2_MF             | [@124.0.103534744@][32][1510344802986]/3__N2_MF        | Kirby & Mullikin      |              1 | N2_MF             | [@6.0.40494377@]8   |                       0 |               0 |
 
 ## Task Instructions
 
@@ -161,6 +216,9 @@ route_id,service_id,trip_id,trip_headsign,direction_id,block_id,shape_id,wheelch
 12. Use EPSG:4326 CRS for geospatial operations, setting CRS and geometry column explicitly.For distance calculations, use EPSG:3857 CRS where distance units is meters, then reproject to EPSG:4326 for plotting. Always report distances in meters or kilometers.
 13. Create interactive maps with markers, popups, and relevant info. *Always* use `CartoDB Positron` for base map tiles. The `map` key should be folium.Map, folium.Figure, or branca.element.Figure object 
 14. To search for geographical locations, use the `geopy` library with Nominatim geocoder. Use the city name and country code for accurate results. Use `gtfs2code` as the user_agent.
+15. Never use print statements for output. Return all the results in the `result` dictionary.
+16. While finding directions, use current date, day and time unless specified
+17. Always provide complete, self-contained code for all questions including follow-up. Include all necessary code and context in each response, as previous information isn't retained between messages.
 
 ### Helpful Tips and Facts
 - Remember that you are a chat assistant. Therefore, your responses should be in a format that can understood by a human.
@@ -173,6 +231,7 @@ route_id,service_id,trip_id,trip_headsign,direction_id,block_id,shape_id,wheelch
 - Note that some fields are optional and may not be present in all feeds. Even though some fields are present in the DataFrame, they may be empty or contain missing values. If you notice the sample data has missing values for all rows, then assume the field is not present in the feed.
 - The stop sequence starts from 1 and increases by 1 for each subsequent stop on a trip. It resets to 1 for each new trip.
 - The morning peak hours are typically between 6:00 AM and 9:00 AM, and the evening peak hours are between 3:00 PM and 7:00 PM. The rest of the hours are considered off-peak and categorized as midday (9:00 AM to 3:00 PM) or night hours.
+- While finding directions, try to find more than one nearest neighbors to comprehensively arrive at the solution.
 
 #### Data Operations
 - Time fields in stop_times.txt (arrival_time and departure_time) are already in seconds since midnight and do not need to be converted for calculations. 
@@ -181,10 +240,14 @@ route_id,service_id,trip_id,trip_headsign,direction_id,block_id,shape_id,wheelch
 - Favor using pandas and numpy operations to arrive at the solution over complex geospatial operations.
 
 #### Name Pattern Matching
+- **Always** filter the feed before manking any searches if both filter and search are required in the processing
+- Narrow the search space by filtering for day of the week, date and time
 - The users might provide names for routes, stops, or other entities that are not an exact match to the GTFS feed. Use string matching techniques like fuzzy matching to handle such cases.
-- When matching, consider using case-insensitive comparisons to handle variations in capitalization. Some common abbreviations include St for Street, Blvd for Boulevard, Ave for Avenue, etc. Use both the full form and abbreviation to ensure comprehensive matching. 
-- Set regex=False in the `str.contains` function to perform exact string matching. Alternatively,use regular expressions (regex = True [Default]) in  `str.contains` for more complex string matching.
+- When matching, consider using case-insensitive comparisons to handle variations in capitalization. Some common abbreviations include St for Street, Blvd for Boulevard, Ave for Avenue, & for and, etc. Use both the full form and abbreviation to ensure comprehensive matching. 
+- **Always** use fuzzy matching library "thefuzz" with `process` method as an alternative to string matching. Example: process.extract("Green",feed.routes.route_short_name, scorer=fuzz.ratio). **Always** use the `fuzz.ratio` scorer for better results. Use a minimum threshold of `80` for matching. If that fails, fall back to using `Nominatim`.
 - In case of multiple string matches for a specific instance, think if all matches are needed. If not consider using the match that is closest to the user's input.
+- Sometimes more than one route or stop have similar names. In such cases, consider providing a list of possible matches to the user for selection.
+- Check for multiple columns as the user could refer to any.Take routes for example, the user could refer to any of `route_id`, `route_short_name` and `route_long_name`
 
 #### Plotting and Mapping
 - For geospatial operations, consider using the `shapely` library to work with geometric objects like points, lines, and polygons.
@@ -212,7 +275,7 @@ friday_services = feed.calendar[(feed.calendar['friday'] == 1)]['service_id']
 
 # Filter trips for route_id '25490' and friday services
 friday_trips = feed.trips[(feed.trips['route_id'] == '25490') & 
-                           (feed.trips['service_id'].isin(friday_services))]
+                            (feed.trips['service_id'].isin(friday_services))]
 
 # Count the trips
 trip_count = friday_trips.shape[0]
@@ -258,7 +321,7 @@ avg_duration = trip_durations['arrival_time'].mean()
 
 # Create the plot
 fig = px.histogram(trip_durations.reset_index(), x='arrival_time', 
-                   title='Distribution of Trip Durations for Route 25490')
+                    title='Distribution of Trip Durations for Route 25490')
 
 result = {
     'answer': avg_duration,  # This is a timedelta object
@@ -286,8 +349,8 @@ Here's the code to implement this analysis:
 
 ```python
 # Assume the route_id and direction_id we're interested in
-route_id = '25490'
-direction_id = 0
+route_id = feed.routes.route_id.sample(n=1).values[0]
+direction_id = feed.trips[feed.trips.route_id == route_id].direction_id.sample(n=1).values[0]
 
 # Get all trips for the specified route
 route_trips = feed.trips[(feed.trips['route_id'] == route_id) & (feed.trips['direction_id'] == direction_id)]
@@ -449,152 +512,230 @@ result = {
 This code identifies the date with the fewest trips for the specified route, provides the trip count for that date, and creates a line plot showing how the number of trips varies over time. The additional information includes the date range of the analysis and the route ID that was analyzed.
 
 ### Example Task and Solution 6 
-Task: Map all routes that pass through Illinois Terminal
+Task: Find the distance along the TEAL route from Orchard Downs South Shelter to Illini Union
 Solution:
-To map all routes that pass through Illinois Terminal, we can follow these steps:
 ```python
 import pandas as pd
-import geopandas as gpd
-import folium
-from shapely.geometry import LineString
+from thefuzz import process, fuzz
 
-# Step 1: Identify the stop ID for Illinois Terminal
-illinois_terminal = feed.stops[feed.stops['stop_name'].str.contains('Illinois Terminal', case=False, na=False)]
-if illinois_terminal.empty:
+# Find the TEAL route from all potential fields route_id, route_short_name and route_long_name
+possible_teal_matches = pd.concat([feed.routes['route_id'], feed.routes['route_short_name'], feed.routes['route_long_name']])
+teal_route_index = process.extractOne("TEAL", possible_teal_matches, scorer=fuzz.ratio)[2]
+teal_route_id = feed.routes.iloc[teal_route_index]['route_id']
+
+# Get trips for the TEAL route and their stop times along with stop names
+teal_trips = feed.trips[feed.trips['route_id'] == teal_route_id]
+teal_stop_times = feed.stop_times[feed.stop_times['trip_id'].isin(teal_trips['trip_id'])]
+teal_stop_times_with_names = pd.merge(teal_stop_times, feed.stops, on='stop_id')
+
+# Find the stop IDs for our two stops
+start_stop = process.extractOne("Orchard Downs South Shelter", teal_stop_times_with_names['stop_name'], scorer=fuzz.ratio)[0]
+end_stop = process.extractOne("Illini Union", teal_stop_times_with_names['stop_name'], scorer=fuzz.ratio)[0]
+
+start_stop_id = feed.stops[feed.stops['stop_name'] == start_stop]['stop_id'].iloc[0]
+end_stop_id = feed.stops[feed.stops['stop_name'] == end_stop]['stop_id'].iloc[0]
+
+# Get stop times for TEAL trips
+teal_stop_times = feed.stop_times[feed.stop_times['trip_id'].isin(teal_trips['trip_id'])]
+
+# Find a trip that includes both stops
+valid_trips = teal_stop_times[teal_stop_times['stop_id'].isin([start_stop_id, end_stop_id])].groupby('trip_id').filter(lambda x: len(x) >= 2)
+if valid_trips.empty:
     result = {
         'answer': None,
-        'additional_info': "Illinois Terminal stop not found in the GTFS data."
+        'additional_info': "No trip found that includes both stops. They might be on different variations of the route."
     }
 else:
-    illinois_terminal_id = illinois_terminal.iloc[0]['stop_id']
+    # Take the first valid trip
+    sample_trip_id = valid_trips['trip_id'].iloc[0]
+    trip_stops = teal_stop_times[teal_stop_times['trip_id'] == sample_trip_id].sort_values('stop_sequence')
 
-    # Step 2: Find all trips that pass through this stop
-    trips_through_terminal = feed.stop_times[feed.stop_times['stop_id'] == illinois_terminal_id]['trip_id'].unique()
+    # Get the shape for this trip
+    shape_id = teal_trips[teal_trips['trip_id'] == sample_trip_id]['shape_id'].iloc[0]
+    shape_points = feed.shapes[feed.shapes['shape_id'] == shape_id].sort_values('shape_pt_sequence')
 
-    # Step 3: Identify the unique routes these trips belong to
-    routes_through_terminal = feed.trips[feed.trips['trip_id'].isin(trips_through_terminal)]['route_id'].unique()
+    # Find the shape distances for our stops
+    start_dist = trip_stops[trip_stops['stop_id'] == start_stop_id]['shape_dist_traveled'].iloc[0]
+    end_dist = trip_stops[trip_stops['stop_id'] == end_stop_id]['shape_dist_traveled'].iloc[0]
 
-    # Step 4: Get the shapes for these routes
-    shapes_through_terminal = feed.trips[feed.trips['route_id'].isin(routes_through_terminal)]['shape_id'].unique()
+    # Calculate the distance
+    distance = abs(end_dist - start_dist)
 
-    # Create a GeoDataFrame with the shapes
-    shapes_gdf = feed.shapes[feed.shapes['shape_id'].isin(shapes_through_terminal)].copy()
-    shapes_gdf['geometry'] = shapes_gdf.apply(lambda row: (row['shape_pt_lon'], row['shape_pt_lat']), axis=1)
-    shapes_gdf = shapes_gdf.groupby('shape_id').agg({'geometry': lambda x: LineString(x.tolist())})
-    shapes_gdf = gpd.GeoDataFrame(shapes_gdf, geometry='geometry', crs="EPSG:4326")
-    shapes_gdf = shapes_gdf.reset_index().merge(feed.trips[['shape_id', 'route_id']], on='shape_id', how='left')
+    result = {
+        'answer': distance,
+        'additional_info': f"The distance is calculated along the TEAL route from '{start_stop}' to '{end_stop}'. "
+                        f"This is based on the shape of trip {sample_trip_id}. "
+                        f"Note that the actual distance might vary slightly between different trips of the same route."
+    }
 
-    # Step 5: Create a map with all these routes
-    m = folium.Map(location=[illinois_terminal.iloc[0]['stop_lat'], illinois_terminal.iloc[0]['stop_lon']], 
-                zoom_start=12, tiles='CartoDB positron')
+# If we have geographical coordinates, we can create a map
+if not result['answer'] is None and 'shape_pt_lat' in feed.shapes.columns and 'shape_pt_lon' in feed.shapes.columns:
+    import folium
 
-    # Add routes to the map
-    shapes_gdf.explore(
-        column="route_id",
-        m=m,
-        legend=True,
-        legend_kwds={"label": "Route ID"},
-        name="Routes",
-        tooltip=["route_id"],
-        style_kwds={"weight": 2, "opacity": 0.7}
-    )
+    # Create a map centered on the route
+    center_lat = shape_points['shape_pt_lat'].mean()
+    center_lon = shape_points['shape_pt_lon'].mean()
+    m = folium.Map(location=[center_lat, center_lon], zoom_start=13, tiles='CartoDB positron')
 
-    # Add Illinois Terminal marker
+    # Add the route to the map
+    route_coords = shape_points[['shape_pt_lat', 'shape_pt_lon']].values.tolist()
+    folium.PolyLine(route_coords, weight=2, color='blue', opacity=0.8).add_to(m)
+
+    # Add markers for the start and end stops
+    start_stop_coords = feed.stops[feed.stops['stop_id'] == start_stop_id][['stop_lat', 'stop_lon']].iloc[0]
+    end_stop_coords = feed.stops[feed.stops['stop_id'] == end_stop_id][['stop_lat', 'stop_lon']].iloc[0]
+
     folium.Marker(
-        [illinois_terminal.iloc[0]['stop_lat'], illinois_terminal.iloc[0]['stop_lon']],
-        popup='Illinois Terminal',
+        location=[start_stop_coords['stop_lat'], start_stop_coords['stop_lon']],
+        popup=start_stop,
+        icon=folium.Icon(color='green', icon='info-sign')
+    ).add_to(m)
+
+    folium.Marker(
+        location=[end_stop_coords['stop_lat'], end_stop_coords['stop_lon']],
+        popup=end_stop,
         icon=folium.Icon(color='red', icon='info-sign')
     ).add_to(m)
 
-    # Fit the map bounds to the shapes
-    m.fit_bounds(shapes_gdf.total_bounds.tolist())
-
-    # Add layer control
-    folium.LayerControl().add_to(m)
-
-    result = {
-        'answer': f"{len(routes_through_terminal)} routes pass through Illinois Terminal.",
-        'additional_info': f"These routes use {len(shapes_through_terminal)} unique shapes.",
-        'map': m
-    }
-    ```
-
-### Example Task and Solution 7 
-Task: Find the next five departures from a specific stop
-Solution:
-To find the next five departures from a specific stop, we can follow these steps:
-
-1. Identify the stop ID for the specified stop.
-2. Get the current date, day of the week, and time.
-3. Determine the service IDs that are active on the current date. Consider any exceptions to the regular service schedule for the current date.
-4. Find the next five departures by filtering stop times based on the current time.
-
-This approach allows us to provide real-time information about upcoming departures from the stop, which can be valuable for passengers and service planning.
-
-Here's the code to implement this analysis:
-
-```python
-from datetime import datetime, timedelta
-import pandas as pd
-
-# Step 1: Identify the stop ID for Illinois Terminal
-illinois_terminal = feed.stops[feed.stops['stop_name'].str.contains('Illinois Terminal', case=False, na=False)]
-if illinois_terminal.empty:
-    result = {
-        'answer': None,
-        'additional_info': "Illinois Terminal stop not found in the GTFS data."
-    }
-
-
-# Step 2: Get current date, day of the week and time
-datetime_now = datetime.now()
-today = datetime_now.date()
-current_time = datetime_now.time().strftime("%H:%M:%S")
-h, m, s = current_time.split(':')
-current_time_seconds = 60*60*int(h) + 60*int(m) + int(s)
-day_of_week = today.strftime("%A").lower()
-
-service_ids = feed.calendar[
-    (feed.calendar["start_date"] <= today)
-    & (feed.calendar["end_date"] >= today)
-    & (feed.calendar[day_of_week] == 1)
-]["service_id"].unique()
-
-# Step 3: Get current service IDs considering exceptions
-date_exceptions = feed.calendar_dates[feed.calendar_dates["date"] == today]
-added_service_ids = date_exceptions[date_exceptions["exception_type"] == 1]["service_id"].unique()
-removed_service_ids = date_exceptions[date_exceptions["exception_type"] == 2]["service_id"].unique()
-final_service_ids = list(set(service_ids) | set(added_service_ids) - set(removed_service_ids))
-
-# Step 4: Find the next five departures by filtering stop times
-trips_today = feed.trips[feed.trips["service_id"].isin(final_service_ids)]
-trips_today = trips_today.merge(feed.routes, on="route_id")
-stop_times_merged = feed.stop_times.merge(trips_today[["trip_id","route_id","direction_id","route_long_name","trip_headsign"]], on="trip_id")
-stop_times_today = stop_times_merged[stop_times_merged["trip_id"].isin(trips_today["trip_id"])]
-future_stop_times = stop_times_today[stop_times_today["departure_time"] >= current_time_seconds]
-stop_times_terminal = future_stop_times[future_stop_times["stop_id"].isin(illinois_terminal["stop_id"])]
-stop_times_terminal = stop_times_terminal.sort_values("departure_time")
-
-result_data = []
-for _, departure in stop_times_terminal.head(5).iterrows():
-    departure_time = int(departure["departure_time"])
-    hours, remainder = divmod(departure_time, 3600)
-    minutes, seconds = divmod(remainder, 60)
-    
-    # Format as HH:MM:SS
-    departure_time =  f"{hours:02d}:{minutes:02d}:{seconds:02d}"
-    result_data.append({
-        "route_id":departure['route_id'],
-        "departure_time": departure_time,
-        "route_name": departure["route_long_name"],
-        "trip_headsign": departure["trip_headsign"],
-        "direction_id": departure["direction_id"]
-    })
-    
-result = {
-        'answer': result_data,
-        'additional_info': f"These are the next 5 buses leaving from Illinois Terminal (Stop ID: {illinois_terminal.stop_id.to_list()}) after {current_time}."
-    }
+    result['map'] = m
 ```
 
-This code identifies the next departures from the specified stop and provides information about the upcoming trips, including their route ID, departure time, route name, and trip headsign. The additional information includes the stop ID and the time at which the departures were queried.
+### Example Task and Solution 7 
+Task: Find directions from Orchard Downs to Newmark now
+Solution:
+import pandas as pd
+import numpy as np
+from datetime import datetime, time
+from thefuzz import process, fuzz
+import folium
+from geopy.geocoders import Nominatim
+from geopy.distance import geodesic
+
+geolocator = Nominatim(user_agent="gtfs2code")
+
+def geocode_location(location_name):
+    try:
+        location = geolocator.geocode(f"{location_name}, Urbana, IL, USA")
+        return (location.latitude, location.longitude) if location else None
+    except:
+        return None
+
+
+def find_nearest_stops(lat, lon, stops_df, num_stops=5):
+    stops_df["distance"] = stops_df.apply(
+        lambda row: geodesic((lat, lon), (row["stop_lat"], row["stop_lon"])).meters,
+        axis=1,
+    )
+    return stops_df.nsmallest(num_stops, "distance")
+
+def time_to_gtfs_format(t):
+    hours, remainder = divmod(int(t), 3600)
+    minutes, seconds = divmod(remainder, 60)
+    departure_time =  f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+    return departure_time
+
+# Geocode the locations
+orchard_downs_coords = geocode_location("Orchard Downs")
+newmark_coords = geocode_location("Newmark")
+
+if not orchard_downs_coords or not newmark_coords:
+    result = {
+        "answer": "Unable to geocode one or both locations.",
+        "additional_info": "Please check the location names and try again.",
+    }
+else:
+    # Find nearest stops
+    orchard_downs_stops = find_nearest_stops(
+        orchard_downs_coords[0], orchard_downs_coords[1], feed.stops
+    )
+    newmark_stops = find_nearest_stops(newmark_coords[0], newmark_coords[1], feed.stops)
+
+    # Get current time (assume it's now)
+    now = datetime.now()
+    current_time = now.time().strftime("%H:%M:%S")
+    h, m, s = current_time.split(":")
+    current_time_seconds = 60 * 60 * int(h) + 60 * int(m) + int(s)
+    current_day = now.strftime("%A").lower()
+
+    # Find active services for the current day
+    active_services = feed.calendar[
+        (feed.calendar["start_date"] <= now.date())
+        & (feed.calendar["end_date"] >= now.date())
+        & (feed.calendar[current_day] == 1)
+    ]["service_id"].tolist()
+
+    # Find trips that serve both stops
+    possible_trips = []
+    for start_stop in orchard_downs_stops.itertuples():
+        for end_stop in newmark_stops.itertuples():
+            trips_serving_start = set(
+                feed.stop_times[feed.stop_times["stop_id"] == start_stop.stop_id][
+                    "trip_id"
+                ]
+            )
+            trips_serving_end = set(
+                feed.stop_times[feed.stop_times["stop_id"] == end_stop.stop_id][
+                    "trip_id"
+                ]
+            )
+            common_trips = trips_serving_start.intersection(trips_serving_end)
+
+            for trip_id in common_trips:
+                trip = feed.trips[feed.trips["trip_id"] == trip_id].iloc[0]
+                if trip["service_id"] in active_services:
+                    trip_stops = feed.stop_times[
+                        (feed.stop_times["trip_id"] == trip_id)
+                        & (
+                            feed.stop_times["stop_id"].isin(
+                                [start_stop.stop_id, end_stop.stop_id]
+                            )
+                        )
+                    ].sort_values("stop_sequence")
+                    # Filter trips that depart in future and within 1 hour
+                    trip_stops = trip_stops[trip_stops["departure_time"] > current_time_seconds]
+                    trip_stops = trip_stops[trip_stops["departure_time"] < current_time_seconds + 3600]
+                    if len(trip_stops) == 2:
+                        start_time = trip_stops.iloc[0]["departure_time"]
+                        end_time = trip_stops.iloc[1]["arrival_time"]
+                        travel_time = end_time - start_time
+                        if travel_time > 0 :
+                            possible_trip = {
+                                "trip": trip,
+                                "start_stop": start_stop,
+                                "end_stop": end_stop,
+                                "start_time": time_to_gtfs_format(start_time),
+                                "end_time": time_to_gtfs_format(end_time),
+                                "travel_time": travel_time,
+                            }
+                            possible_trips.append(possible_trip)
+                            
+    shortest_travel_time = float("inf")
+    if possible_trips:
+        possible_trips_df = pd.DataFrame(possible_trips)
+        possible_trips_df = possible_trips_df.sort_values("start_time").reset_index()
+        options = []
+        for i, trip in possible_trips_df.iterrows():
+            route = feed.routes[
+                feed.routes["route_id"] == trip["trip"]["route_id"]
+            ].iloc[0]
+            route_name = (
+                route["route_long_name"]
+                if pd.notna(route["route_long_name"])
+                else route["route_short_name"]
+            )
+            option = f"Take the {route_name} from {trip['start_stop'].stop_name} at {trip['start_time']} to {trip['end_stop'].stop_name}, arriving at {trip['end_time']}."
+            options.append(option)
+            if trip['travel_time'] < shortest_travel_time:
+                best_trip = trip
+                shortest_travel_time = trip['travel_time']
+                
+        result = {
+            "answer":options ,
+            "additional_info": f"Best trip ID is {best_trip['trip']['trip_id']}. Travel time is approximately {best_trip['travel_time']/60:.2f} minutes. "
+            f"Walk to {best_trip['start_stop'].stop_name} to start your journey, and from {best_trip['end_stop'].stop_name} to reach your final destination.",
+        }
+    else:
+        result = {
+            "answer": "No direct route found between the nearest stops to Orchard Downs and Newmark.",
+            "additional_info": "You might need to transfer between routes. Consider using a trip planner for more complex journeys.",
+        }
