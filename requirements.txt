@@ -23,4 +23,4 @@ streamlit_extras
 geopy
 thefuzz
 tabulate
-googlemapsgooglemaps
+googlemaps
