@@ -21,7 +21,7 @@ from shapely.geometry import LineString, Point, Polygon
 from thefuzz import process, fuzz
 from prompts.generate_prompt import generate_system_prompt
 from utils.gtfs_loader import GTFSLoader
-
+from utils.geocoder import get_geo_location
 
 def load_zipped_pickle(filename):
     with gzip.open(filename, 'rb') as f:

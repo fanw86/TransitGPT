@@ -216,10 +216,11 @@ trips.txt:
 11. Prefer GeoPandas GeoDataFrame `explore()` method for spatial visualization.
 12. Use EPSG:4326 CRS for geospatial operations, setting CRS and geometry column explicitly. For distance calculations, use `geodesic` from geopy.distance and transform to appropriate units.
 13. Create interactive maps with markers, popups, and relevant info. *Always* use `CartoDB Positron` for base map tiles. The `map` key should be folium.Map, folium.Figure, or branca.element.Figure object 
-14. To search for geographical locations, use the `geopy` library with Nominatim geocoder. Use the city name and country code for accurate results. Use `gtfs2code` as the user_agent.
+14. To search for geographical locations, use `get_geo_location` function. Concatenate the city name and country code for accurate results.
 15. Never use print statements for output. Return all the results in the `result` dictionary.
 16. While finding directions, use current date, day and time unless specified. Also limit the search to departures that are within one hour from current time
 17. Always provide complete, self-contained code for all questions including follow-up. Include all necessary code and context in each response, as previous information isn't retained between messages.
+18. Do not make things up when there is no information 
 
 ### Helpful Tips and Facts
 - Remember that you are a chat assistant. Therefore, your responses should be in a format that can understood by a human.
@@ -246,7 +247,7 @@ trips.txt:
 - The users might provide names for routes, stops, or other entities that are not an exact match to the GTFS feed. Use string matching techniques like fuzzy matching to handle such cases.
 - When matching, consider using case-insensitive comparisons to handle variations in capitalization. Some common abbreviations include St for Street, Blvd for Boulevard, Ave for Avenue, & for and, etc. Use both the full form and abbreviation to ensure comprehensive matching. 
 - **Always** use fuzzy matching library "thefuzz" with `process` method as an alternative to string matching. Example: process.extract("Green",feed.routes.route_short_name, scorer=fuzz.ratio). **Always** use the `fuzz.ratio` scorer for better results. 
-- Use a minimum threshold of `80` for matching and reduce to 60 as fallback. If that fails, fall back to using `Nominatim`.
+- Use a minimum threshold of `80` for matching and reduce to 60 as fallback.
 - In case of multiple string matches for a specific instance, think if all matches are needed. If not consider using the match that is closest to the user's input.
 - Sometimes more than one route or stop have similar names. In such cases, consider providing a list of possible matches to the user for selection.
 - Check for multiple columns as the user could refer to any.Take routes for example, the user could refer to any of `route_id`, `route_short_name` and `route_long_name`
@@ -612,18 +613,7 @@ import numpy as np
 from datetime import datetime, time
 from thefuzz import process, fuzz
 import folium
-from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
-
-geolocator = Nominatim(user_agent="gtfs2code")
-
-def geocode_location(location_name):
-    try:
-        location = geolocator.geocode(f"{location_name}, Champaign, IL, USA")
-        return (location.latitude, location.longitude) if location else None
-    except:
-        return None
-
 
 def find_nearest_stops(lat, lon, stops_df, num_stops=5):
     stops_df["distance"] = stops_df.apply(
@@ -639,8 +629,8 @@ def time_to_gtfs_format(t):
     return departure_time
 
 # Geocode the locations
-orchard_downs_coords = geocode_location("Orchard Downs")
-newmark_coords = geocode_location("Newmark")
+orchard_downs_coords = get_geo_location("Orchard Downs, Champaign, IL, USA")
+newmark_coords = get_geo_location("Newmark, Champaign, IL, USA")
 
 if not orchard_downs_coords or not newmark_coords:
     result = {

@@ -348,18 +348,7 @@ example_7:
         from datetime import datetime, time
         from thefuzz import process, fuzz
         import folium
-        from geopy.geocoders import Nominatim
         from geopy.distance import geodesic
-
-        geolocator = Nominatim(user_agent="gtfs2code")
-
-        def geocode_location(location_name):
-            try:
-                location = geolocator.geocode(f"{location_name}, Champaign, IL, USA")
-                return (location.latitude, location.longitude) if location else None
-            except:
-                return None
-
 
         def find_nearest_stops(lat, lon, stops_df, num_stops=5):
             stops_df["distance"] = stops_df.apply(
@@ -375,8 +364,8 @@ example_7:
             return departure_time
 
         # Geocode the locations
-        orchard_downs_coords = geocode_location("Orchard Downs")
-        newmark_coords = geocode_location("Newmark")
+        orchard_downs_coords = get_geo_location("Orchard Downs, Champaign, IL, USA")
+        newmark_coords = get_geo_location("Newmark, Champaign, IL, USA")
 
         if not orchard_downs_coords or not newmark_coords:
             result = {

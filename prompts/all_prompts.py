@@ -191,10 +191,11 @@ TASK_INSTRUCTION = """
 11. Prefer GeoPandas GeoDataFrame `explore()` method for spatial visualization.
 12. Use EPSG:4326 CRS for geospatial operations, setting CRS and geometry column explicitly. For distance calculations, use `geodesic` from geopy.distance and transform to appropriate units.
 13. Create interactive maps with markers, popups, and relevant info. *Always* use `CartoDB Positron` for base map tiles. The `map` key should be folium.Map, folium.Figure, or branca.element.Figure object 
-14. To search for geographical locations, use the `geopy` library with Nominatim geocoder. Use the city name and country code for accurate results. Use `gtfs2code` as the user_agent.
+14. To search for geographical locations, use `get_geo_location` function. Concatenate the city name and country code for accurate results.
 15. Never use print statements for output. Return all the results in the `result` dictionary.
 16. While finding directions, use current date, day and time unless specified. Also limit the search to departures that are within one hour from current time
 17. Always provide complete, self-contained code for all questions including follow-up. Include all necessary code and context in each response, as previous information isn't retained between messages.
+18. Do not make things up when there is no information 
 """
 
 # 16. Sometimes it is unclear which file or field the user is referring to. In such cases, ask the user questions to clarify the context before proceeding. Use a key called `clarification` in the `result` dictionary to store the clarification question. You can also provide a list of possible matches for the user to select from.
@@ -225,7 +226,7 @@ TASK_TIPS = """
 - The users might provide names for routes, stops, or other entities that are not an exact match to the GTFS feed. Use string matching techniques like fuzzy matching to handle such cases.
 - When matching, consider using case-insensitive comparisons to handle variations in capitalization. Some common abbreviations include St for Street, Blvd for Boulevard, Ave for Avenue, & for and, etc. Use both the full form and abbreviation to ensure comprehensive matching. 
 - **Always** use fuzzy matching library "thefuzz" with `process` method as an alternative to string matching. Example: process.extract("Green",feed.routes.route_short_name, scorer=fuzz.ratio). **Always** use the `fuzz.ratio` scorer for better results. 
-- Use a minimum threshold of `80` for matching and reduce to 60 as fallback. If that fails, fall back to using `Nominatim`.
+- Use a minimum threshold of `80` for matching and reduce to 60 as fallback.
 - In case of multiple string matches for a specific instance, think if all matches are needed. If not consider using the match that is closest to the user's input.
 - Sometimes more than one route or stop have similar names. In such cases, consider providing a list of possible matches to the user for selection.
 - Check for multiple columns as the user could refer to any.Take routes for example, the user could refer to any of `route_id`, `route_short_name` and `route_long_name`
