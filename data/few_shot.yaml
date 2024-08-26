@@ -355,7 +355,7 @@ example_7:
 
         def geocode_location(location_name):
             try:
-                location = geolocator.geocode(f"{location_name}, Urbana, IL, USA")
+                location = geolocator.geocode(f"{location_name}, Champaign, IL, USA")
                 return (location.latitude, location.longitude) if location else None
             except:
                 return None

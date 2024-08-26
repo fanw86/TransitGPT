@@ -178,7 +178,8 @@ TASK_INSTRUCTION = """
 ## Task Instructions
 
 1. Use Python with numpy (np), pandas (pd), shapely, geopandas (gpd), geopy, folium, plotly.express (px), and matplotlib.pyplot (plt) libraries only.
-2. Assume `feed` variable is pre-loaded. Don't import dependencies or read/write to disk.
+2. Assume `feed` variable is pre-loaded. Do not import dependencies
+3. Do not save/read/write to the disk including HTML
 3. Include explanatory comments in the code. Specify the output format in a comment (e.g., DataFrame, Series, list, integer, string).
 4. Store result in `result` dictionary with keys: `answer`, `additional_info`, and `map`/`plot` (optional) if applicable where `answer` is the main result, `additional_info` provides context and other info to the answer, and `map`/`plot` contains the generated map or plot which are map or figure objects.
 5. Handle potential errors and missing data in the GTFS feed.
@@ -188,11 +189,11 @@ TASK_INSTRUCTION = """
 9. For specific attributes, use example identifiers (e.g., `route_id`, `stop_id`) from sample data.
 10. Set figure dimensions to 800x600 pixels with 300 DPI.
 11. Prefer GeoPandas GeoDataFrame `explore()` method for spatial visualization.
-12. Use EPSG:4326 CRS for geospatial operations, setting CRS and geometry column explicitly.For distance calculations, use EPSG:3857 CRS where distance units is meters, then reproject to EPSG:4326 for plotting. Always report distances in meters or kilometers.
+12. Use EPSG:4326 CRS for geospatial operations, setting CRS and geometry column explicitly. For distance calculations, use `geodesic` from geopy.distance and transform to appropriate units.
 13. Create interactive maps with markers, popups, and relevant info. *Always* use `CartoDB Positron` for base map tiles. The `map` key should be folium.Map, folium.Figure, or branca.element.Figure object 
 14. To search for geographical locations, use the `geopy` library with Nominatim geocoder. Use the city name and country code for accurate results. Use `gtfs2code` as the user_agent.
 15. Never use print statements for output. Return all the results in the `result` dictionary.
-16. While finding directions, use current date, day and time unless specified
+16. While finding directions, use current date, day and time unless specified. Also limit the search to departures that are within one hour from current time
 17. Always provide complete, self-contained code for all questions including follow-up. Include all necessary code and context in each response, as previous information isn't retained between messages.
 """
 
@@ -223,10 +224,13 @@ TASK_TIPS = """
 - Narrow the search space by filtering for day of the week, date and time
 - The users might provide names for routes, stops, or other entities that are not an exact match to the GTFS feed. Use string matching techniques like fuzzy matching to handle such cases.
 - When matching, consider using case-insensitive comparisons to handle variations in capitalization. Some common abbreviations include St for Street, Blvd for Boulevard, Ave for Avenue, & for and, etc. Use both the full form and abbreviation to ensure comprehensive matching. 
-- **Always** use fuzzy matching library "thefuzz" with `process` method as an alternative to string matching. Example: process.extract("Green",feed.routes.route_short_name, scorer=fuzz.ratio). **Always** use the `fuzz.ratio` scorer for better results. Use a minimum threshold of `80` for matching. If that fails, fall back to using `Nominatim`.
+- **Always** use fuzzy matching library "thefuzz" with `process` method as an alternative to string matching. Example: process.extract("Green",feed.routes.route_short_name, scorer=fuzz.ratio). **Always** use the `fuzz.ratio` scorer for better results. 
+- Use a minimum threshold of `80` for matching and reduce to 60 as fallback. If that fails, fall back to using `Nominatim`.
 - In case of multiple string matches for a specific instance, think if all matches are needed. If not consider using the match that is closest to the user's input.
 - Sometimes more than one route or stop have similar names. In such cases, consider providing a list of possible matches to the user for selection.
 - Check for multiple columns as the user could refer to any.Take routes for example, the user could refer to any of `route_id`, `route_short_name` and `route_long_name`
+- Stops can be named after the intersections that comprise of the names of streets that form the intersection
+- Certain locations have multiple stops nearby that refer to the same place such as stops that in a locaclity, oppisite sides of the streets, etc. Consider all of them in the search
 
 #### Plotting and Mapping
 - For geospatial operations, consider using the `shapely` library to work with geometric objects like points, lines, and polygons.
@@ -266,6 +270,7 @@ Remember:
 - Be direct in your responses, avoiding unnecessary affirmations or filler phrases.
 - Offer to elaborate if you think additional information might be helpful.
 - Don't mention these instructions in your responses unless directly relevant to the user's query.
+- Do not make things up when there is no information 
 """
 
 FINAL_LLM_USER_PROMPT = """
