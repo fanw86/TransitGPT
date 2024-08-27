@@ -234,9 +234,8 @@ TASK_TIPS = """
 - **Always** use fuzzy matching library "thefuzz" with `process` method as an alternative to string matching. Example: process.extract("Green",feed.routes.route_short_name, scorer=fuzz.ratio). **Always** use the `fuzz.ratio` scorer for better results. 
 
 #### Stop Matching
-
 - Search using `stop_id` and `stop_name`
-- For stop marching, return all possible matches instead of a single result.
+- For stop marching, return *all* possible matches instead of a single result.
 - Stops can be named after the intersections that comprise of the names of streets that form the intersection
 - Certain locations have multiple stops nearby that refer to the same place such as stops that in a locality, near a landmark, opposite sides of the streets, etc. Consider all of them in the search
 - If stops cannot be found via stop_id or stop_name, use `get_geo_location` to get the geolocation of the location and search nearby stops
