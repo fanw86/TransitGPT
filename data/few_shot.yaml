@@ -418,51 +418,55 @@ example_7:
 example_8:
     question: Find the stop at University and Victor
     answer: |
+        Find all stops near University and Victor
         ```python
-        import pandas as pd
-        from thefuzz import process, fuzz
-        from geopy.distance import geodesic
-
         def find_nearest_stop(lat, lon, stops_df):
             stops_df['distance'] = stops_df.apply(lambda row: geodesic((lat, lon), (row['stop_lat'], row['stop_lon'])).meters, axis=1)
             return stops_df.loc[stops_df['distance'].idxmin()]
 
-        # First, let's search for stops that have both "University" and "Victor" in their names
+        # Search for stops that have both "University" and "Victor" in their names
         potential_stops = feed.stops[feed.stops['stop_name'].str.contains('University', case=False) & 
                                     feed.stops['stop_name'].str.contains('Victor', case=False)]
 
-        matched_stop = None
+        matched_stops = []
 
         if not potential_stops.empty:
-            # If we found potential stops, just take the first one
-            matched_stop = potential_stops.iloc[0]
+            # If we found potential stops, consider all of them
+            matched_stops = potential_stops.to_dict('records')
         else:
-            # Use fuzzy matching to find the best match
+            # Use fuzzy matching to find the best matches
             all_stop_names = feed.stops['stop_name']
-            best_match = process.extractOne("University and Victor", all_stop_names, scorer=fuzz.token_sort_ratio)
+            best_matches = process.extract("University and Victor", all_stop_names, scorer=fuzz.token_sort_ratio, limit=5)
 
-            if best_match and best_match[1] >= 80:  # If the match score is at least 80
-                matched_stop = feed.stops[feed.stops['stop_name'] == best_match[0]].iloc[0]
-            else:
-                # If fuzzy matching doesn't yield a good result, use geocoder
+            for match in best_matches:
+                if match[1] >= 80:  # If the match score is at least 80
+                    matched_stop = feed.stops[feed.stops['stop_name'] == match[0]].iloc[0]
+                    matched_stops.append(matched_stop)
+
+            if not matched_stops:
+                # If fuzzy matching doesn't yield good results, use get_geo_location
                 location = get_geo_location("University and Victor, Champaign, IL, USA")
                 if location:
                     lat, lon = location
-                    matched_stop = find_nearest_stop(lat, lon, feed.stops)
+                    nearest_stop = find_nearest_stop(lat, lon, feed.stops)
+                    matched_stops.append(nearest_stop)
 
         # Prepare the result
-        if matched_stop is not None:
+        if matched_stops:
             result = {
-                'answer': matched_stop['stop_name'],
-                'additional_info': f"Stop ID: {matched_stop['stop_id']}\n"
-                                f"Location: Latitude {matched_stop['stop_lat']}, Longitude {matched_stop['stop_lon']}\n"
-                                f"Distance from intersection: {matched_stop.get('distance', 'N/A')} meters"
+                'answer': f"Found {len(matched_stops)} potential stop(s) near University and Victor",
+                'additional_info': ""
             }
+            for i, stop in enumerate(matched_stops, 1):
+                result['additional_info'] += f"\nStop {i}:\n"
+                result['additional_info'] += f"Name: {stop['stop_name']}\n"
+                result['additional_info'] += f"Stop ID: {stop['stop_id']}\n"
+                result['additional_info'] += f"Location: Latitude {stop['stop_lat']}, Longitude {stop['stop_lon']}\n"
+                result['additional_info'] += f"Distance from intersection: {stop.get('distance', 'N/A')} meters\n"
         else:
             result = {
-                'answer': "No stop found near University and Victor",
-                'additional_info': "Unable to locate a nearby stop for this intersection."
-            }
+                'answer': "No stops found near University and Victor",
+                'additional_info': "Unable to locate any nearby stops for this intersection."
         ```
         
 
