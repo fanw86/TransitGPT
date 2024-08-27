@@ -424,7 +424,7 @@ example_8:
             stops_df['distance'] = stops_df.apply(lambda row: geodesic((lat, lon), (row['stop_lat'], row['stop_lon'])).meters, axis=1)
             return stops_df.loc[stops_df['distance'].idxmin()]
 
-        # Search for stops that have both "University" and "Victor" in their names
+        # Search for all stops that have both "University" and "Victor" in their names
         potential_stops = feed.stops[feed.stops['stop_name'].str.contains('University', case=False) & 
                                     feed.stops['stop_name'].str.contains('Victor', case=False)]
 
