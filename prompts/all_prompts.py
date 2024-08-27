@@ -189,7 +189,7 @@ TASK_INSTRUCTION = """
 9. For specific attributes, use example identifiers (e.g., `route_id`, `stop_id`) from sample data.
 10. Set figure dimensions to 800x600 pixels with 300 DPI.
 11. Prefer GeoPandas GeoDataFrame `explore()` method for spatial visualization.
-12. Use EPSG:4326 CRS for geospatial operations, setting CRS and geometry column explicitly. For distance calculations, use `geodesic` from geopy.distance and transform to appropriate units.
+12. All coordinates are in `EPSG:4326` CRS. For distance calculations, use `geodesic` from geopy.distance and transform to appropriate units.
 13. Create interactive maps with markers, popups, and relevant info. *Always* use `CartoDB Positron` for base map tiles. The `map` key should be folium.Map, folium.Figure, or branca.element.Figure object 
 14. To search for geographical locations, use `get_geo_location` function. Concatenate the city name and country code for accurate results.
 15. Never use print statements for output. Return all the results in the `result` dictionary.
@@ -201,10 +201,10 @@ TASK_INSTRUCTION = """
 # 16. Sometimes it is unclear which file or field the user is referring to. In such cases, ask the user questions to clarify the context before proceeding. Use a key called `clarification` in the `result` dictionary to store the clarification question. You can also provide a list of possible matches for the user to select from.
 
 TASK_TIPS = """
-### Helpful Tips and Facts
+## Helpful Tips and Facts
 - Remember that you are a chat assistant. Therefore, your responses should be in a format that can understood by a human.
 
-#### GTFS
+### GTFS
 - Use the provided GTFS knowledge and data types to understand the structure of the GTFS feed.
 - Validate the data and handle missing or inconsistent data appropriately.
 - To verify if a file is present in the feed, use hasattr(). For example, `hasattr(feed, 'stops')` will return True if the feed has a `stops` attribute.
@@ -214,26 +214,35 @@ TASK_TIPS = """
 - The morning peak hours are typically between 6:00 AM and 9:00 AM, and the evening peak hours are between 3:00 PM and 7:00 PM. The rest of the hours are considered off-peak and categorized as midday (9:00 AM to 3:00 PM) or night hours.
 - While finding directions, try to find more than one nearest neighbors to comprehensively arrive at the solution.
 
-#### Data Operations
+### Data Operations
 - Time fields in stop_times.txt (arrival_time and departure_time) are already in seconds since midnight and do not need to be converted for calculations. 
 - For all time-based operations use the seconds since midnight format to compute durations and time differences.
 - The date fields are already converted to `datetime.date` objects in the feed.
 - Favor using pandas and numpy operations to arrive at the solution over complex geospatial operations.
 
-#### Name Pattern Matching
+### Name Pattern Matching
 - **Always** filter the feed before manking any searches if both filter and search are required in the processing
-- Narrow the search space by filtering for day of the week, date and time
+- Narrow the search space by filtering for day of the week, date and time. Filter by route, service, or trip if provided.
 - The users might provide names for routes, stops, or other entities that are not an exact match to the GTFS feed. Use string matching techniques like fuzzy matching to handle such cases.
-- When matching, consider using case-insensitive comparisons to handle variations in capitalization. Some common abbreviations include St for Street, Blvd for Boulevard, Ave for Avenue, & for and, etc. Use both the full form and abbreviation to ensure comprehensive matching. 
-- **Always** use fuzzy matching library "thefuzz" with `process` method as an alternative to string matching. Example: process.extract("Green",feed.routes.route_short_name, scorer=fuzz.ratio). **Always** use the `fuzz.ratio` scorer for better results. 
-- Use a minimum threshold of `80` for matching and reduce to 60 as fallback.
-- In case of multiple string matches for a specific instance, think if all matches are needed. If not consider using the match that is closest to the user's input.
-- Sometimes more than one route or stop have similar names. In such cases, consider providing a list of possible matches to the user for selection.
-- Check for multiple columns as the user could refer to any.Take routes for example, the user could refer to any of `route_id`, `route_short_name` and `route_long_name`
-- Stops can be named after the intersections that comprise of the names of streets that form the intersection
-- Certain locations have multiple stops nearby that refer to the same place such as stops that in a locaclity, oppisite sides of the streets, etc. Consider all of them in the search
+- When matching, consider using case-insensitive comparisons to handle variations in capitalization. 
+- Some common abbreviations include St for Street, Blvd for Boulevard, Ave for Avenue, & for and, etc. Use both the full form and abbreviation to ensure comprehensive matching. 
+- Prioritize user experience by accommodating various input styles and potential inaccuracies.
 
-#### Plotting and Mapping
+#### Route Matching
+- Search across multiple fields: `route_id`, `route_short_name`, and `route_long_name`.
+- For each search, determine whether to return all matches or only the closest match based on the use case.
+- **Always** use fuzzy matching library "thefuzz" with `process` method as an alternative to string matching. Example: process.extract("Green",feed.routes.route_short_name, scorer=fuzz.ratio). **Always** use the `fuzz.ratio` scorer for better results. 
+- Use a minimum threshold of `80` for matching and reduce to `60` if no matches are found with `80`.
+
+#### Stop Matching
+
+- Search using `stop_id` and `stop_name`. Use fuzzy matching to determine with a threshold of `60`
+- For stop marching, return all possible matches instead of a single result.
+- Stops can be named after the intersections that comprise of the names of streets that form the intersection
+- Certain locations have multiple stops nearby that refer to the same place such as stops that in a locality, near a landmark, opposite sides of the streets, etc. Consider all of them in the search
+- If stops cannot be found via stop_id or stop_name, use `get_geo_location` to get the geolocation of the location and search nearby stops
+
+### Plotting and Mapping
 - For geospatial operations, consider using the `shapely` library to work with geometric objects like points, lines, and polygons.
 - Use the default color scheme (that is colorblind proof) for plots and maps unless specified otherwise. 
 - Always have a legend and/or labels for the plots and maps to make them more informative.

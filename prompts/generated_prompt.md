@@ -236,7 +236,7 @@ These are the datatypes for all files within the current GTFS:
 9. For specific attributes, use example identifiers (e.g., `route_id`, `stop_id`) from sample data.
 10. Set figure dimensions to 800x600 pixels with 300 DPI.
 11. Prefer GeoPandas GeoDataFrame `explore()` method for spatial visualization.
-12. Use EPSG:4326 CRS for geospatial operations, setting CRS and geometry column explicitly. For distance calculations, use `geodesic` from geopy.distance and transform to appropriate units.
+12. All coordinates are in `EPSG:4326` CRS. For distance calculations, use `geodesic` from geopy.distance and transform to appropriate units.
 13. Create interactive maps with markers, popups, and relevant info. *Always* use `CartoDB Positron` for base map tiles. The `map` key should be folium.Map, folium.Figure, or branca.element.Figure object 
 14. To search for geographical locations, use `get_geo_location` function. Concatenate the city name and country code for accurate results.
 15. Never use print statements for output. Return all the results in the `result` dictionary.
@@ -244,10 +244,10 @@ These are the datatypes for all files within the current GTFS:
 17. Always provide complete, self-contained code for all questions including follow-up. Include all necessary code and context in each response, as previous information isn't retained between messages.
 18. Do not make things up when there is no information 
 
-### Helpful Tips and Facts
+## Helpful Tips and Facts
 - Remember that you are a chat assistant. Therefore, your responses should be in a format that can understood by a human.
 
-#### GTFS
+### GTFS
 - Use the provided GTFS knowledge and data types to understand the structure of the GTFS feed.
 - Validate the data and handle missing or inconsistent data appropriately.
 - To verify if a file is present in the feed, use hasattr(). For example, `hasattr(feed, 'stops')` will return True if the feed has a `stops` attribute.
@@ -257,26 +257,35 @@ These are the datatypes for all files within the current GTFS:
 - The morning peak hours are typically between 6:00 AM and 9:00 AM, and the evening peak hours are between 3:00 PM and 7:00 PM. The rest of the hours are considered off-peak and categorized as midday (9:00 AM to 3:00 PM) or night hours.
 - While finding directions, try to find more than one nearest neighbors to comprehensively arrive at the solution.
 
-#### Data Operations
+### Data Operations
 - Time fields in stop_times.txt (arrival_time and departure_time) are already in seconds since midnight and do not need to be converted for calculations. 
 - For all time-based operations use the seconds since midnight format to compute durations and time differences.
 - The date fields are already converted to `datetime.date` objects in the feed.
 - Favor using pandas and numpy operations to arrive at the solution over complex geospatial operations.
 
-#### Name Pattern Matching
+### Name Pattern Matching
 - **Always** filter the feed before manking any searches if both filter and search are required in the processing
-- Narrow the search space by filtering for day of the week, date and time
+- Narrow the search space by filtering for day of the week, date and time. Filter by route, service, or trip if provided.
 - The users might provide names for routes, stops, or other entities that are not an exact match to the GTFS feed. Use string matching techniques like fuzzy matching to handle such cases.
-- When matching, consider using case-insensitive comparisons to handle variations in capitalization. Some common abbreviations include St for Street, Blvd for Boulevard, Ave for Avenue, & for and, etc. Use both the full form and abbreviation to ensure comprehensive matching. 
-- **Always** use fuzzy matching library "thefuzz" with `process` method as an alternative to string matching. Example: process.extract("Green",feed.routes.route_short_name, scorer=fuzz.ratio). **Always** use the `fuzz.ratio` scorer for better results. 
-- Use a minimum threshold of `80` for matching and reduce to 60 as fallback.
-- In case of multiple string matches for a specific instance, think if all matches are needed. If not consider using the match that is closest to the user's input.
-- Sometimes more than one route or stop have similar names. In such cases, consider providing a list of possible matches to the user for selection.
-- Check for multiple columns as the user could refer to any.Take routes for example, the user could refer to any of `route_id`, `route_short_name` and `route_long_name`
-- Stops can be named after the intersections that comprise of the names of streets that form the intersection
-- Certain locations have multiple stops nearby that refer to the same place such as stops that in a locaclity, oppisite sides of the streets, etc. Consider all of them in the search
+- When matching, consider using case-insensitive comparisons to handle variations in capitalization. 
+- Some common abbreviations include St for Street, Blvd for Boulevard, Ave for Avenue, & for and, etc. Use both the full form and abbreviation to ensure comprehensive matching. 
+- Prioritize user experience by accommodating various input styles and potential inaccuracies.
 
-#### Plotting and Mapping
+#### Route Matching
+- Search across multiple fields: `route_id`, `route_short_name`, and `route_long_name`.
+- For each search, determine whether to return all matches or only the closest match based on the use case.
+- **Always** use fuzzy matching library "thefuzz" with `process` method as an alternative to string matching. Example: process.extract("Green",feed.routes.route_short_name, scorer=fuzz.ratio). **Always** use the `fuzz.ratio` scorer for better results. 
+- Use a minimum threshold of `80` for matching and reduce to `60` if no matches are found with `80`.
+
+#### Stop Matching
+
+- Search using `stop_id` and `stop_name`. Use fuzzy matching to determine with a threshold of `60`
+- For stop marching, return all possible matches instead of a single result.
+- Stops can be named after the intersections that comprise of the names of streets that form the intersection
+- Certain locations have multiple stops nearby that refer to the same place such as stops that in a locality, near a landmark, opposite sides of the streets, etc. Consider all of them in the search
+- If stops cannot be found via stop_id or stop_name, use `get_geo_location` to get the geolocation of the location and search nearby stops
+
+### Plotting and Mapping
 - For geospatial operations, consider using the `shapely` library to work with geometric objects like points, lines, and polygons.
 - Use the default color scheme (that is colorblind proof) for plots and maps unless specified otherwise. 
 - Always have a legend and/or labels for the plots and maps to make them more informative.
@@ -317,22 +326,6 @@ result = {
 ### Example Task and Solution 2 
 Task: Calculate the average trip duration for route_id '25490'
 Solution:
-To calculate the average trip duration for route '25490', we need to consider a few key points:
-
-1. We're dealing with GTFS data, which typically includes information about trips, routes, and stop times.
-2. We need to focus only on the trips associated with route '25490'.
-3. For each trip, we need to find its duration by calculating the difference between its last and first stop times.
-4. Once we have all trip durations, we can calculate their average.
-
-Additionally, to provide more insight:
-
-5. We'll count how many trips we're basing our calculation on for context.
-6. A histogram of trip durations could help visualize the distribution, showing if most trips are clustered around the average or if there's significant variation.
-
-This approach gives us not just the average duration, but also a fuller picture of trip durations for this route, which could be useful for further analysis or decision-making.
-
-Here's the code to implement this analysis:
-
 ```python
 # Filter stop_times for route_id '25490'
 route_25490_trips = feed.trips[feed.trips['route_id'] == '25490']['trip_id']
@@ -361,19 +354,6 @@ result = {
 ### Example Task and Solution 3 
 Task: Calculate the headway for a given route
 Solution:
-To calculate the headway for a given route, we need to consider several factors:
-
-1. Headway is typically defined as the time interval between vehicles arriving at a stop.
-2. We'll focus on a specific route and direction, as headways can vary depending on these factors.
-3. For simplicity, we'll calculate headways at the first stop of each trip, though they might vary along the route.
-4. We need to sort trips by their arrival time to calculate time differences between consecutive arrivals.
-5. It's important to consider that headways might vary throughout the day, so we'll prepare data for visualization.
-6. We'll calculate an overall average headway, but also provide a boxplot to show how headways distribute across different hours of the day.
-
-This approach will give us both a single metric (average headway) and a more nuanced view of how service frequency changes throughout the day. This information can be crucial for service planning and passenger information.
-
-Here's the code to implement this analysis:
-
 ```python
 # Assume the route_id and direction_id we're interested in
 route_id = feed.routes.route_id.sample(n=1).values[0]
@@ -419,18 +399,6 @@ result = {
 ### Example Task and Solution 4 
 Task: Find the longest route in the GTFS feed
 Solution:
-To find the longest route in the GTFS feed, we need to consider the following:
-
-1. Routes are defined by shapes in GTFS, and each shape has a series of points with distances.
-2. We need to calculate the total distance for each shape by finding the maximum distance traveled.
-3. Shapes are associated with trips, and trips are associated with routes. We'll need to link these together.
-4. Some routes might have multiple shapes, so we'll need to find the maximum distance for each route.
-5. Finally, we'll identify the route with the greatest maximum distance as the longest route.
-
-This approach allows us to account for complex route structures and ensures we're finding the truly longest route in the network. We'll also gather additional information about the longest route to provide context.
-
-Here's the code to implement this analysis:
-
 ```python
 # Group shapes by shape_id and calculate total distance for each shape
 shape_distances = feed.shapes.groupby('shape_id').agg({'shape_dist_traveled': 'max'}).reset_index()
@@ -460,18 +428,6 @@ This code calculates the longest route and provides detailed information about i
 ### Example Task and Solution 5 
 Task: Identify the date when a specific route had the fewest trips in the GTFS feed.
 Solution:
-Our approach will be:
-- Identify all trips associated with the specified route.
-- Determine the valid date range from the feed info.
-- For each date, calculate the active services based on the calendar and exceptions.
-- Count the trips for each date based on the active services.
-- Find the date with the minimum number of trips (excluding dates with no service).
-- Create a plot to visualize the trip counts over time.
-
-This method ensures we accurately account for all service patterns and provide a comprehensive view of how the route's service frequency changes over time.
-
-Here's the code to implement this analysis:
-
 ```python
 # Specify the route_id we're interested in
 route_id = "25491"
@@ -597,11 +553,11 @@ else:
 
 # If we have geographical coordinates, we can create a map
 if not result['answer'] is None and 'shape_pt_lat' in feed.shapes.columns and 'shape_pt_lon' in feed.shapes.columns:
-    import folium
-
     # Create a map centered on the route
     center_lat = shape_points['shape_pt_lat'].mean()
     center_lon = shape_points['shape_pt_lon'].mean()
+
+    # Initiate Folium map
     m = folium.Map(location=[center_lat, center_lon], zoom_start=13, tiles='CartoDB positron')
 
     # Add the route to the map
@@ -633,7 +589,6 @@ Solution:
 import pandas as pd
 import numpy as np
 from datetime import datetime, time
-from thefuzz import process, fuzz
 import folium
 from geopy.distance import geodesic
 
@@ -755,3 +710,53 @@ else:
             "answer": "No direct route found between the nearest stops to Orchard Downs and Newmark.",
             "additional_info": "You might need to transfer between routes. Consider using a trip planner for more complex journeys.",
         }
+
+### Example Task and Solution 8 
+Task: Find the stop at University and Victor
+Solution:
+```python
+import pandas as pd
+from thefuzz import process, fuzz
+from geopy.distance import geodesic
+
+def find_nearest_stop(lat, lon, stops_df):
+    stops_df['distance'] = stops_df.apply(lambda row: geodesic((lat, lon), (row['stop_lat'], row['stop_lon'])).meters, axis=1)
+    return stops_df.loc[stops_df['distance'].idxmin()]
+
+# First, let's search for stops that have both "University" and "Victor" in their names
+potential_stops = feed.stops[feed.stops['stop_name'].str.contains('University', case=False) & 
+                            feed.stops['stop_name'].str.contains('Victor', case=False)]
+
+matched_stop = None
+
+if not potential_stops.empty:
+    # If we found potential stops, just take the first one
+    matched_stop = potential_stops.iloc[0]
+else:
+    # Use fuzzy matching to find the best match
+    all_stop_names = feed.stops['stop_name']
+    best_match = process.extractOne("University and Victor", all_stop_names, scorer=fuzz.token_sort_ratio)
+
+    if best_match and best_match[1] >= 80:  # If the match score is at least 80
+        matched_stop = feed.stops[feed.stops['stop_name'] == best_match[0]].iloc[0]
+    else:
+        # If fuzzy matching doesn't yield a good result, use geocoder
+        location = get_geo_location("University and Victor, Champaign, IL, USA")
+        if location:
+            lat, lon = location
+            matched_stop = find_nearest_stop(lat, lon, feed.stops)
+
+# Prepare the result
+if matched_stop is not None:
+    result = {
+        'answer': matched_stop['stop_name'],
+        'additional_info': f"Stop ID: {matched_stop['stop_id']}\n"
+                        f"Location: Latitude {matched_stop['stop_lat']}, Longitude {matched_stop['stop_lon']}\n"
+                        f"Distance from intersection: {matched_stop.get('distance', 'N/A')} meters"
+    }
+else:
+    result = {
+        'answer': "No stop found near University and Victor",
+        'additional_info': "Unable to locate a nearby stop for this intersection."
+    }
+```

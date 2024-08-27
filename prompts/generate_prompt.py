@@ -67,6 +67,7 @@ def generate_system_prompt(loader: GTFSLoader) -> str:
     file_list = loader.file_list
     distance_unit = "`Meters`" if distance_unit == "m" else "`Kilometers`"
     FILE_INFO, GTFS_FEED_DATATYPES = generate_fileinfo_dtypes(feed, file_list, distance_unit)
+    EXAMPLE_CODE = "## Sample Code Generation for Tasks\n\n Here are few examples that help you discern the logic\n"
     EXAMPLE_CODE = yaml_to_examples(FEW_SHOT_EXAMPLES_FILE)
     print(
         f"Prompt generated for {GTFS} with distance units {distance_unit}: {time.ctime()}"
