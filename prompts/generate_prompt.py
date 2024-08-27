@@ -31,30 +31,32 @@ def yaml_to_examples(yaml_file):
         
     return '\n'.join(examples)
 
-def generate_fileinfo_dtypes(feed: GTFSLoader, file_list,  distance_unit: str):
-    FILE_INFO = """\n\n## Sample from the feed:\n"""
+def generate_fileinfo_dtypes(feed: GTFSLoader, file_list, distance_unit: str):
+    FILE_INFO = "\n\n## Sample from the feed:\n"
     GTFS_FEED_DATATYPES = BASE_GTFS_FEED_DATATYPES.format(distance_unit=distance_unit)
+    
     for file_name in file_list:
         try:
             file = file_name.split(".txt")[0]
             df = getattr(feed, file)
             df_string = df.head().to_markdown(index=False)
+            
             FILE_INFO += f"### {file_name} (feed.{file})\n"
             FILE_INFO += df_string + "\n"
+            
             if file_name in GTFS_FILE_FIELD_TYPE_MAPPING:
-                GTFS_FEED_DATATYPES += f"{file_name}:\n"
+                GTFS_FEED_DATATYPES += f"### {file_name}\n\n"
                 for field in df.columns:
                     if field in GTFS_FILE_FIELD_TYPE_MAPPING[file_name]:
-                        # print(f"{file} {field}")
                         if len(df[field].unique()) >= 1:
-                            GTFS_FEED_DATATYPES += f"\t- {field}: {GTFS_FILE_FIELD_TYPE_MAPPING[file_name][field]}\n"
+                            GTFS_FEED_DATATYPES += f"- `{field}`: {GTFS_FILE_FIELD_TYPE_MAPPING[file_name][field]}\n"
                         else:
-                            GTFS_FEED_DATATYPES += f"\t- {field}: {df[field].dtype}\n"
-                    # else:
-                    #     print(f"Field {field} not found in {file_name}")
+                            GTFS_FEED_DATATYPES += f"- `{field}`: {df[field].dtype}\n"
+                GTFS_FEED_DATATYPES += "\n"
         except Exception as e:
             print(f"Failed to generate prompt for {file_name}: {e}")
             continue
+    
     return FILE_INFO, GTFS_FEED_DATATYPES
 
 

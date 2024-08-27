@@ -11,14 +11,14 @@ TASK_KNOWLEDGE = """
 """
 
 BASE_GTFS_FEED_DATATYPES = """\n\n## GTFS Feed Datatypes:\n
-- Common data types:
-    a) All IDs and names are strings
-    b) Coordinates are floats
-    c) Times are integers (seconds since midnight)
-    d) The distance units for this GTFS feed are in {distance_unit}
-    e) Report times appropriate units and speeds in KMPH
-    f) For any operations that involve date such as `start_date`, use the `datetime.date` module to handle date operations.
-    g) Colors are in hexadecimal format without the leading `#` character
+Common data types:
+- All IDs and names are strings
+- Coordinates are floats
+- Times are integers (seconds since midnight)
+- The distance units for this GTFS feed are in `Meters`
+- Report times in appropriate units and speeds in KMPH
+- For any operations that involve date such as `start_date`, use the `datetime.date` module to handle date operations.
+- Colors are in hexadecimal format without the leading `#` character
     
 These are the datatypes for all files within the current GTFS:\n
 """
