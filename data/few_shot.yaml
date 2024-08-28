@@ -439,7 +439,7 @@ example_8:
             best_matches = process.extract("University and Victor", all_stop_names, scorer=fuzz.token_sort_ratio, limit=5)
 
             for match in best_matches:
-                if match[1] >= 80:  # If the match score is at least 80
+                if match[1] >=80:  # If the match score is at least 80
                     matched_stop = feed.stops[feed.stops['stop_name'] == match[0]].iloc[0]
                     matched_stops.append(matched_stop)
 
