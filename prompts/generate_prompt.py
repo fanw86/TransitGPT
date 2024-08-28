@@ -12,47 +12,45 @@ from utils.gtfs_loader import GTFSLoader
 from functools import lru_cache
 from utils.constants import FEW_SHOT_EXAMPLES_FILE
 
-
 @lru_cache(maxsize=None)
-def yaml_to_examples(yaml_file):
+def yaml_to_examples(yaml_file: str) -> str:
     # Load the YAML file
     with open(yaml_file, 'r') as file:
         data = yaml.safe_load(file)
 
-    examples = ["\n\n"]
-    count = 1
+    examples = ["<examples>"]
     for key, value in data.items():
-        example = f"### Example Task and Solution {count} \n"
-        example += f"Task: {value['question']}\n"
-        example += "Solution:\n"
-        example += value['answer']
+        example = "<example>\n"
+        example += f"<task>\n{value['question']}\n</task>\n"
+        example += f"<solution>\n\n{value['answer']}\n\n</solution>\n"
+        example += "</example>"
         examples.append(example)
-        count += 1
-        
-    return '\n'.join(examples)
+
+    examples.append("</examples>")
+    return "\n".join(examples)
 
 def generate_fileinfo_dtypes(feed: GTFSLoader, file_list, distance_unit: str):
-    FILE_INFO = "\n\n## Sample from the feed:\n"
+    FILE_INFO = "\n\n## Sample from the feed:\n\n"
     GTFS_FEED_DATATYPES = BASE_GTFS_FEED_DATATYPES.format(distance_unit=distance_unit)
     
     for file_name in file_list:
         try:
             file = file_name.split(".txt")[0]
             df = getattr(feed, file)
-            df_string = df.head().to_markdown(index=False)
+            df_string = df.head(3).to_html(index=False)
             
-            FILE_INFO += f"### {file_name} (feed.{file})\n"
-            FILE_INFO += df_string + "\n"
+            FILE_INFO += f"### {file_name} (feed.{file})\n<feed-sample>\n"
+            FILE_INFO += df_string + "\n</feed-sample>\n\n"
             
             if file_name in GTFS_FILE_FIELD_TYPE_MAPPING:
-                GTFS_FEED_DATATYPES += f"### {file_name}\n\n"
+                GTFS_FEED_DATATYPES += f"### {file_name}\n\n<data-type>\n\n"
                 for field in df.columns:
                     if field in GTFS_FILE_FIELD_TYPE_MAPPING[file_name]:
                         if len(df[field].unique()) >= 1:
                             GTFS_FEED_DATATYPES += f"- `{field}`: {GTFS_FILE_FIELD_TYPE_MAPPING[file_name][field]}\n"
                         else:
                             GTFS_FEED_DATATYPES += f"- `{field}`: {df[field].dtype}\n"
-                GTFS_FEED_DATATYPES += "\n"
+                GTFS_FEED_DATATYPES += "\n</data-type>\n\n"
         except Exception as e:
             print(f"Failed to generate prompt for {file_name}: {e}")
             continue
@@ -68,7 +66,7 @@ def generate_system_prompt(loader: GTFSLoader) -> str:
     distance_unit = "`Meters`" if distance_unit == "m" else "`Kilometers`"
     FILE_INFO, GTFS_FEED_DATATYPES = generate_fileinfo_dtypes(feed, file_list, distance_unit)
     EXAMPLE_CODE = "## Sample Code Generation for Tasks\n\n Here are few examples that help you discern the logic\n"
-    EXAMPLE_CODE = yaml_to_examples(FEW_SHOT_EXAMPLES_FILE)
+    EXAMPLE_CODE = EXAMPLE_CODE +"\n\n"+ yaml_to_examples(FEW_SHOT_EXAMPLES_FILE)
     print(
         f"Prompt generated for {GTFS} with distance units {distance_unit}: {time.ctime()}"
     )

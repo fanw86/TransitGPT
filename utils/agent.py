@@ -1,6 +1,7 @@
 import streamlit as st
 import logging
 import os
+import re
 from logging.handlers import RotatingFileHandler
 from prompts.all_prompts import (
     FINAL_LLM_SYSTEM_PROMPT,
@@ -217,9 +218,11 @@ class LLMAgent:
         summarized_evaluation = summarize_large_output(
             last_interaction.evaluation_result, self.max_rows, self.max_chars
         )
+        executable_pattern = r"```python\n(.*?)```"
+        code_response = re.findall(executable_pattern, last_interaction.assistant_response, re.DOTALL)
         user_prompt = FINAL_LLM_USER_PROMPT.format(
             question=last_interaction.user_prompt,
-            response=last_interaction.assistant_response,
+            response=code_response,
             evaluation=summarized_evaluation,
             success=last_interaction.code_success,
             error=last_interaction.error_message,
@@ -227,7 +230,7 @@ class LLMAgent:
         # Hardcoded model for final LLM call
         model = "gpt-4o-mini"
         messages = self.create_messages(system_prompt, user_prompt, model)
-
+        self.logger.info(f"Following message sent to {model} : {messages}")
         full_response = ""
         client = self.clients["gpt"]
         # Stream the response

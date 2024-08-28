@@ -1,14 +1,6 @@
 example_1:
     question: Find the number of trips for route_id '25490' on a typical Friday
     answer: |
-        To solve the problem of finding the number of trips for `route_id '25490'` on friday, we can follow these steps:
-
-        1. Identify the service_ids that are applicable by checking the calendar DataFrame for Friday.
-        2. Filter the trips DataFrame to include those that correspond to `route_id '25490'` and fall under the previously identified friday service_ids.
-        3. Count the resulting trips.
-
-        Here's the Python code to implement this:
-
         ```python
         # Get friday service_ids
         friday_services = feed.calendar[(feed.calendar['friday'] == 1)]['service_id']
@@ -71,10 +63,9 @@ example_3:
 
 
         # Get the first stop for each trip
-        first_stop_id = feed.stop_times[feed.stop_times['trip_id'].isin(route_trips['trip_id']) & 
-                                        (feed.stop_times['stop_sequence'] == 1)]['stop_id'].iloc[0]
         first_stops = feed.stop_times[feed.stop_times['trip_id'].isin(route_trips['trip_id']) & 
                                         (feed.stop_times['stop_sequence'] == 1)]
+        first_stop_id = first_stops['stop_id'].iloc[0]
 
         first_stops = first_stops.sort_values('arrival_time')
         first_stops['headway_minutes'] = first_stops['arrival_time'].diff() /60
@@ -199,137 +190,67 @@ example_5:
         This code identifies the date with the fewest trips for the specified route, provides the trip count for that date, and creates a line plot showing how the number of trips varies over time. The additional information includes the date range of the analysis and the route ID that was analyzed.
 
 example_6:
-    question: Find the distance along the TEAL route from Orchard Downs South Shelter to Illini Union
+    question: Find directions from Orchard Downs to Newmark Civil Engineering Laboratory now
     answer: |
         ```python
-        import pandas as pd
-        from thefuzz import process, fuzz
+        def remove_text_in_braces(text):
+            return re.sub(r"\(.*?\)", "", text).strip()
 
-        # Find the TEAL route from all potential fields route_id, route_short_name and route_long_name
-        possible_teal_matches = pd.concat([feed.routes['route_id'], feed.routes['route_short_name'], feed.routes['route_long_name']])
-        teal_route_index = process.extractOne("TEAL", possible_teal_matches, scorer=fuzz.ratio)[2]
-        teal_route_id = feed.routes.iloc[teal_route_index]['route_id']
 
-        # Get trips for the TEAL route and their stop times along with stop names
-        teal_trips = feed.trips[feed.trips['route_id'] == teal_route_id]
-        teal_stop_times = feed.stop_times[feed.stop_times['trip_id'].isin(teal_trips['trip_id'])]
-        teal_stop_times_with_names = pd.merge(teal_stop_times, feed.stops, on='stop_id')
+        def format_time_hhmmss(time):
+            time = int(time)
+            return f"{time // 3600:02d}:{(time % 3600) // 60:02d}:{time % 60:02d}"
 
-        # Find the stop IDs for our two stops
-        start_stop = process.extractOne("Orchard Downs South Shelter", teal_stop_times_with_names['stop_name'], scorer=fuzz.ratio)[0]
-        end_stop = process.extractOne("Illini Union", teal_stop_times_with_names['stop_name'], scorer=fuzz.ratio)[0]
 
-        start_stop_id = feed.stops[feed.stops['stop_name'] == start_stop]['stop_id'].iloc[0]
-        end_stop_id = feed.stops[feed.stops['stop_name'] == end_stop]['stop_id'].iloc[0]
+        def find_stops(feed, query, city=None, num_stops=3):
+            def fuzzy_search(threshold):
+                clean_stop_names = feed.stops["stop_name"].apply(remove_text_in_braces)
+                clean_query = remove_text_in_braces(query)
+                best_matches = process.extract(
+                    clean_query, clean_stop_names, scorer=fuzz.ratio, limit=num_stops
+                )
+                return feed.stops[
+                    clean_stop_names.isin(
+                        [match[0] for match in best_matches if match[1] >= threshold]
+                    )
+                ]
 
-        # Get stop times for TEAL trips
-        teal_stop_times = feed.stop_times[feed.stop_times['trip_id'].isin(teal_trips['trip_id'])]
-
-        # Find a trip that includes both stops
-        valid_trips = teal_stop_times[teal_stop_times['stop_id'].isin([start_stop_id, end_stop_id])].groupby('trip_id').filter(lambda x: len(x) >= 2)
-        if valid_trips.empty:
-            result = {
-                'answer': None,
-                'additional_info': "No trip found that includes both stops. They might be on different variations of the route."
-            }
-        else:
-            # Take the first valid trip
-            sample_trip_id = valid_trips['trip_id'].iloc[0]
-            trip_stops = teal_stop_times[teal_stop_times['trip_id'] == sample_trip_id].sort_values('stop_sequence')
-
-            # Get the shape for this trip
-            shape_id = teal_trips[teal_trips['trip_id'] == sample_trip_id]['shape_id'].iloc[0]
-            shape_points = feed.shapes[feed.shapes['shape_id'] == shape_id].sort_values('shape_pt_sequence')
-
-            # Find the shape distances for our stops
-            start_dist = trip_stops[trip_stops['stop_id'] == start_stop_id]['shape_dist_traveled'].iloc[0]
-            end_dist = trip_stops[trip_stops['stop_id'] == end_stop_id]['shape_dist_traveled'].iloc[0]
-
-            # Calculate the distance
-            distance = abs(end_dist - start_dist)
-
-            result = {
-                'answer': distance,
-                'additional_info': f"The distance is calculated along the TEAL route from '{start_stop}' to '{end_stop}'. "
-                                f"This is based on the shape of trip {sample_trip_id}. "
-                                f"Note that the actual distance might vary slightly between different trips of the same route."
-            }
-
-        # If we have geographical coordinates, we can create a map
-        if not result['answer'] is None and 'shape_pt_lat' in feed.shapes.columns and 'shape_pt_lon' in feed.shapes.columns:
-            # Create a map centered on the route
-            center_lat = shape_points['shape_pt_lat'].mean()
-            center_lon = shape_points['shape_pt_lon'].mean()
-
-            # Initiate Folium map
-            m = folium.Map(location=[center_lat, center_lon], zoom_start=13, tiles='CartoDB positron')
-
-            # Add the route to the map
-            route_coords = shape_points[['shape_pt_lat', 'shape_pt_lon']].values.tolist()
-            folium.PolyLine(route_coords, weight=2, color='blue', opacity=0.8).add_to(m)
-
-            # Add markers for the start and end stops
-            start_stop_coords = feed.stops[feed.stops['stop_id'] == start_stop_id][['stop_lat', 'stop_lon']].iloc[0]
-            end_stop_coords = feed.stops[feed.stops['stop_id'] == end_stop_id][['stop_lat', 'stop_lon']].iloc[0]
-
-            folium.Marker(
-                location=[start_stop_coords['stop_lat'], start_stop_coords['stop_lon']],
-                popup=start_stop,
-                icon=folium.Icon(color='green', icon='info-sign')
-            ).add_to(m)
-
-            folium.Marker(
-                location=[end_stop_coords['stop_lat'], end_stop_coords['stop_lon']],
-                popup=end_stop,
-                icon=folium.Icon(color='red', icon='info-sign')
-            ).add_to(m)
-
-            result['map'] = m
-        ```
-
-example_7:
-    question: Find directions from Orchard Downs to Newmark now
-    answer: |
-        import pandas as pd
-        import numpy as np
-        from datetime import datetime, time
-        import folium
-        from geopy.distance import geodesic
-
-        def find_nearest_stops(lat, lon, stops_df, num_stops=5):
-            stops_df["distance"] = stops_df.apply(
-                lambda row: geodesic((lat, lon), (row["stop_lat"], row["stop_lon"])).meters,
-                axis=1,
+            # Try exact matching
+            query_words = query.lower().split()
+            mask = (
+                feed.stops["stop_name"]
+                .str.lower()
+                .apply(lambda x: all(word in x for word in query_words))
             )
-            return stops_df.nsmallest(num_stops, "distance")
+            matched_stops = feed.stops[mask]
 
-        def time_to_gtfs_format(t):
-            hours, remainder = divmod(int(t), 3600)
-            minutes, seconds = divmod(remainder, 60)
-            departure_time =  f"{hours:02d}:{minutes:02d}:{seconds:02d}"
-            return departure_time
+            # If exact matching fails, try fuzzy matching
+            if matched_stops.empty:
+                matched_stops = fuzzy_search(80)  # Try with threshold 80 first
 
-        # Geocode the locations
-        orchard_downs_coords = get_geo_location("Orchard Downs, Champaign, IL, USA")
-        newmark_coords = get_geo_location("Newmark, Champaign, IL, USA")
+            # If still no matches and city is provided, use geolocation (assuming get_geo_location function exists)
+            if matched_stops.empty and city:
+                location = get_geo_location(f"{query}, {city}")
+                if location:
+                    lat, lon = location
+                    matched_stops = (
+                        feed.stops.apply(
+                            lambda row: geodesic(
+                                (lat, lon), (row["stop_lat"], row["stop_lon"])
+                            ).meters,
+                            axis=1,
+                        )
+                        .nsmallest(num_stops)
+                        .index
+                    )
+                    matched_stops = feed.stops.loc[matched_stops]
 
-        if not orchard_downs_coords or not newmark_coords:
-            result = {
-                "answer": "Unable to geocode one or both locations.",
-                "additional_info": "Please check the location names and try again.",
-            }
-        else:
-            # Find nearest stops
-            orchard_downs_stops = find_nearest_stops(
-                orchard_downs_coords[0], orchard_downs_coords[1], feed.stops
-            )
-            newmark_stops = find_nearest_stops(newmark_coords[0], newmark_coords[1], feed.stops)
+            return matched_stops
 
-            # Get current time (assume it's now)
+
+        def find_route_directions(feed, start_stops, end_stops):
             now = datetime.now()
-            current_time = now.time().strftime("%H:%M:%S")
-            h, m, s = current_time.split(":")
-            current_time_seconds = 60 * 60 * int(h) + 60 * int(m) + int(s)
+            current_time_seconds = now.hour * 3600 + now.minute * 60 + now.second
             current_day = now.strftime("%A").lower()
 
             # Find active services for the current day
@@ -339,17 +260,27 @@ example_7:
                 & (feed.calendar[current_day] == 1)
             ]["service_id"].tolist()
 
-            # Find trips that serve both stops
+            # Filter stop_times for the next hour and active services
+            future_stop_times = feed.stop_times[
+                (feed.stop_times["departure_time"] > current_time_seconds)
+                & (feed.stop_times["departure_time"] <= current_time_seconds + 3600)
+            ]
+            future_stop_times = future_stop_times[
+                future_stop_times["trip_id"].isin(
+                    feed.trips[feed.trips["service_id"].isin(active_services)]["trip_id"]
+                )
+            ]
+
             possible_trips = []
-            for start_stop in orchard_downs_stops.itertuples():
-                for end_stop in newmark_stops.itertuples():
+            for start_stop in start_stops.itertuples():
+                for end_stop in end_stops.itertuples():
                     trips_serving_start = set(
-                        feed.stop_times[feed.stop_times["stop_id"] == start_stop.stop_id][
+                        future_stop_times[future_stop_times["stop_id"] == start_stop.stop_id][
                             "trip_id"
                         ]
                     )
                     trips_serving_end = set(
-                        feed.stop_times[feed.stop_times["stop_id"] == end_stop.stop_id][
+                        future_stop_times[future_stop_times["stop_id"] == end_stop.stop_id][
                             "trip_id"
                         ]
                     )
@@ -357,344 +288,130 @@ example_7:
 
                     for trip_id in common_trips:
                         trip = feed.trips[feed.trips["trip_id"] == trip_id].iloc[0]
-                        if trip["service_id"] in active_services:
-                            trip_stops = feed.stop_times[
-                                (feed.stop_times["trip_id"] == trip_id)
-                                & (
-                                    feed.stop_times["stop_id"].isin(
-                                        [start_stop.stop_id, end_stop.stop_id]
-                                    )
-                                )
-                            ].sort_values("stop_sequence")
-                            # Filter trips that depart in future and within 1 hour
-                            trip_stops = trip_stops[trip_stops["departure_time"] > current_time_seconds]
-                            trip_stops = trip_stops[trip_stops["departure_time"] < current_time_seconds + 3600]
-                            if len(trip_stops) == 2:
-                                start_time = trip_stops.iloc[0]["departure_time"]
-                                end_time = trip_stops.iloc[1]["arrival_time"]
-                                travel_time = end_time - start_time
-                                if travel_time > 0 :
-                                    possible_trip = {
-                                        "trip": trip,
-                                        "start_stop": start_stop,
-                                        "end_stop": end_stop,
-                                        "start_time": time_to_gtfs_format(start_time),
-                                        "end_time": time_to_gtfs_format(end_time),
-                                        "travel_time": travel_time,
-                                    }
-                                    possible_trips.append(possible_trip)
-                                    
-            shortest_travel_time = float("inf")
-            if possible_trips:
-                possible_trips_df = pd.DataFrame(possible_trips)
-                possible_trips_df = possible_trips_df.sort_values("start_time").reset_index()
-                options = []
-                for i, trip in possible_trips_df.iterrows():
-                    route = feed.routes[
-                        feed.routes["route_id"] == trip["trip"]["route_id"]
-                    ].iloc[0]
-                    route_name = (
-                        route["route_long_name"]
-                        if pd.notna(route["route_long_name"])
-                        else route["route_short_name"]
-                    )
-                    option = f"Take the {route_name} from {trip['start_stop'].stop_name} at {trip['start_time']} to {trip['end_stop'].stop_name}, arriving at {trip['end_time']}."
-                    options.append(option)
-                    if trip['travel_time'] < shortest_travel_time:
-                        best_trip = trip
-                        shortest_travel_time = trip['travel_time']
+                        trip_stops = future_stop_times[future_stop_times["trip_id"] == trip_id]
+                        start_stop_row = trip_stops[trip_stops["stop_id"] == start_stop.stop_id].iloc[0]
+                        end_stop_row = trip_stops[trip_stops["stop_id"] == end_stop.stop_id].iloc[0]
                         
+                        if end_stop_row["stop_sequence"] > start_stop_row["stop_sequence"]:
+                            start_time = start_stop_row["departure_time"]
+                            end_time = end_stop_row["departure_time"]
+                            possible_trips.append(
+                                {
+                                    "trip": trip,
+                                    "start_stop": start_stop,
+                                    "end_stop": end_stop,
+                                    "start_time": format_time_hhmmss(start_time),
+                                    "end_time": format_time_hhmmss(end_time),
+                                    "travel_time": end_time - start_time,
+                                }
+                            )
+
+            return possible_trips
+
+
+        # Main execution
+        start_query, end_query = "Orchard Downs", "Newmark Civil Engineering Laboratory"
+        city = "Champaign, IL, USA"
+
+        start_stops = find_stops(feed, start_query, city)
+        end_stops = find_stops(feed, end_query, city)
+
+        if start_stops.empty or end_stops.empty:
+            result = {
+                "answer": "Unable to find stops for one or both locations.",
+                "additional_info": f"Please check the location names and try again. Searched stops:\n"
+                f"Start location stops: {start_stops.to_dict('records')}\n"
+                f"End location stops: {end_stops.to_dict('records')}",
+            }
+        else:
+            possible_trips = find_route_directions(feed, start_stops, end_stops)
+
+            if possible_trips:
+                # Best trip is the trip the starts asap
+                best_trip = min(possible_trips, key=lambda x: x["start_time"])
+                route = feed.routes[
+                    feed.routes["route_id"] == best_trip["trip"]["route_id"]
+                ].iloc[0]
+                route_name = (
+                    route["route_long_name"]
+                    if pd.notna(route["route_long_name"])
+                    else route["route_short_name"]
+                )
+
                 result = {
-                    "answer":options ,
-                    "additional_info": f"Best trip ID is {best_trip['trip']['trip_id']}. Travel time is approximately {best_trip['travel_time']/60:.2f} minutes. "
-                    f"Walk to {best_trip['start_stop'].stop_name} to start your journey, and from {best_trip['end_stop'].stop_name} to reach your final destination.",
+                    "answer": [
+                        f"Take the {route_name} from {best_trip['start_stop'].stop_name} at {best_trip['start_time']} "
+                        f"to {best_trip['end_stop'].stop_name}, arriving at {best_trip['end_time']}."
+                    ],
+                    "additional_info": f"Best trip ID is {best_trip['trip']['trip_id']}. Travel time is approximately "
+                    f"{best_trip['travel_time']/60:.2f} minutes. Walk to {best_trip['start_stop'].stop_name} "
+                    f"to start your journey, and from {best_trip['end_stop'].stop_name} to reach your final destination.",
                 }
             else:
                 result = {
-                    "answer": "No direct route found between the nearest stops to Orchard Downs and Newmark.",
-                    "additional_info": "You might need to transfer between routes. Consider using a trip planner for more complex journeys.",
+                    "answer": f"No direct route found between the nearest stops to {start_query} and {end_query}.",
+                    "additional_info": f"You might need to transfer between routes. Consider using a trip planner for more complex journeys. "
+                    f"Searched stops:\nStart location stops: {start_stops.to_dict('records')}\n"
+                    f"End location stops: {end_stops.to_dict('records')}",
                 }
+        ```
 
 example_8:
     question: Find the stop at University and Victor
     answer: |
-        Find all stops near University and Victor
         ```python
-        def find_nearest_stop(lat, lon, stops_df):
-            stops_df['distance'] = stops_df.apply(lambda row: geodesic((lat, lon), (row['stop_lat'], row['stop_lon'])).meters, axis=1)
-            return stops_df.loc[stops_df['distance'].idxmin()]
+        import re
+        def remove_text_in_braces(text):
+            return re.sub(r'\(.*?\)', '', text).strip()
 
-        # Search for all stops that have both "University" and "Victor" in their names
-        potential_stops = feed.stops[feed.stops['stop_name'].str.contains('University', case=False) & 
-                                    feed.stops['stop_name'].str.contains('Victor', case=False)]
+        def find_stops(feed, query, city=None, num_stops=3):
+            def find_nearest_stops(lat, lon, stops_df, num_stops=3):
+                stops_df['distance'] = stops_df.apply(
+                    lambda row: geodesic((lat, lon), (row['stop_lat'], row['stop_lon'])).meters,
+                    axis=1
+                )
+                return stops_df.nsmallest(num_stops, 'distance')
 
-        matched_stops = []
+            def fuzzy_search(threshold):
+                clean_stop_names = feed.stops['stop_name'].apply(remove_text_in_braces)
+                clean_query = remove_text_in_braces(query)
+                best_matches = process.extract(clean_query, clean_stop_names, scorer=fuzz.ratio, limit=num_stops)
+                return feed.stops[clean_stop_names.isin([match[0] for match in best_matches if match[1] >= threshold])]
 
-        if not potential_stops.empty:
-            # If we found potential stops, consider all of them
-            matched_stops = potential_stops.to_dict('records')
-        else:
-            # Use fuzzy matching to find the best matches
-            all_stop_names = feed.stops['stop_name']
-            best_matches = process.extract("University and Victor", all_stop_names, scorer=fuzz.token_sort_ratio, limit=5)
+            # Step 1: Try exact matching
+            query_words = query.lower().split()
+            mask = feed.stops['stop_name'].str.lower().apply(lambda x: all(word in x for word in query_words))
+            matched_stops = feed.stops[mask]
 
-            for match in best_matches:
-                if match[1] >=80:  # If the match score is at least 80
-                    matched_stop = feed.stops[feed.stops['stop_name'] == match[0]].iloc[0]
-                    matched_stops.append(matched_stop)
+            # Step 2: If exact matching fails, try fuzzy matching with threshold 80
+            if matched_stops.empty:
+                matched_stops = fuzzy_search(80)
 
-            if not matched_stops:
-                # If fuzzy matching doesn't yield good results, use get_geo_location
-                location = get_geo_location("University and Victor, Champaign, IL, USA")
+            # Step 3: If still no matches and city is provided, use geolocation
+            if matched_stops.empty and city:
+                location = get_geo_location(f"{query}, {city}")
                 if location:
                     lat, lon = location
-                    nearest_stop = find_nearest_stop(lat, lon, feed.stops)
-                    matched_stops.append(nearest_stop)
+                    matched_stops = find_nearest_stops(lat, lon, feed.stops, num_stops)
 
-        # Prepare the result
-        if matched_stops:
-            result = {
-                'answer': f"Found {len(matched_stops)} potential stop(s) near University and Victor",
-                'additional_info': ""
-            }
-            for i, stop in enumerate(matched_stops, 1):
-                result['additional_info'] += f"\nStop {i}:\n"
-                result['additional_info'] += f"Name: {stop['stop_name']}\n"
-                result['additional_info'] += f"Stop ID: {stop['stop_id']}\n"
-                result['additional_info'] += f"Location: Latitude {stop['stop_lat']}, Longitude {stop['stop_lon']}\n"
-                result['additional_info'] += f"Distance from intersection: {stop.get('distance', 'N/A')} meters\n"
+            return matched_stops
+
+        matched_stops = find_stops(feed, "University and Victor", city= "Champaign, IL, USA", num_stops = 2)
+        if not matched_stops.empty:
+                result = {
+                    'answer': f"Found {len(matched_stops)} potential stop(s) near University and Victor",
+                    'additional_info': ""
+                }
+                for i, stop in matched_stops.iterrows():
+                    result['additional_info'] += f"\nStop {i}:\n"
+                    result['additional_info'] += f"Name: {stop['stop_name']}\n"
+                    result['additional_info'] += f"Stop ID: {stop['stop_id']}\n"
+                    result['additional_info'] += f"Location: Latitude {stop['stop_lat']}, Longitude {stop['stop_lon']}\n"
+                    # In case the we use `get_geo_location` for getting the information
+                    if stop.get('distance', None):
+                        result['additional_info'] += f"Distance from intersection: {stop.get('distance', 'N/A')} meters\n"
         else:
             result = {
                 'answer': "No stops found near University and Victor",
                 'additional_info': "Unable to locate any nearby stops for this intersection."
-        ```
-        
-
-# example_6:
-#     question: Map all routes that pass through Illinois Terminal
-#     answer: |
-#         To map all routes that pass through Illinois Terminal, we can follow these steps:
-#         ```python
-#         import pandas as pd
-#         import geopandas as gpd
-#         import folium
-#         from shapely.geometry import LineString
-
-#         # Step 1: Identify the stop ID for Illinois Terminal
-#         illinois_terminal = feed.stops[feed.stops['stop_name'].str.contains('Illinois Terminal', case=False, na=False)]
-#         if illinois_terminal.empty:
-#             result = {
-#                 'answer': None,
-#                 'additional_info': "Illinois Terminal stop not found in the GTFS data."
-#             }
-#         else:
-#             illinois_terminal_ids = illinois_terminal['stop_id']
-
-#             # Step 2: Find all trips that pass through this stop
-#             trips_through_terminal = feed.stop_times[feed.stop_times['stop_id'].isin(illinois_terminal_ids)]['trip_id'].unique()
-
-#             # Step 3: Identify the unique routes these trips belong to
-#             routes_through_terminal = feed.trips[feed.trips['trip_id'].isin(trips_through_terminal)]['route_id'].unique()
-
-#             # Step 4: Get the shapes for these routes
-#             shapes_through_terminal = feed.trips[feed.trips['route_id'].isin(routes_through_terminal)]['shape_id'].unique()
-
-#             # Create a GeoDataFrame with the shapes
-#             shapes_gdf = feed.shapes[feed.shapes['shape_id'].isin(shapes_through_terminal)].copy()
-#             shapes_gdf['geometry'] = shapes_gdf.apply(lambda row: (row['shape_pt_lon'], row['shape_pt_lat']), axis=1)
-#             shapes_gdf = shapes_gdf.groupby('shape_id').agg({'geometry': lambda x: LineString(x.tolist())})
-#             shapes_gdf = gpd.GeoDataFrame(shapes_gdf, geometry='geometry', crs="EPSG:4326")
-#             shapes_gdf = shapes_gdf.reset_index().merge(feed.trips[['shape_id', 'route_id']], on='shape_id', how='left')
-
-#             # Step 5: Create a map with all these routes
-#             m = folium.Map(location=[illinois_terminal.iloc[0]['stop_lat'], illinois_terminal.iloc[0]['stop_lon']], 
-#                         zoom_start=12, tiles='CartoDB positron')
-
-#             # Add routes to the map
-#             shapes_gdf.explore(
-#                 column="route_id",
-#                 m=m,
-#                 legend=True,
-#                 legend_kwds={"label": "Route ID"},
-#                 name="Routes",
-#                 tooltip=["route_id"],
-#                 style_kwds={"weight": 2, "opacity": 0.7}
-#             )
-
-#             # Add Illinois Terminal marker
-#             folium.Marker(
-#                 [illinois_terminal.iloc[0]['stop_lat'], illinois_terminal.iloc[0]['stop_lon']],
-#                 popup='Illinois Terminal',
-#                 icon=folium.Icon(color='red', icon='info-sign')
-#             ).add_to(m)
-
-#             # Fit the map bounds to the shapes
-#             m.fit_bounds(shapes_gdf.total_bounds.tolist())
-
-#             # Add layer control
-#             folium.LayerControl().add_to(m)
-
-#             result = {
-#                 'answer': f"{len(routes_through_terminal)} routes pass through Illinois Terminal.",
-#                 'additional_info': f"These routes use {len(shapes_through_terminal)} unique shapes.",
-#                 'map': m
-#             }
-#         ```
-
-# example_7:
-#     question: Find the next five departures from a specific stop
-#     answer: |
-#         To find the next five departures from a specific stop, we can follow these steps:
-
-#         1. Identify the stop ID for the specified stop.
-#         2. Get the current date, day of the week, and time.
-#         3. Determine the service IDs that are active on the current date. Consider any exceptions to the regular service schedule for the current date.
-#         4. Find the next five departures by filtering stop times based on the current time.
-
-#         This approach allows us to provide real-time information about upcoming departures from the stop, which can be valuable for passengers and service planning.
-
-#         Here's the code to implement this analysis:
-
-#         ```python
-#         from datetime import datetime, timedelta
-#         import pandas as pd
-
-#         # Step 1: Identify the stop ID for Illinois Terminal
-#         illinois_terminal = feed.stops[feed.stops['stop_name'].str.contains('Illinois Terminal', case=False, na=False)]
-#         if illinois_terminal.empty:
-#             result = {
-#                 'answer': None,
-#                 'additional_info': "Illinois Terminal stop not found in the GTFS data."
-#             }
-
-
-#         # Step 2: Get current date, day of the week and time
-#         datetime_now = datetime.now()
-#         today = datetime_now.date()
-#         current_time = datetime_now.time().strftime("%H:%M:%S")
-#         h, m, s = current_time.split(':')
-#         current_time_seconds = 60*60*int(h) + 60*int(m) + int(s)
-#         day_of_week = today.strftime("%A").lower()
-
-#         service_ids = feed.calendar[
-#             (feed.calendar["start_date"] <= today)
-#             & (feed.calendar["end_date"] >= today)
-#             & (feed.calendar[day_of_week] == 1)
-#         ]["service_id"].unique()
-
-#         # Step 3: Get current service IDs considering exceptions
-#         date_exceptions = feed.calendar_dates[feed.calendar_dates["date"] == today]
-#         added_service_ids = date_exceptions[date_exceptions["exception_type"] == 1]["service_id"].unique()
-#         removed_service_ids = date_exceptions[date_exceptions["exception_type"] == 2]["service_id"].unique()
-#         final_service_ids = list(set(service_ids) | set(added_service_ids) - set(removed_service_ids))
-
-#         # Step 4: Find the next five departures by filtering stop times
-#         trips_today = feed.trips[feed.trips["service_id"].isin(final_service_ids)]
-#         trips_today = trips_today.merge(feed.routes, on="route_id")
-#         stop_times_merged = feed.stop_times.merge(trips_today[["trip_id","route_id","direction_id","route_long_name","trip_headsign"]], on="trip_id")
-#         stop_times_today = stop_times_merged[stop_times_merged["trip_id"].isin(trips_today["trip_id"])]
-#         future_stop_times = stop_times_today[stop_times_today["departure_time"] >= current_time_seconds]
-#         stop_times_terminal = future_stop_times[future_stop_times["stop_id"].isin(illinois_terminal["stop_id"])]
-#         stop_times_terminal = stop_times_terminal.sort_values("departure_time")
-
-#         result_data = []
-#         for _, departure in stop_times_terminal.head(5).iterrows():
-#             departure_time = int(departure["departure_time"])
-#             hours, remainder = divmod(departure_time, 3600)
-#             minutes, seconds = divmod(remainder, 60)
-            
-#             # Format as HH:MM:SS
-#             departure_time =  f"{hours:02d}:{minutes:02d}:{seconds:02d}"
-#             result_data.append({
-#                 "route_id":departure['route_id'],
-#                 "departure_time": departure_time,
-#                 "route_name": departure["route_long_name"],
-#                 "trip_headsign": departure["trip_headsign"],
-#                 "direction_id": departure["direction_id"]
-#             })
-            
-#         result = {
-#                 'answer': result_data,
-#                 'additional_info': f"These are the next 5 buses leaving from Illinois Terminal (Stop ID: {illinois_terminal.stop_id.to_list()}) after {current_time}."
-#             }
-#         ```
-
-# example_8:
-#     question: Find the most common transfer locations between routes
-#     answer: |
-#         ```python
-#         from datetime import date
-
-#         # Get today's date
-#         today = date.today()
-#         day_of_week = today.strftime("%A").lower()
-
-#         # Find all routes with GREEN in their name or ID
-#         green_routes = feed.routes[
-#             feed.routes['route_id'].str.contains('GREEN', case=False, na=False) |
-#             feed.routes['route_short_name'].str.contains('GREEN', case=False, na=False) |
-#             feed.routes['route_long_name'].str.contains('GREEN', case=False, na=False)
-#         ]
-
-#         if green_routes.empty:
-#             result = {
-#                 'answer': None,
-#                 'additional_info': "No routes found with 'GREEN' in their name or ID."
-#             }
-#         else:
-#             green_routes_info = []
-
-#             for _, route in green_routes.iterrows():
-#                 route_id = route['route_id']
-
-#                 # Get all service_ids associated with this GREEN route
-#                 route_services = feed.trips[feed.trips['route_id'] == route_id]['service_id'].unique()
-
-#                 # Check the calendar for regular services
-#                 regular_services = set(feed.calendar[
-#                     (feed.calendar['start_date'] <= today) &
-#                     (feed.calendar['end_date'] >= today) &
-#                     (feed.calendar[day_of_week] == 1) &
-#                     (feed.calendar['service_id'].isin(route_services))
-#                 ]['service_id'])
-
-#                 # Check calendar_dates for exceptions
-#                 if hasattr(feed, 'calendar_dates'):
-#                     exceptions = feed.calendar_dates[
-#                         (feed.calendar_dates['date'] == today) &
-#                         (feed.calendar_dates['service_id'].isin(route_services))
-#                     ]
-#                     added_services = set(exceptions[exceptions['exception_type'] == 1]['service_id'])
-#                     removed_services = set(exceptions[exceptions['exception_type'] == 2]['service_id'])
-#                 else:
-#                     added_services = set()
-#                     removed_services = set()
-
-#                 # Combine regular services and exceptions
-#                 operational_services = (regular_services | added_services) - removed_services
-
-#                 is_operational = len(operational_services) > 0
-
-#                 # Get trip count if operational
-#                 if is_operational:
-#                     trip_count = feed.trips[
-#                         (feed.trips['route_id'] == route_id) &
-#                         (feed.trips['service_id'].isin(operational_services))
-#                     ].shape[0]
-#                 else:
-#                     trip_count = 0
-
-#                 green_routes_info.append({
-#                     'route_id': route_id,
-#                     'route_short_name': route['route_short_name'],
-#                     'route_long_name': route['route_long_name'],
-#                     'is_operational': is_operational,
-#                     'trip_count': trip_count
-#                 })
-
-#             result = {
-#                 'answer': green_routes_info,
-#                 'additional_info': f"Found {len(green_routes_info)} routes with 'GREEN' in their name or ID. "
-#                                 f"Today is {today}, a {day_of_week.capitalize()}."
-#             }
-#         ```
+            }

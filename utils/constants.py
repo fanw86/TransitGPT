@@ -11,16 +11,17 @@ FEW_SHOT_EXAMPLES_FILE = "data/few_shot.yaml"
 
 
 # Define the maximum number of messages to keep in the chat history
-MAX_MESSAGES = 10
+MAX_MESSAGES = 16
 
 FILE_MAPPING_LOC = "gtfs_data/file_mapping.json"
 file_mapping = json.loads(open(FILE_MAPPING_LOC).read())
 
 LLMs = [
     "claude-3-5-sonnet-20240620",
+    "gpt-4o",
     "gpt-4o-mini",
     "llama-3.1-8b-instant",
-    "gpt-3.5-turbo",
+    # "gpt-3.5-turbo",
 ]
 
 disclaimer_text = """

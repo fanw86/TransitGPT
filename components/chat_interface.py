@@ -103,7 +103,10 @@ def display_llm_response(fb_agent, uuid, message, i):
     if not only_text:
         with st.expander("👨‍💻Code", expanded=False):
             # with st.expander("LLM Response", expanded=False):
-            st.markdown(message["code_response"])
+            executable_pattern = r"```python\n(.*?)```"
+            executable_code = re.findall(executable_pattern, message["code_response"], re.DOTALL)
+            code_block = "```python\n" + executable_code[0] +"\n```"
+            st.markdown(code_block)
 
     col1, col2, col3 = st.columns([6, 2, 1])    
     with col1:
