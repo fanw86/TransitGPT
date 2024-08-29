@@ -7,7 +7,7 @@ example_1:
 
         # Filter trips for route_id '25490' and friday services
         friday_trips = feed.trips[(feed.trips['route_id'] == '25490') & 
-                                    (feed.trips['service_id'].isin(friday_services))]
+                                  (feed.trips['service_id'].isin(friday_services))]
 
         # Count the trips
         trip_count = friday_trips.shape[0]
@@ -37,7 +37,7 @@ example_2:
 
         # Create the plot
         fig = px.histogram(trip_durations.reset_index(), x='arrival_time', 
-                            title='Distribution of Trip Durations for Route 25490')
+                           title='Distribution of Trip Durations for Route 25490')
 
         result = {
             'answer': avg_duration,  # This is a timedelta object
@@ -59,24 +59,23 @@ example_3:
         route_trips = feed.trips[(feed.trips['route_id'] == route_id) & (feed.trips['direction_id'] == direction_id)]
 
         if route_trips.empty:
-            result =  {"answer": None, "additional_info": f"No trips found for route {route_id}"}
-
+            result = {"answer": None, "additional_info": f"No trips found for route {route_id}"}
 
         # Get the first stop for each trip
         first_stops = feed.stop_times[feed.stop_times['trip_id'].isin(route_trips['trip_id']) & 
-                                        (feed.stop_times['stop_sequence'] == 1)]
+                                      (feed.stop_times['stop_sequence'] == 1)]
         first_stop_id = first_stops['stop_id'].iloc[0]
 
         first_stops = first_stops.sort_values('arrival_time')
-        first_stops['headway_minutes'] = first_stops['arrival_time'].diff() /60
-        first_stops['arrival_hour'] = first_stops['arrival_time']/3600
+        first_stops['headway_minutes'] = first_stops['arrival_time'].diff() / 60
+        first_stops['arrival_hour'] = first_stops['arrival_time'] / 3600
 
         # Calculate overall average headway
         overall_avg_headway = first_stops['headway_minutes'].mean()
 
         # Create a plot
         fig = px.box(first_stops, x='arrival_hour', y='headway_minutes', 
-                        title=f'Headways Distribution for Route {route_id} Direction {direction_id} (at First Stop {first_stop_id})',)
+                     title=f'Headways Distribution for Route {route_id} Direction {direction_id} (at First Stop {first_stop_id})')
         fig.update_layout(
             xaxis_title="Hour of the day",
             yaxis_title="Headway (minutes)",
@@ -84,7 +83,7 @@ example_3:
 
         result = {
             'answer': overall_avg_headway,
-            'additional_info': (f"Average headway calculated for route {route_id} direction {direction_id} at first stop {first_stop_id}"
+            'additional_info': (f"Average headway calculated for route {route_id} direction {direction_id} at first stop {first_stop_id}. "
                                 f"Headways vary by service_id: {service_headways}"),
             'plot': fig
         }
@@ -175,7 +174,7 @@ example_5:
 
         # Create the plot
         fig = px.line(trip_count_df.reset_index(), x='index', y='trip_count', 
-                    title=f'Trip Counts for Route {route_id}')
+                      title=f'Trip Counts for Route {route_id}')
 
         result = {
             'answer': {

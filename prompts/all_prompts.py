@@ -86,6 +86,7 @@ TASK_TIPS = """
 - When matching, consider using case-insensitive comparisons to handle variations in capitalization. 
 - Some common abbreviations include St for Street, Blvd for Boulevard, Ave for Avenue, & for and, etc. Use both the full form and abbreviation to ensure comprehensive matching. 
 - Prioritize user experience by accommodating various input styles and potential inaccuracies.
+- Consider exact matching when given in quotes
 
 #### Route Matching
 - Search across multiple fields: `route_id`, `route_short_name`, and `route_long_name`.
@@ -98,6 +99,7 @@ TASK_TIPS = """
 - Stops can be named after the intersections that comprise of the names of streets that form the intersection
 - Certain locations have multiple stops nearby that refer to the same place such as stops that in a locality, near a landmark, opposite sides of the streets, etc. Consider all of them in the search
 - If stops cannot be found via stop_id or stop_name, use `get_geo_location` to get the geolocation of the location and search nearby stops
+- Ignore the part of the name within round braces such as (SW Corner) or (NW Corner) unless specified
 
 ### Plotting and Mapping
 - For geospatial operations, consider using the `shapely` library to work with geometric objects like points, lines, and polygons.
