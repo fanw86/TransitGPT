@@ -24,6 +24,7 @@ def process_user_input(user_input: str):
                 role="assistant",
                 final_response="Something went wrong. Please try again.",
                 error_message=llm_response,
+                code_response=None
             )
         else:
             code_output, eval_success, error_message, only_text, llm_response = agent.evaluate_code(

@@ -1,6 +1,6 @@
 
 from pydantic import BaseModel, Field
-from typing import Any, Optional, Union, Literal
+from typing import Any, Optional, Literal
 from datetime import datetime
 from utils.helper import get_current_time
 
@@ -16,8 +16,8 @@ class ChatInteraction(BaseModel):
 
 class ChatHistoryEntry(BaseModel):
     role: Literal["assistant"]  # Since this is always "assistant" in the given context
-    final_response: Optional[Union[str, None]]
-    code_response: Optional[Union[str, None]]
+    final_response: Optional[str] = None
+    code_response: Optional[str] = None
     code_output: Optional[Any] = None
     eval_success: bool = False
     error_message: Optional[str] = None
