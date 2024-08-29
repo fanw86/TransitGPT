@@ -195,13 +195,11 @@ example_6:
         def remove_text_in_braces(text):
             return re.sub(r"\(.*?\)", "", text).strip()
 
-
         def format_time_hhmmss(time):
             time = int(time)
             return f"{time // 3600:02d}:{(time % 3600) // 60:02d}:{time % 60:02d}"
 
-
-        def find_stops(feed, query, city=None, num_stops=3):
+        def find_stops(feed, query, city, num_stops=5, radius_meters=200):
             def fuzzy_search(threshold):
                 clean_stop_names = feed.stops["stop_name"].apply(remove_text_in_braces)
                 clean_query = remove_text_in_braces(query)
@@ -214,6 +212,19 @@ example_6:
                     )
                 ]
 
+            def find_nearby_stops(lat, lon, stops_df, max_distance):
+                # Make a copy so that we doi not overwrite for next call
+                stops_df = stops_df.copy()
+                stops_df["distance"] = stops_df.apply(
+                    lambda row: geodesic((lat, lon), (row["stop_lat"], row["stop_lon"])).meters,
+                    axis=1,
+                )
+                stops_within_threshold = stops_df[stops_df["distance"] <= max_distance].sort_values("distance")
+                if not stops_within_threshold.empty:
+                    return stops_within_threshold
+                else:
+                    # If no stops within the max_distance, return the `num_stops` nearest stops
+                    return stops_df.nsmallest(num_stops, "distance")
             # Try exact matching
             query_words = query.lower().split()
             mask = (
@@ -230,19 +241,12 @@ example_6:
             # If still no matches and city is provided, use geolocation (assuming get_geo_location function exists)
             if matched_stops.empty and city:
                 location = get_geo_location(f"{query}, {city}")
-                if location:
-                    lat, lon = location
-                    matched_stops = (
-                        feed.stops.apply(
-                            lambda row: geodesic(
-                                (lat, lon), (row["stop_lat"], row["stop_lon"])
-                            ).meters,
-                            axis=1,
-                        )
-                        .nsmallest(num_stops)
-                        .index
-                    )
-                    matched_stops = feed.stops.loc[matched_stops]
+
+                if not location:
+                    return pd.DataFrame()  # Return empty DataFrame if location not found
+
+                lat, lon = location
+                matched_stops = find_nearby_stops(lat, lon, feed.stops, radius_meters)
 
             return matched_stops
 
@@ -363,39 +367,58 @@ example_8:
         def remove_text_in_braces(text):
             return re.sub(r'\(.*?\)', '', text).strip()
 
-        def find_stops(feed, query, city=None, num_stops=3):
-            def find_nearest_stops(lat, lon, stops_df, num_stops=3):
-                stops_df['distance'] = stops_df.apply(
-                    lambda row: geodesic((lat, lon), (row['stop_lat'], row['stop_lon'])).meters,
-                    axis=1
-                )
-                return stops_df.nsmallest(num_stops, 'distance')
-
+        def find_stops(feed, query, city, num_stops=5, radius_meters=200):
             def fuzzy_search(threshold):
-                clean_stop_names = feed.stops['stop_name'].apply(remove_text_in_braces)
+                clean_stop_names = feed.stops["stop_name"].apply(remove_text_in_braces)
                 clean_query = remove_text_in_braces(query)
-                best_matches = process.extract(clean_query, clean_stop_names, scorer=fuzz.token_sort_ratio, limit=num_stops)
-                return feed.stops[clean_stop_names.isin([match[0] for match in best_matches if match[1] >= threshold])]
+                best_matches = process.extract(
+                    clean_query, clean_stop_names, scorer=fuzz.token_sort_ratio, limit=num_stops
+                )
+                return feed.stops[
+                    clean_stop_names.isin(
+                        [match[0] for match in best_matches if match[1] >= threshold]
+                    )
+                ]
 
-            # Step 1: Try exact matching
+            def find_nearby_stops(lat, lon, stops_df, max_distance):
+                # Make a copy so that we doi not overwrite for next call
+                stops_df = stops_df.copy()
+                stops_df["distance"] = stops_df.apply(
+                    lambda row: geodesic((lat, lon), (row["stop_lat"], row["stop_lon"])).meters,
+                    axis=1,
+                )
+                stops_within_threshold = stops_df[stops_df["distance"] <= max_distance].sort_values("distance")
+                if not stops_within_threshold.empty:
+                    return stops_within_threshold
+                else:
+                    # If no stops within the max_distance, return the `num_stops` nearest stops
+                    return stops_df.nsmallest(num_stops, "distance")
+            # Try exact matching
             query_words = query.lower().split()
-            mask = feed.stops['stop_name'].str.lower().apply(lambda x: all(word in x for word in query_words))
+            mask = (
+                feed.stops["stop_name"]
+                .str.lower()
+                .apply(lambda x: all(word in x for word in query_words))
+            )
             matched_stops = feed.stops[mask]
 
-            # Step 2: If exact matching fails, try fuzzy matching with threshold 80
+            # If exact matching fails, try fuzzy matching
             if matched_stops.empty:
-                matched_stops = fuzzy_search(80)
+                matched_stops = fuzzy_search(80)  # Try with threshold 80 first
 
-            # Step 3: If still no matches and city is provided, use geolocation
+            # If still no matches and city is provided, use geolocation (assuming get_geo_location function exists)
             if matched_stops.empty and city:
                 location = get_geo_location(f"{query}, {city}")
-                if location:
-                    lat, lon = location
-                    matched_stops = find_nearest_stops(lat, lon, feed.stops, num_stops)
+
+                if not location:
+                    return pd.DataFrame()  # Return empty DataFrame if location not found
+
+                lat, lon = location
+                matched_stops = find_nearby_stops(lat, lon, feed.stops, radius_meters)
 
             return matched_stops
 
-        matched_stops = find_stops(feed, "University and Victor", city= "Champaign, IL, USA", num_stops = 2)
+        matched_stops = find_stops(feed, "University and Victor", city= "Champaign, IL, USA")
         if not matched_stops.empty:
                 result = {
                     'answer': f"Found {len(matched_stops)} potential stop(s) near University and Victor",

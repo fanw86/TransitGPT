@@ -98,7 +98,7 @@ TASK_TIPS = """
 - For stop marching, return *all* possible matches instead of a single result.
 - Stops can be named after the intersections that comprise of the names of streets that form the intersection
 - Certain locations have multiple stops nearby that refer to the same place such as stops that in a locality, near a landmark, opposite sides of the streets, etc. Consider all of them in the search
-- If stops cannot be found via stop_id or stop_name, use `get_geo_location` to get the geolocation of the location and search nearby stops. Avoid using libraries such as Nominatim
+- If stops cannot be found via stop_id or stop_name, use `get_geo_location` to get the geolocation of the location and search nearby stops within `200m`. Avoid using libraries such as Nominatim
 - Ignore the part of the name within round braces such as (SW Corner) or (NW Corner) unless specified
 
 ### Plotting and Mapping
