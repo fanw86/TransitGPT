@@ -48,11 +48,24 @@ example_2:
         ```
 
 example_3:
-    question: Calculate the headway for a given route
+    question: Calculate the headway for a GREEN route
     answer: |
         ```python
-        # Assume the route_id and direction_id we're interested in
-        route_id = feed.routes.route_id.sample(n=1).values[0]
+        def find_route(search_term):
+            route_fields = ['route_id', 'route_short_name', 'route_long_name']
+
+            # Create a long Series with all fields
+            long_series = pd.concat([feed.routes[field].astype(str) for field in route_fields])
+
+            # Perform the fuzzy matching on the long series
+            match = process.extractOne(search_term, long_series, 
+                                    scorer=fuzz.ratio)
+            route_row = feed.routes.iloc[match[2]]
+            return route_row
+
+        route_id = find_route("GREEN").route_id
+
+        # Assume a direction for the route
         direction_id = feed.trips[feed.trips.route_id == route_id].direction_id.sample(n=1).values[0]
 
         # Get all trips for the specified route
