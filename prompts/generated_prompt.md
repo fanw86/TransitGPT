@@ -744,6 +744,7 @@ These are the datatypes for all files within the current GTFS:
 - When matching, consider using case-insensitive comparisons to handle variations in capitalization. 
 - Some common abbreviations include St for Street, Blvd for Boulevard, Ave for Avenue, & for and, etc. Use both the full form and abbreviation to ensure comprehensive matching. 
 - Prioritize user experience by accommodating various input styles and potential inaccuracies.
+- Consider exact matching when given in quotes
 
 #### Route Matching
 - Search across multiple fields: `route_id`, `route_short_name`, and `route_long_name`.
@@ -756,6 +757,7 @@ These are the datatypes for all files within the current GTFS:
 - Stops can be named after the intersections that comprise of the names of streets that form the intersection
 - Certain locations have multiple stops nearby that refer to the same place such as stops that in a locality, near a landmark, opposite sides of the streets, etc. Consider all of them in the search
 - If stops cannot be found via stop_id or stop_name, use `get_geo_location` to get the geolocation of the location and search nearby stops
+- Ignore the part of the name within round braces such as (SW Corner) or (NW Corner) unless specified
 
 ### Plotting and Mapping
 - For geospatial operations, consider using the `shapely` library to work with geometric objects like points, lines, and polygons.
@@ -783,7 +785,7 @@ friday_services = feed.calendar[(feed.calendar['friday'] == 1)]['service_id']
 
 # Filter trips for route_id '25490' and friday services
 friday_trips = feed.trips[(feed.trips['route_id'] == '25490') & 
-                            (feed.trips['service_id'].isin(friday_services))]
+                          (feed.trips['service_id'].isin(friday_services))]
 
 # Count the trips
 trip_count = friday_trips.shape[0]
@@ -819,7 +821,7 @@ avg_duration = trip_durations['arrival_time'].mean()
 
 # Create the plot
 fig = px.histogram(trip_durations.reset_index(), x='arrival_time', 
-                    title='Distribution of Trip Durations for Route 25490')
+                   title='Distribution of Trip Durations for Route 25490')
 
 result = {
     'answer': avg_duration,  # This is a timedelta object
@@ -847,24 +849,23 @@ direction_id = feed.trips[feed.trips.route_id == route_id].direction_id.sample(n
 route_trips = feed.trips[(feed.trips['route_id'] == route_id) & (feed.trips['direction_id'] == direction_id)]
 
 if route_trips.empty:
-    result =  {"answer": None, "additional_info": f"No trips found for route {route_id}"}
-
+    result = {"answer": None, "additional_info": f"No trips found for route {route_id}"}
 
 # Get the first stop for each trip
 first_stops = feed.stop_times[feed.stop_times['trip_id'].isin(route_trips['trip_id']) & 
-                                (feed.stop_times['stop_sequence'] == 1)]
+                              (feed.stop_times['stop_sequence'] == 1)]
 first_stop_id = first_stops['stop_id'].iloc[0]
 
 first_stops = first_stops.sort_values('arrival_time')
-first_stops['headway_minutes'] = first_stops['arrival_time'].diff() /60
-first_stops['arrival_hour'] = first_stops['arrival_time']/3600
+first_stops['headway_minutes'] = first_stops['arrival_time'].diff() / 60
+first_stops['arrival_hour'] = first_stops['arrival_time'] / 3600
 
 # Calculate overall average headway
 overall_avg_headway = first_stops['headway_minutes'].mean()
 
 # Create a plot
 fig = px.box(first_stops, x='arrival_hour', y='headway_minutes', 
-                title=f'Headways Distribution for Route {route_id} Direction {direction_id} (at First Stop {first_stop_id})',)
+             title=f'Headways Distribution for Route {route_id} Direction {direction_id} (at First Stop {first_stop_id})')
 fig.update_layout(
     xaxis_title="Hour of the day",
     yaxis_title="Headway (minutes)",
@@ -872,7 +873,7 @@ fig.update_layout(
 
 result = {
     'answer': overall_avg_headway,
-    'additional_info': (f"Average headway calculated for route {route_id} direction {direction_id} at first stop {first_stop_id}"
+    'additional_info': (f"Average headway calculated for route {route_id} direction {direction_id} at first stop {first_stop_id}. "
                         f"Headways vary by service_id: {service_headways}"),
     'plot': fig
 }
@@ -975,7 +976,7 @@ min_trips_count = trip_count_df.loc[min_trips_date, 'trip_count']
 
 # Create the plot
 fig = px.line(trip_count_df.reset_index(), x='index', y='trip_count', 
-            title=f'Trip Counts for Route {route_id}')
+              title=f'Trip Counts for Route {route_id}')
 
 result = {
     'answer': {
@@ -1013,7 +1014,7 @@ def find_stops(feed, query, city=None, num_stops=3):
         clean_stop_names = feed.stops["stop_name"].apply(remove_text_in_braces)
         clean_query = remove_text_in_braces(query)
         best_matches = process.extract(
-            clean_query, clean_stop_names, scorer=fuzz.ratio, limit=num_stops
+            clean_query, clean_stop_names, scorer=fuzz.token_sort_ratio, limit=num_stops
         )
         return feed.stops[
             clean_stop_names.isin(
@@ -1187,7 +1188,7 @@ def find_stops(feed, query, city=None, num_stops=3):
     def fuzzy_search(threshold):
         clean_stop_names = feed.stops['stop_name'].apply(remove_text_in_braces)
         clean_query = remove_text_in_braces(query)
-        best_matches = process.extract(clean_query, clean_stop_names, scorer=fuzz.ratio, limit=num_stops)
+        best_matches = process.extract(clean_query, clean_stop_names, scorer=fuzz.token_sort_ratio, limit=num_stops)
         return feed.stops[clean_stop_names.isin([match[0] for match in best_matches if match[1] >= threshold])]
 
     # Step 1: Try exact matching

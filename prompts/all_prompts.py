@@ -91,14 +91,14 @@ TASK_TIPS = """
 #### Route Matching
 - Search across multiple fields: `route_id`, `route_short_name`, and `route_long_name`.
 - For each search, determine whether to return all matches or only the closest match based on the use case.
-- **Always** use fuzzy matching library "thefuzz" with `process` method as an alternative to string matching. Example: process.extract("Green",feed.routes.route_short_name, scorer=fuzz.ratio). **Always** use the `fuzz.ratio` scorer for better results. 
+- **Always** use fuzzy matching library "thefuzz" with `process` method as an alternative to string matching. Example: process.extract("Green",feed.routes.route_short_name, scorer=fuzz.token_sort_ratio). **Always** use the `fuzz.token_sort_ratio` scorer for better results. 
 
 #### Stop Matching
 - Search using `stop_id` and `stop_name`
 - For stop marching, return *all* possible matches instead of a single result.
 - Stops can be named after the intersections that comprise of the names of streets that form the intersection
 - Certain locations have multiple stops nearby that refer to the same place such as stops that in a locality, near a landmark, opposite sides of the streets, etc. Consider all of them in the search
-- If stops cannot be found via stop_id or stop_name, use `get_geo_location` to get the geolocation of the location and search nearby stops
+- If stops cannot be found via stop_id or stop_name, use `get_geo_location` to get the geolocation of the location and search nearby stops. Avoid using libraries such as Nominatim
 - Ignore the part of the name within round braces such as (SW Corner) or (NW Corner) unless specified
 
 ### Plotting and Mapping

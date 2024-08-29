@@ -206,7 +206,7 @@ example_6:
                 clean_stop_names = feed.stops["stop_name"].apply(remove_text_in_braces)
                 clean_query = remove_text_in_braces(query)
                 best_matches = process.extract(
-                    clean_query, clean_stop_names, scorer=fuzz.ratio, limit=num_stops
+                    clean_query, clean_stop_names, scorer=fuzz.token_sort_ratio, limit=num_stops
                 )
                 return feed.stops[
                     clean_stop_names.isin(
@@ -374,7 +374,7 @@ example_8:
             def fuzzy_search(threshold):
                 clean_stop_names = feed.stops['stop_name'].apply(remove_text_in_braces)
                 clean_query = remove_text_in_braces(query)
-                best_matches = process.extract(clean_query, clean_stop_names, scorer=fuzz.ratio, limit=num_stops)
+                best_matches = process.extract(clean_query, clean_stop_names, scorer=fuzz.token_sort_ratio, limit=num_stops)
                 return feed.stops[clean_stop_names.isin([match[0] for match in best_matches if match[1] >= threshold])]
 
             # Step 1: Try exact matching

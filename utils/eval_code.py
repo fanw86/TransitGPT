@@ -100,7 +100,8 @@ class GTFS_Eval:
             "result": None,
         }
         nm.update(locals_dict)
-        nm.update({"feed": self.current_loader.feed})
+        # Work on a copy of feed. Every run is a new instance
+        nm.update({"feed": self.current_loader.feed.copy()})
         try:
             exec(code, nm)
             return (nm.get("result"), True, None, False)
