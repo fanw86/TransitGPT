@@ -138,14 +138,16 @@ def display_llm_response(fb_agent, uuid, message, i):
     st.session_state.current_message_id = message_id
 
     if only_text or message["final_response"] != message["code_response"]:
+        colored_response = apply_color_codes(message["final_response"])
         if message["is_cancelled"]:
             with col1:
                 st.info(message["final_response"])
         else:
             display_feedback_ui(fb_agent, message_id, col2, col3)
-            colored_response = apply_color_codes(message["final_response"])
-            display_container = col1 if len(colored_response) <= 200 else st
-            with display_container:
+            if len(colored_response) <= 200:
+                with col1:
+                    st.markdown(colored_response, unsafe_allow_html=True)
+            else:
                 st.markdown(colored_response, unsafe_allow_html=True)
     if isinstance(message["code_output"], dict):
         display_fig_map(message["code_output"])
