@@ -144,8 +144,9 @@ def display_llm_response(fb_agent, uuid, message, i):
         else:
             display_feedback_ui(fb_agent, message_id, col2, col3)
             colored_response = apply_color_codes(message["final_response"])
-            st.markdown(colored_response, unsafe_allow_html=True)
-
+            display_container = col1 if len(colored_response) <= 200 else st
+            with display_container:
+                st.markdown(colored_response, unsafe_allow_html=True)
     if isinstance(message["code_output"], dict):
         display_fig_map(message["code_output"])
     

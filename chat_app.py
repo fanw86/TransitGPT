@@ -47,8 +47,12 @@ if not st.session_state.first_question_asked and not st.session_state.selected_q
     for i, question in enumerate(st.session_state.questions):
         if st.button(question, key=f"q_{i}"):
             st.session_state.selected_question = question
-            st.session_state.user_input = question  # Set user_input when a question is selected
-            st.session_state.first_question_asked = True  # Mark that a question has been selected
+            st.session_state.user_input = (
+                question  # Set user_input when a question is selected
+            )
+            st.session_state.first_question_asked = (
+                True  # Mark that a question has been selected
+            )
             st.rerun()  # Rerun to remove the sample questions
 
 if st.session_state.user_input:
@@ -57,7 +61,7 @@ elif st.session_state.selected_question:
     set_chat_box(st.session_state.selected_question, len(st.session_state.chat_history))
 else:
     set_chat_box("", len(st.session_state.chat_history))
-        
+
 # Process user input
 user_input = st.chat_input(
     "Type your query here...",
@@ -65,7 +69,7 @@ user_input = st.chat_input(
 )
 # Process user input or selected question
 if user_input:
-   # Use the edited input from the chat box
+    # Use the edited input from the chat box
     st.session_state.user_input = user_input
     st.session_state.is_processing = True
     st.session_state.selected_question = None  # Clear the selected question
@@ -76,19 +80,18 @@ if user_input:
 
 if st.session_state.is_processing:
     user_input = st.session_state["user_input"]
-    
+
     # Check if this input hasn't been added to chat history yet
     if not st.session_state.chat_history or (
-        "content" in st.session_state.chat_history[-1] and
-        st.session_state.chat_history[-1]["content"] != user_input
+        "final_response" in st.session_state.chat_history[-1]
     ):
         with st.chat_message("user", avatar="🙋‍♂️"):
             st.write(user_input)
         st.session_state.chat_history.append({"role": "user", "content": user_input})
-    
+
     # Add a cancel button
     cancel_button = st.button("⏹Stop")
-    
+
     if cancel_button:
         st.session_state.is_processing = False
         st.session_state.user_input = None
