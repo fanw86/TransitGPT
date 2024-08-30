@@ -1,7 +1,5 @@
 import re
 import json
-import folium
-import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
 from utils.feedback import FeedbackAgent

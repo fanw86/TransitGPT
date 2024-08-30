@@ -8,6 +8,7 @@ import pytz
 from datetime import datetime
 import pandas as pd
 from typing import Any
+import plotly.io as pio
 
 
 def get_current_time():
@@ -129,3 +130,9 @@ def summarize_large_output(
         return f"Dict with {len(output)} keys: {str(output)}"
     else:
         return truncate_text(str(output), max_chars)
+
+
+def plotly_fig_to_base64(fig):
+    img_bytes = pio.to_image(fig, format="png")
+    img_str = base64.b64encode(img_bytes).decode()
+    return img_str

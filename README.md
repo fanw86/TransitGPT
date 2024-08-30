@@ -12,17 +12,22 @@ GTFS2CODE is a specialized chatbot that helps transit enthusiasts retrieve trans
 
 ## Setup
 
-1. Install the required dependencies:
+1. **Create a virtual environment** (recommended):
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+   ```
+2. Install the required dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-2. Ensure you have the necessary GTFS data files and update the `gtfs_data/file_mapping.json` accordingly
-3. Generate pickled GTFS feeds for faster loading:
+3. Ensure you have the necessary GTFS data files and update the `gtfs_data/file_mapping.json` accordingly
+4. Generate pickled GTFS feeds for faster loading:
    ```bash
    python utils/generate_feed_pickles.py
    ```
-4. Set up your environment variables for API keys and other sensitive information
-5. Run the Streamlit app:
+5. Set up your environment variables for API keys and other sensitive information
+6. Run the Streamlit app:
    ```bash
    streamlit run chat_app.py
    ```

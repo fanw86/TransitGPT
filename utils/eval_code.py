@@ -1,29 +1,14 @@
-import datetime
 import sys
-import time
 import traceback
 import re
-
-## For Evals
-import geopy
-import folium
-import geopandas as gpd
-import matplotlib
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-import plotly
-import plotly.express as px
-import shapely
 import _pickle as cPickle
 import gzip
-from shapely.geometry import LineString, Point, Polygon
-from thefuzz import process, fuzz
-from prompts.generate_prompt import generate_system_prompt
-from utils.geocoder import get_geo_location
+## For Evals
+from utils.eval_imports import import_namespace
 
 # Custom Imports
 from utils.constants import TIMEOUT_SECONDS
+from prompts.generate_prompt import generate_system_prompt
 
 def load_zipped_pickle(filename):
     with gzip.open(filename, 'rb') as f:
@@ -97,11 +82,8 @@ class GTFS_Eval:
         else:
             # Has no code block. Send back with only text response
             return (None, True, None, True)
-        nm = globals()
-        locals_dict = {
-            "result": None,
-        }
-        nm.update(locals_dict)
+        nm = globals()  # Keep the existing global variables
+        nm.update(import_namespace)  # Update with import_namespace
         # Work on a copy of feed. Every run is a new instance
         nm.update({"feed": self.current_loader.feed.copy()})
         try:

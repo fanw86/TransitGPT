@@ -9,7 +9,8 @@ from google.cloud import firestore
 from google.oauth2 import service_account
 
 from utils.data_models import FeedbackEntry
-from utils.helper import fig_to_base64
+from utils.helper import fig_to_base64, plotly_fig_to_base64
+import plotly.graph_objs as go
 
 
 def create_feedback_entry(
@@ -30,8 +31,11 @@ def create_feedback_entry(
 
     if eval_success:
         if isinstance(code_output, plt.Figure):
-            feedback_entry.code_eval_result = "Figure generated"
+            feedback_entry.code_eval_result = "Matplotlib Figure generated"
             feedback_entry.figure = fig_to_base64(code_output)
+        elif isinstance(code_output, go.Figure):
+            feedback_entry.code_eval_result = "Plotly Figure generated"
+            feedback_entry.figure = plotly_fig_to_base64(code_output)
         elif isinstance(code_output, folium.Map):
             feedback_entry.code_eval_result = "Map generated"
         elif isinstance(code_output, (pd.DataFrame, pd.Series)):
