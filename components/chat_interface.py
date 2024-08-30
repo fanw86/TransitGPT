@@ -30,7 +30,7 @@ def is_json_serializable(obj):
 def safe_folium_display(folium_map):
     if isinstance(folium_map, Map):
         try:
-            folium_static(folium_map, width=600, height=400)
+            folium_static(folium_map, height=400)
         except Exception as e:
             st.error(f"Error displaying Folium map: {str(e)}")
             st.write("Map data (non-rendered):")
@@ -96,6 +96,21 @@ def display_figure(fig):
     elif isinstance(fig, plt.Figure):
         st.pyplot(fig, use_container_width=True)
 
+def display_feedback_ui(fb_agent, message_id, col2, col3):
+    with col3:
+        st.feedback(
+            key=f"{message_id}_feedback",
+            on_change=fb_agent.on_feedback_change,
+            options="thumbs",
+        )
+    with col2:
+        st.text_input(
+            "Comment:",
+            label_visibility="collapsed",
+            placeholder="Comment (optional):",
+            key=f"{message_id}_comment",
+            on_change=fb_agent.on_feedback_change,
+        )
 
 def display_llm_response(fb_agent, uuid, message, i):
     # Display Code if final response is different from the initial LLM response
@@ -124,24 +139,15 @@ def display_llm_response(fb_agent, uuid, message, i):
     message_id = f"{uuid}_{i}"
     st.session_state.current_message_id = message_id
 
-    with col3:
-        st.feedback(
-            key=f"{message_id}_feedback",
-            on_change=fb_agent.on_feedback_change,
-            options="thumbs",
-        )
-    with col2:
-        st.text_input(
-            "Comment:",
-            label_visibility="collapsed",
-            placeholder="Comment (optional):",
-            key=f"{message_id}_comment",
-            on_change=fb_agent.on_feedback_change,
-        )
     if only_text or message["final_response"] != message["code_response"]:
-        colored_response = apply_color_codes(message["final_response"])
-        st.markdown(colored_response,unsafe_allow_html=True)
-    
+        if message["is_cancelled"]:
+            with col1:
+                st.info(message["final_response"])
+        else:
+            display_feedback_ui(fb_agent, message_id, col2, col3)
+            colored_response = apply_color_codes(message["final_response"])
+            st.markdown(colored_response, unsafe_allow_html=True)
+
     if isinstance(message["code_output"], dict):
         display_fig_map(message["code_output"])
     

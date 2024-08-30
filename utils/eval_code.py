@@ -20,8 +20,10 @@ import gzip
 from shapely.geometry import LineString, Point, Polygon
 from thefuzz import process, fuzz
 from prompts.generate_prompt import generate_system_prompt
-from utils.gtfs_loader import GTFSLoader
 from utils.geocoder import get_geo_location
+
+# Custom Imports
+from utils.constants import TIMEOUT_SECONDS
 
 def load_zipped_pickle(filename):
     with gzip.open(filename, 'rb') as f:
@@ -103,8 +105,41 @@ class GTFS_Eval:
         # Work on a copy of feed. Every run is a new instance
         nm.update({"feed": self.current_loader.feed.copy()})
         try:
-            exec(code, nm)
-            return (nm.get("result"), True, None, False)
+            # Set a timeout for execution
+            import threading
+            import _thread
+
+            def execute_code():
+                global execution_result
+                execution_result = None
+                try:
+                    exec(code, nm)
+                    execution_result = nm.get("result")
+                except Exception as e:
+                    execution_result = e
+
+            def timeout_handler():
+                _thread.interrupt_main()
+
+            # Define the timeout duration in seconds
+            # Create a new thread to execute the code
+            execution_thread = threading.Thread(target=execute_code)
+            # Create a timer that will call the timeout_handler after TIMEOUT_SECONDS
+            timer = threading.Timer(TIMEOUT_SECONDS, timeout_handler)
+            timer.start()
+            execution_thread.start()
+            # Wait for the execution thread to finish, with a timeout of TIMEOUT_SECONDS
+            execution_thread.join(TIMEOUT_SECONDS)  # If the thread doesn't finish in TIMEOUT_SECONDS, join() will return
+            # Cancel the timer to prevent it from calling the timeout_handler if execution finished in time
+            timer.cancel()
+
+            if execution_thread.is_alive():
+                raise TimeoutError("Code execution timed out")
+
+            if isinstance(execution_result, Exception):
+                raise execution_result
+
+            return (execution_result, True, None, False)
         except Exception as e:
             error_info = self._get_detailed_error_info(e, code)
             return (None, False, error_info, False)

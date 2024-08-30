@@ -22,6 +22,7 @@ class ChatHistoryEntry(BaseModel):
     eval_success: bool = False
     error_message: Optional[str] = None
     only_text: bool = False
+    is_cancelled: bool = False
 
 
 class FeedbackEntry(BaseModel):

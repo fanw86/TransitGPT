@@ -51,3 +51,13 @@ def process_user_input(user_input: str):
             create_feedback_entry(
                 user_input, agent, llm_response, eval_success, code_output, error_message, final_response
             )
+
+def process_cancellation():
+    chat_entry = ChatHistoryEntry(
+        role="assistant",
+        final_response="The operation was cancelled.",
+        only_text=True,
+        is_cancelled=True
+    )
+    st.session_state.chat_history.append(chat_entry.dict())
+    st.info("The operation was cancelled.")

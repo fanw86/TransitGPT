@@ -1,7 +1,7 @@
 import streamlit as st
 
 ## Custom imports
-from utils.response_processor import process_user_input
+from utils.response_processor import process_user_input, process_cancellation
 from utils.constants import MAX_MESSAGES
 from utils.state import load_session_state
 from components.sidebar import (
@@ -76,12 +76,27 @@ if user_input:
 
 if st.session_state.is_processing:
     user_input = st.session_state["user_input"]
-    st.session_state.is_processing = True
-    with st.chat_message("user", avatar="🙋‍♂️"):
-        st.write(user_input)
-    st.session_state.chat_history.append({"role": "user", "content": user_input})
-    process_user_input(user_input)
-    # Clear the input box after processing
-    st.session_state.user_input = None
-    st.session_state.is_processing = False
-    st.rerun()
+    
+    # Check if this input hasn't been added to chat history yet
+    if not st.session_state.chat_history or (
+        "content" in st.session_state.chat_history[-1] and
+        st.session_state.chat_history[-1]["content"] != user_input
+    ):
+        with st.chat_message("user", avatar="🙋‍♂️"):
+            st.write(user_input)
+        st.session_state.chat_history.append({"role": "user", "content": user_input})
+    
+    # Add a cancel button
+    cancel_button = st.button("⏹Stop")
+    
+    if cancel_button:
+        st.session_state.is_processing = False
+        st.session_state.user_input = None
+        process_cancellation()
+        st.rerun()
+    else:
+        process_user_input(user_input)
+        # Clear the input box after processing
+        st.session_state.user_input = None
+        st.session_state.is_processing = False
+        st.rerun()

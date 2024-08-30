@@ -48,7 +48,7 @@ example_2:
         ```
 
 example_3:
-    question: Calculate the headway for a GREEN route
+    question: Calculate the headway for GREEN route
     answer: |
         ```python
         def find_route(search_term):
