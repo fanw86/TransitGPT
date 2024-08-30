@@ -144,7 +144,7 @@ def display_llm_response(fb_agent, uuid, message, i):
                 st.info(message["final_response"])
         else:
             display_feedback_ui(fb_agent, message_id, col2, col3)
-            if len(colored_response) <= 200:
+            if len(colored_response) <= 500:
                 with col1:
                     st.markdown(colored_response, unsafe_allow_html=True)
             else:
