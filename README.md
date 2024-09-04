@@ -26,7 +26,18 @@ GTFS2CODE is a specialized chatbot that helps transit enthusiasts retrieve trans
    ```bash
    python utils/generate_feed_pickles.py
    ```
-5. Set up your environment variables for API keys and other sensitive information
+5. Set up your environment variables for API keys and other sensitive information:
+   - Create a `.streamlit/secrets.toml` file in your project directory.
+   - Add your API keys in the following format:
+     ```toml
+     [general]
+     OPENAI_API_KEY = "your_openai_api_key"
+     GROQ_API_KEY = "your_groq_api_key"
+     ANTHROPIC_API_KEY = "your_anthropic_api_key"
+     GMAP_API = "your_google_maps_api_key"
+     ```
+   - Ensure that this file is not included in version control by adding it to your `.gitignore`.
+
 6. Run the Streamlit app:
    ```bash
    streamlit run chat_app.py

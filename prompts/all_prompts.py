@@ -94,12 +94,40 @@ TASK_TIPS = """
 - **Always** use fuzzy matching library "thefuzz" with `process` method as an alternative to string matching. Example: process.extract("Green",feed.routes.route_short_name, scorer=fuzz.token_sort_ratio). **Always** use the `fuzz.token_sort_ratio` scorer for better results. 
 
 #### Stop Matching
+<stop-matching>
 - Search using `stop_id` and `stop_name`
-- For stop marching, return *all* possible matches instead of a single result.
+- For stop matching, return *all* possible matches instead of a single result.
 - Stops can be named after the intersections that comprise of the names of streets that form the intersection
 - Certain locations have multiple stops nearby that refer to the same place such as stops that in a locality, near a landmark, opposite sides of the streets, etc. Consider all of them in the search
 - If stops cannot be found via stop_id or stop_name, use `get_geo_location` to get the geolocation of the location and search nearby stops within `200m`. Avoid using libraries such as Nominatim
 - Ignore the part of the name within round braces such as (SW Corner) or (NW Corner) unless specified
+- Here are the functions to find stops by different methods. Utilize only these functions to find the stops:
+
+1. find_stops_by_full_name(feed, name, threshold=80):
+   - Use this to find stops by their full name, allowing for slight misspellings or variations.
+   - Example: find_stops_by_full_name(feed, "Central Staion")
+
+2. find_stops_by_street(feed, street_root, threshold=80):
+   - Use this to find stops on a specific street.
+   - The street_root parameter should be the root word part of the street name.
+   - Example: find_stops_by_street(feed, "Main") # 'Main' is root word for stops such as Main St, Main Street, etc.
+
+3. find_stops_by_intersection(feed, street1_root, street2_root, threshold=80):
+   - Use this to find stops near the intersection of two streets by providing the root words of the streets.
+   - Example: find_stops_by_intersection(feed, "Main", "Broadway")
+
+4. find_nearby_stops(lat, lon, stops_df, max_distance=200, max_stops=5):
+   - This function finds stops within a specified distance of given coordinates.
+   - It's typically used internally by `find_stops_by_address`.
+
+5. find_stops_by_address(feed, address, radius_meters=200, max_stops=5):
+   - Use this to find stops near a specific address.
+   - It geocodes the address and then finds nearby stops.
+   - Example: find_stops_by_address(feed, "1004 Main St, Champaign, IL")
+
+6. get_geo_location(location_info):
+   - This function converts an address to geographic coordinates.
+   - It's used internally by `find_stops_by_address`.
 
 ### Plotting and Mapping
 - For geospatial operations, consider using the `shapely` library to work with geometric objects like points, lines, and polygons.

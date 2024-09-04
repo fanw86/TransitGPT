@@ -13,3 +13,5 @@ cumtd_calendar.txt
 # !gtfs_data/file_mapping.json
 # !gtfs_data/feed_pickles/
 kent_seminar/
+notebooks/
+TODO.md

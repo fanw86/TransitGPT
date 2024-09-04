@@ -90,16 +90,19 @@ if st.session_state.is_processing:
         st.session_state.chat_history.append({"role": "user", "content": user_input})
 
     # Add a cancel button
-    cancel_button = st.button("⏹Stop")
+    col1, col2 = st.columns([6,1])
+    with col2:
+        cancel_button = st.button("⏹Stop")
 
-    if cancel_button:
-        st.session_state.is_processing = False
-        st.session_state.user_input = None
-        process_cancellation()
-        st.rerun()
-    else:
-        process_user_input(user_input)
-        # Clear the input box after processing
-        st.session_state.user_input = None
-        st.session_state.is_processing = False
-        st.rerun()
+    with col1:
+        if cancel_button:
+            st.session_state.is_processing = False
+            st.session_state.user_input = None
+            process_cancellation()
+            st.rerun()
+        else:
+            process_user_input(user_input)
+            # Clear the input box after processing
+            st.session_state.user_input = None
+            st.session_state.is_processing = False
+            st.rerun()

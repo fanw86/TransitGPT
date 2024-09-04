@@ -105,7 +105,7 @@ def display_feedback_ui(fb_agent, message_id, col2, col3):
         st.text_input(
             "Comment:",
             label_visibility="collapsed",
-            placeholder="Comment (optional):",
+            placeholder="Comment",
             key=f"{message_id}_comment",
             on_change=fb_agent.on_feedback_change,
         )

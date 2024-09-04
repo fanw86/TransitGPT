@@ -752,12 +752,40 @@ These are the datatypes for all files within the current GTFS:
 - **Always** use fuzzy matching library "thefuzz" with `process` method as an alternative to string matching. Example: process.extract("Green",feed.routes.route_short_name, scorer=fuzz.token_sort_ratio). **Always** use the `fuzz.token_sort_ratio` scorer for better results. 
 
 #### Stop Matching
+<stop-matching>
 - Search using `stop_id` and `stop_name`
-- For stop marching, return *all* possible matches instead of a single result.
+- For stop matching, return *all* possible matches instead of a single result.
 - Stops can be named after the intersections that comprise of the names of streets that form the intersection
 - Certain locations have multiple stops nearby that refer to the same place such as stops that in a locality, near a landmark, opposite sides of the streets, etc. Consider all of them in the search
 - If stops cannot be found via stop_id or stop_name, use `get_geo_location` to get the geolocation of the location and search nearby stops within `200m`. Avoid using libraries such as Nominatim
 - Ignore the part of the name within round braces such as (SW Corner) or (NW Corner) unless specified
+- Here are the functions to find stops by different methods. Utilize only these functions to find the stops:
+
+1. find_stops_by_full_name(feed, name, threshold=80):
+   - Use this to find stops by their full name, allowing for slight misspellings or variations.
+   - Example: find_stops_by_full_name(feed, "Central Staion")
+
+2. find_stops_by_street(feed, street_root, threshold=80):
+   - Use this to find stops on a specific street.
+   - The street_root parameter should be the root word part of the street name.
+   - Example: find_stops_by_street(feed, "Main") # 'Main' is root word for stops such as Main St, Main Street, etc.
+
+3. find_stops_by_intersection(feed, street1_root, street2_root, threshold=80):
+   - Use this to find stops near the intersection of two streets by providing the root words of the streets.
+   - Example: find_stops_by_intersection(feed, "Main", "Broadway")
+
+4. find_nearby_stops(lat, lon, stops_df, max_distance=200, max_stops=5):
+   - This function finds stops within a specified distance of given coordinates.
+   - It's typically used internally by `find_stops_by_address`.
+
+5. find_stops_by_address(feed, address, radius_meters=200, max_stops=5):
+   - Use this to find stops near a specific address.
+   - It geocodes the address and then finds nearby stops.
+   - Example: find_stops_by_address(feed, "1004 Main St, Champaign, IL")
+
+6. get_geo_location(location_info):
+   - This function converts an address to geographic coordinates.
+   - It's used internally by `find_stops_by_address`.
 
 ### Plotting and Mapping
 - For geospatial operations, consider using the `shapely` library to work with geometric objects like points, lines, and polygons.
@@ -1021,54 +1049,12 @@ def format_time_hhmmss(time):
     return f"{time // 3600:02d}:{(time % 3600) // 60:02d}:{time % 60:02d}"
 
 def find_stops(feed, query, city, num_stops=5, radius_meters=200):
-    def fuzzy_search(threshold):
-        clean_stop_names = feed.stops["stop_name"].apply(remove_text_in_braces)
-        clean_query = remove_text_in_braces(query)
-        best_matches = process.extract(
-            clean_query, clean_stop_names, scorer=fuzz.token_sort_ratio, limit=num_stops
-        )
-        return feed.stops[
-            clean_stop_names.isin(
-                [match[0] for match in best_matches if match[1] >= threshold]
-            )
-        ]
-
-    def find_nearby_stops(lat, lon, stops_df, max_distance):
-        # Make a copy so that we doi not overwrite for next call
-        stops_df = stops_df.copy()
-        stops_df["distance"] = stops_df.apply(
-            lambda row: geodesic((lat, lon), (row["stop_lat"], row["stop_lon"])).meters,
-            axis=1,
-        )
-        stops_within_threshold = stops_df[stops_df["distance"] <= max_distance].sort_values("distance")
-        if not stops_within_threshold.empty:
-            return stops_within_threshold
-        else:
-            # If no stops within the max_distance, return the `num_stops` nearest stops
-            return stops_df.nsmallest(num_stops, "distance")
-    # Try exact matching
-    query_words = query.lower().split()
-    mask = (
-        feed.stops["stop_name"]
-        .str.lower()
-        .apply(lambda x: all(word in x for word in query_words))
-    )
-    matched_stops = feed.stops[mask]
-
-    # If exact matching fails, try fuzzy matching
-    if matched_stops.empty:
-        matched_stops = fuzzy_search(80)  # Try with threshold 80 first
+    matched_stops = find_stops_by_full_name(feed, query)
 
     # If still no matches and city is provided, use geolocation (assuming get_geo_location function exists)
     if matched_stops.empty and city:
-        location = get_geo_location(f"{query}, {city}")
-
-        if not location:
-            return pd.DataFrame()  # Return empty DataFrame if location not found
-
-        lat, lon = location
-        matched_stops = find_nearby_stops(lat, lon, feed.stops, radius_meters)
-
+        matched_stops = find_stops_by_address(feed, query, radius_meters, num_stops)
+        
     return matched_stops
 
 
@@ -1185,86 +1171,41 @@ else:
 </example>
 <example>
 <task>
-Find the stop at University and Victor
+Find the stop at University St and Victor Ave
 </task>
 <solution>
 
 ```python
-import re
-def remove_text_in_braces(text):
-    return re.sub(r'\(.*?\)', '', text).strip()
-
-def find_stops(feed, query, city, num_stops=5, radius_meters=200):
-    def fuzzy_search(threshold):
-        clean_stop_names = feed.stops["stop_name"].apply(remove_text_in_braces)
-        clean_query = remove_text_in_braces(query)
-        best_matches = process.extract(
-            clean_query, clean_stop_names, scorer=fuzz.token_sort_ratio, limit=num_stops
-        )
-        return feed.stops[
-            clean_stop_names.isin(
-                [match[0] for match in best_matches if match[1] >= threshold]
-            )
-        ]
-
-    def find_nearby_stops(lat, lon, stops_df, max_distance):
-        # Make a copy so that we doi not overwrite for next call
-        stops_df = stops_df.copy()
-        stops_df["distance"] = stops_df.apply(
-            lambda row: geodesic((lat, lon), (row["stop_lat"], row["stop_lon"])).meters,
-            axis=1,
-        )
-        stops_within_threshold = stops_df[stops_df["distance"] <= max_distance].sort_values("distance")
-        if not stops_within_threshold.empty:
-            return stops_within_threshold
-        else:
-            # If no stops within the max_distance, return the `num_stops` nearest stops
-            return stops_df.nsmallest(num_stops, "distance")
-    # Try exact matching
-    query_words = query.lower().split()
-    mask = (
-        feed.stops["stop_name"]
-        .str.lower()
-        .apply(lambda x: all(word in x for word in query_words))
-    )
-    matched_stops = feed.stops[mask]
-
-    # If exact matching fails, try fuzzy matching
-    if matched_stops.empty:
-        matched_stops = fuzzy_search(80)  # Try with threshold 80 first
+def find_stops(feed, query: str, street1_root: str, street2_root: str, city, num_stops=5, radius_meters=200):
+    matched_stops = find_stops_by_intersection(feed, street1_root, street2_root)
 
     # If still no matches and city is provided, use geolocation (assuming get_geo_location function exists)
     if matched_stops.empty and city:
-        location = get_geo_location(f"{query}, {city}")
-
-        if not location:
-            return pd.DataFrame()  # Return empty DataFrame if location not found
-
-        lat, lon = location
-        matched_stops = find_nearby_stops(lat, lon, feed.stops, radius_meters)
+        address = f"{query}, {city}"
+        matched_stops = find_stops_by_address(feed, address, radius_meters, num_stops)
 
     return matched_stops
 
-matched_stops = find_stops(feed, "University and Victor", city= "Champaign, IL, USA")
+matched_stops = find_stops(feed, "University St and Victor Ave", street1_root="University", street2_root="Victor", city= "Champaign, IL, USA")
 if not matched_stops.empty:
-        result = {
-            'answer': f"Found {len(matched_stops)} potential stop(s) near University and Victor",
-            'additional_info': ""
-        }
-        for i, stop in matched_stops.iterrows():
-            result['additional_info'] += f"\nStop {i}:\n"
-            result['additional_info'] += f"Name: {stop['stop_name']}\n"
-            result['additional_info'] += f"Stop ID: {stop['stop_id']}\n"
-            result['additional_info'] += f"Location: Latitude {stop['stop_lat']}, Longitude {stop['stop_lon']}\n"
-            # In case the we use `get_geo_location` for getting the information
-            if stop.get('distance', None):
-                result['additional_info'] += f"Distance from intersection: {stop.get('distance', 'N/A')} meters\n"
+    result = {
+        'answer': f"Found {len(matched_stops)} potential stop(s) near University and Victor",
+        'additional_info': ""
+    }
+    for i, stop in matched_stops.iterrows():
+        result['additional_info'] += f"\nStop {i}:\n"
+        result['additional_info'] += f"Name: {stop['stop_name']}\n"
+        result['additional_info'] += f"Stop ID: {stop['stop_id']}\n"
+        result['additional_info'] += f"Location: Latitude {stop['stop_lat']}, Longitude {stop['stop_lon']}\n"
+        # In case the we use `get_geo_location` for getting the information
+        if stop.get('distance', None):
+            result['additional_info'] += f"Distance from intersection: {stop.get('distance', 'N/A')} meters\n"
 else:
     result = {
         'answer': "No stops found near University and Victor",
         'additional_info': "Unable to locate any nearby stops for this intersection."
     }
-
+```
 
 </solution>
 </example>
