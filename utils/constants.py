@@ -18,7 +18,7 @@ FEW_SHOT_EXAMPLES_FILE = "data/few_shot.yaml"
 MAX_MESSAGES = 16
 
 FILE_MAPPING_LOC = "gtfs_data/file_mapping.json"
-file_mapping = json.loads(open(FILE_MAPPING_LOC).read(), encoding='utf-8')
+file_mapping = json.loads(open(FILE_MAPPING_LOC).read())
 
 LLMs = [
     "claude-3-5-sonnet-20240620",
