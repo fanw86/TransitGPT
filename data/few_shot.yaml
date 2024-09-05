@@ -1,4 +1,5 @@
 example_1:
+    feed: SFMTA
     question: Find the number of trips for route_id '25490' on a typical Friday
     answer: |
         ```python
@@ -20,6 +21,7 @@ example_1:
         ```
 
 example_2:
+    feed: SFMTA
     question: Calculate the average trip duration for route_id '25490'
     answer: |
         ```python
@@ -48,6 +50,7 @@ example_2:
         ```
 
 example_3:
+    feed: CUMTD
     question: Calculate the headway for GREEN route
     answer: |
         ```python
@@ -92,6 +95,7 @@ example_3:
         ```
 
 example_4:
+    feed: Any
     question: Find the longest route in the GTFS feed
     answer: |
         ```python
@@ -121,6 +125,7 @@ example_4:
         This code calculates the longest route and provides detailed information about it, including its ID, name, and length. The `additional_info` field contains all available information about the route from the GTFS feed.
 
 example_5:
+    feed: Any
     question: Identify the date when a specific route had the fewest trips in the GTFS feed.
     answer: |
         ```python
@@ -190,6 +195,7 @@ example_5:
         This code identifies the date with the fewest trips for the specified route, provides the trip count for that date, and creates a line plot showing how the number of trips varies over time. The additional information includes the date range of the analysis and the route ID that was analyzed.
 
 example_6:
+    feed: CUMTD
     question: Find directions from Orchard Downs to Newmark Civil Engineering Laboratory now
     answer: |
         ```python
@@ -316,6 +322,7 @@ example_6:
         ```
 
 example_8:
+    feed: CUMTD
     question: Find the stop at University St and Victor Ave
     answer: |
         ```python
@@ -347,4 +354,45 @@ example_8:
                 'answer': "No stops found near University and Victor",
                 'additional_info': "Unable to locate any nearby stops for this intersection."
             }
+        ```
+
+example_9:
+    feed: DART
+    question: Find all mid block stops on Illinois
+    answer: |
+        ```python
+        # Find stops on Illinois street
+        illinois_stops = find_stops_by_street(feed, "Illinois", threshold=80)
+
+        # Filter for mid-block stops
+        mid_block_stops = illinois_stops[illinois_stops['stop_name'].str.contains('MB', case=False, na=False)]
+
+        # Create a GeoDataFrame for mapping
+        gdf = gpd.GeoDataFrame(
+            mid_block_stops, 
+            geometry=gpd.points_from_xy(mid_block_stops.stop_lon, mid_block_stops.stop_lat),
+            crs="EPSG:4326"
+        )
+
+        # Create an interactive map
+        m = gdf.explore(
+            column="stop_name",
+            tooltip=["stop_name", "stop_id"],
+            popup=True,
+            name="Mid-block Stops",
+            style_kwds={"color": "red"},
+            tiles="CartoDB Positron"
+        )
+
+        # Add a title to the map
+        title_html = '''
+                    <h3 align="center" style="font-size:16px"><b>Mid-block Stops on Illinois Street</b></h3>
+                    '''
+        m.get_root().html.add_child(folium.Element(title_html))
+
+        result = {
+            'answer': f"Found {len(mid_block_stops)} mid-block stops on Illinois street.",
+            'additional_info': mid_block_stops[['stop_id', 'stop_name', 'stop_desc']].to_dict('records'),
+                    'map': m
+        }
         ```

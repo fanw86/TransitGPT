@@ -21,7 +21,7 @@ def load_yaml_examples(yaml_file):
         return yaml.safe_load(file)
 
 
-def select_relevant_examples(query, examples, n=3):
+def select_relevant_examples(query, examples, n=3, threshold=0.1):
     # Create a list of all examples
     all_examples = [f"{ex['question']}\n{ex['answer']}" for ex in examples.values()]
     # Add the query to the list
@@ -30,8 +30,11 @@ def select_relevant_examples(query, examples, n=3):
     vectorizer = TfidfVectorizer().fit_transform(all_texts)
     # Compute cosine similarity
     cosine_similarities = cosine_similarity(vectorizer[0:1], vectorizer[1:]).flatten()
-    # Get indices of top n similar examples
-    top_indices = cosine_similarities.argsort()[-n:][::-1]
+    
+    # Filter examples based on threshold and get top n
+    relevant_indices = [i for i, score in enumerate(cosine_similarities) if score > threshold]
+    relevant_indices.sort(key=lambda i: cosine_similarities[i], reverse=True)
+    top_indices = relevant_indices[:n]
 
     return [list(examples.values())[i] for i in top_indices]
 
