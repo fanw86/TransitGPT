@@ -20,6 +20,7 @@ from utils.find_stops import (
     find_stops_by_intersection,
     find_nearby_stops,
     find_stops_by_address,
+    find_route,
 )
 
 # Create a dictionary for namespace with imported modules
@@ -47,5 +48,6 @@ import_namespace = {
     "find_stops_by_intersection": find_stops_by_intersection,
     "find_nearby_stops": find_nearby_stops,
     "find_stops_by_address": find_stops_by_address,
+    "find_route": find_route,
     "result": None,
 }

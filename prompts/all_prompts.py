@@ -31,6 +31,7 @@ These are the datatypes for all files within the current GTFS:\n
 
 TASK_INSTRUCTION = """
 ## Task Instructions
+Adhere strictly to the following instructions:
 <instructions>
 
 1. Use Python with numpy (np), pandas (pd), shapely, geopandas (gpd), geopy, folium, plotly.express (px), and matplotlib.pyplot (plt) libraries only.
@@ -64,6 +65,7 @@ TASK_INSTRUCTION = """
 
 TASK_TIPS = """
 ## Helpful Tips and Facts
+These are some helpful tips and facts to know when solving the task:
 <tips>
 
 - The `result` variable should be in a format that can be understood by a human.
@@ -92,7 +94,18 @@ TASK_TIPS = """
 #### Route Matching
 - Search across multiple fields: `route_id`, `route_short_name`, and `route_long_name`.
 - For each search, determine whether to return all matches or only the closest match based on the use case.
-- **Always** use the fuzzy matching library "thefuzz" with `process` method as an alternative to string matching. Example: process.extract("Green",feed.routes.route_short_name, scorer=fuzz.token_sort_ratio). **Always** use the `fuzz.token_sort_ratio` scorer for better results. 
+- **Always** use the fuzzy matching library "thefuzz" with `process` method as an alternative to string matching. Example: process.extract("Green",feed.routes.route_short_name, scorer=fuzz.token_sort_ratio). **Always** use the `fuzz.token_sort_ratio` scorer for better results.
+- Use the `find_route` function to find the route_id
+<function>
+<function_name>find_route</function_name>
+<function_description>Find the route_id for the given search term.</function_description>
+<function_args>
+- feed (GTFSFeed): The GTFS feed object containing route information
+- search_term (str): The search term to find the route_id
+</function_args>
+<return>The row from routes.txt DataFrame that is best match to the search term</return>
+</function>
+
 
 #### Stop Matching
 <stop-matching>

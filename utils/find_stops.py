@@ -1,22 +1,26 @@
 import re
 import pandas as pd
-from thefuzz import fuzz
+from thefuzz import fuzz, process
 from geopy.distance import geodesic
 import streamlit as st
 import googlemaps
+
 gmaps = googlemaps.Client(key=st.secrets["GMAP_API"])
+
 
 def remove_text_in_braces(text):
     return re.sub(r"\(.*?\)", "", text).strip()
 
+
 def get_geo_location(location_info):
     try:
         location = gmaps.geocode(location_info)
-        geometry = location[0]['geometry']["location"]
+        geometry = location[0]["geometry"]["location"]
         return (geometry["lat"], geometry["lng"]) if location else None
     except:
         return None
-    
+
+
 def fuzzy_match(string: str, pattern: str, threshold: int = 80) -> bool:
     """
     Perform a fuzzy string match using partial ratio comparison.
@@ -38,6 +42,7 @@ def fuzzy_match(string: str, pattern: str, threshold: int = 80) -> bool:
     """
     return fuzz.partial_ratio(string.lower(), pattern.lower()) >= threshold
 
+
 def find_stops_by_full_name(feed, name: str, threshold: int = 80) -> pd.DataFrame:
     """
     Find stops by fuzzy matching their full names, with and without text in braces.
@@ -58,20 +63,29 @@ def find_stops_by_full_name(feed, name: str, threshold: int = 80) -> pd.DataFram
                       match the provided name, with the best match score.
     """
     stops_df = feed.stops.copy()
-    stops_df['stop_name_cleaned'] = stops_df['stop_name'].apply(remove_text_in_braces)
-    
-    stops_df['match_score_original'] = stops_df['stop_name'].apply(lambda x: fuzz.partial_ratio(x.lower(), name.lower()))
-    stops_df['match_score_cleaned'] = stops_df['stop_name_cleaned'].apply(lambda x: fuzz.partial_ratio(x.lower(), name.lower()))
-    
-    stops_df['match_score'] = stops_df[['match_score_original', 'match_score_cleaned']].max(axis=1)
-    
-    matching_stops = stops_df[stops_df['match_score'] >= threshold]
-    matching_stops = matching_stops.sort_values('match_score', ascending=False)
-    best_match = matching_stops['match_score'].max() if not matching_stops.empty else 0
-    best_matches = matching_stops[matching_stops['match_score'] == best_match]
-    best_matches = best_matches.drop(columns=['stop_name_cleaned', 'match_score_original', 'match_score_cleaned'])
-    
+    stops_df["stop_name_cleaned"] = stops_df["stop_name"].apply(remove_text_in_braces)
+
+    stops_df["match_score_original"] = stops_df["stop_name"].apply(
+        lambda x: fuzz.partial_ratio(x.lower(), name.lower())
+    )
+    stops_df["match_score_cleaned"] = stops_df["stop_name_cleaned"].apply(
+        lambda x: fuzz.partial_ratio(x.lower(), name.lower())
+    )
+
+    stops_df["match_score"] = stops_df[
+        ["match_score_original", "match_score_cleaned"]
+    ].max(axis=1)
+
+    matching_stops = stops_df[stops_df["match_score"] >= threshold]
+    matching_stops = matching_stops.sort_values("match_score", ascending=False)
+    best_match = matching_stops["match_score"].max() if not matching_stops.empty else 0
+    best_matches = matching_stops[matching_stops["match_score"] == best_match]
+    best_matches = best_matches.drop(
+        columns=["stop_name_cleaned", "match_score_original", "match_score_cleaned"]
+    )
+
     return best_matches
+
 
 def find_stops_by_street(feed, street_root: str, threshold: int = 80) -> pd.DataFrame:
     """
@@ -92,22 +106,27 @@ def find_stops_by_street(feed, street_root: str, threshold: int = 80) -> pd.Data
         pd.DataFrame: A DataFrame containing all stops whose names contain
                       a fuzzy match to the provided street name.
     """
-    
+
     street_root = street_root.lower()
     stops_df = feed.stops.copy()
-    stops_df['stop_name_cleaned'] = stops_df['stop_name'].apply(remove_text_in_braces)
-    stops_df['match_score'] = stops_df['stop_name_cleaned'].apply(
+    stops_df["stop_name_cleaned"] = stops_df["stop_name"].apply(remove_text_in_braces)
+    stops_df["match_score"] = stops_df["stop_name_cleaned"].apply(
         lambda x: fuzz.token_set_ratio(x, street_root)
     )
 
-    matching_stops = stops_df[stops_df['match_score'] >= threshold]
-    matching_stops = matching_stops.sort_values('match_score', ascending=False)
-    highest_score = matching_stops['match_score'].max() if not matching_stops.empty else 0
-    best_matches = matching_stops[matching_stops['match_score'] == highest_score]
-    best_matches.drop(columns = ['stop_name_cleaned'], inplace=True)
+    matching_stops = stops_df[stops_df["match_score"] >= threshold]
+    matching_stops = matching_stops.sort_values("match_score", ascending=False)
+    highest_score = (
+        matching_stops["match_score"].max() if not matching_stops.empty else 0
+    )
+    best_matches = matching_stops[matching_stops["match_score"] == highest_score]
+    best_matches.drop(columns=["stop_name_cleaned"], inplace=True)
     return best_matches
 
-def find_stops_by_intersection(feed, street1_root: str, street2_root: str, threshold: int = 80) -> pd.DataFrame:
+
+def find_stops_by_intersection(
+    feed, street1_root: str, street2_root: str, threshold: int = 80
+) -> pd.DataFrame:
     """
     Find stops by fuzzy matching two intersecting street names.
 
@@ -128,11 +147,20 @@ def find_stops_by_intersection(feed, street1_root: str, street2_root: str, thres
                       fuzzy matches to both provided street names.
     """
     return feed.stops[
-        feed.stops['stop_name'].apply(lambda x: fuzzy_match(x, street1_root, threshold)) &
-        feed.stops['stop_name'].apply(lambda x: fuzzy_match(x, street2_root, threshold))
+        feed.stops["stop_name"].apply(lambda x: fuzzy_match(x, street1_root, threshold))
+        & feed.stops["stop_name"].apply(
+            lambda x: fuzzy_match(x, street2_root, threshold)
+        )
     ]
 
-def find_nearby_stops(lat: float, lon: float, stops_df: pd.DataFrame, max_distance: float =200, max_stops: int = 5) -> pd.DataFrame:
+
+def find_nearby_stops(
+    lat: float,
+    lon: float,
+    stops_df: pd.DataFrame,
+    max_distance: float = 200,
+    max_stops: int = 5,
+) -> pd.DataFrame:
     """
     Find stops within a specified distance of a given location.
 
@@ -161,14 +189,19 @@ def find_nearby_stops(lat: float, lon: float, stops_df: pd.DataFrame, max_distan
         lambda row: geodesic((lat, lon), (row["stop_lat"], row["stop_lon"])).meters,
         axis=1,
     )
-    stops_within_threshold = stops_df[stops_df["distance"] <= max_distance].sort_values("distance")
+    stops_within_threshold = stops_df[stops_df["distance"] <= max_distance].sort_values(
+        "distance"
+    )
     if not stops_within_threshold.empty:
         return stops_within_threshold
     else:
         # If no stops within the max_distance, return the 5 nearest stops
         return stops_df.nsmallest(max_stops, "distance")
 
-def find_stops_by_address(feed, query: str, city: str, radius_meters: float = 200, max_stops: int = 5) -> pd.DataFrame:
+
+def find_stops_by_address(
+    feed, query: str, city: str, radius_meters: float = 200, max_stops: int = 5
+) -> pd.DataFrame:
     """
     Find stops near a given address within a specified radius.
 
@@ -196,11 +229,23 @@ def find_stops_by_address(feed, query: str, city: str, radius_meters: float = 20
     """
     address = f"{query}, {city}"
     location = get_geo_location(address)
-    
+
     if not location:
         return pd.DataFrame()  # Return empty DataFrame if location not found
-    
+
     lat, lon = location
     matched_stops = find_nearby_stops(lat, lon, feed.stops, radius_meters, max_stops)
-    
+
     return matched_stops
+
+
+def find_route(feed, search_term):
+    route_fields = ["route_id", "route_short_name", "route_long_name"]
+
+    # Create a long Series with all fields
+    long_series = pd.concat([feed.routes[field].astype(str) for field in route_fields])
+
+    # Perform the fuzzy matching on the long series
+    match = process.extractOne(search_term, long_series, scorer=fuzz.ratio)
+    route_row = feed.routes.iloc[match[2]]
+    return route_row
