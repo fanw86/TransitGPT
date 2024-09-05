@@ -1,23 +1,23 @@
-import warnings
-
-warnings.filterwarnings("ignore")
-
 import os
 import sys
+import warnings
+from pathlib import Path
 
 import _pickle as cPickle
 import gzip
 import json
 
+warnings.filterwarnings("ignore")
+
 # Get the directory of the current script
-current_dir = os.path.dirname(os.path.abspath(__file__))
+current_dir = Path(__file__).parent.resolve()
 
 # Add the parent directory to sys.path
-parent_dir = os.path.dirname(current_dir)
-sys.path.append(parent_dir)
+parent_dir = current_dir.parent
+sys.path.append(str(parent_dir))
 
-from utils.constants import file_mapping
-from utils.gtfs_loader import GTFSLoader
+from utils.constants import file_mapping  # noqa: E402
+from utils.gtfs_loader import GTFSLoader  # noqa: E402
 
 
 def pickle_gtfs_loaders(file_mapping, output_directory, mapping_file_path):

@@ -18,7 +18,7 @@ def get_geo_location(location_info):
             location = gmaps.geocode(location_info)
             geometry = location[0]["geometry"]["location"]
             return (geometry["lat"], geometry["lng"]) if location else None
-        except:
+        except Exception:
             return None
     else:
         geolocator = Nominatim(user_agent="gtfs2code")
