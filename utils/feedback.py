@@ -14,7 +14,13 @@ import plotly.graph_objs as go
 
 
 def create_feedback_entry(
-    user_input, agent, llm_response, eval_success, code_output, error_message, final_response = None
+    user_input,
+    agent,
+    llm_response,
+    eval_success,
+    code_output,
+    error_message,
+    final_response=None,
 ):
     message_id = f"{st.session_state.uuid}_{len(st.session_state.chat_history) - 1}"
     st.session_state.current_message_id = message_id
@@ -26,7 +32,7 @@ def create_feedback_entry(
         GTFS=agent.GTFS,
         llm_model=agent.model,
         system_prompt=agent.system_prompt,
-        final_response=final_response
+        final_response=final_response,
     )
 
     if eval_success:

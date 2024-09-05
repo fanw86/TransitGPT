@@ -43,6 +43,7 @@ class OpenAIClient(LLMClient):
             self.logger.error(f"OpenAI API streaming call failed: {str(e)}")
             yield f"Error: OpenAI API streaming call failed - {str(e)}"
 
+
 class GroqClient(LLMClient):
     def __init__(self):
         self.client = Groq(api_key=st.secrets["GROQ_API_KEY"])

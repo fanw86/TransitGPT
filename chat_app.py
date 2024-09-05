@@ -90,7 +90,7 @@ if st.session_state.is_processing:
         st.session_state.chat_history.append({"role": "user", "content": user_input})
 
     # Add a cancel button
-    col1, col2 = st.columns([8,1])
+    col1, col2 = st.columns([8, 1])
     with col2:
         cancel_button = st.button("⏹Stop")
 

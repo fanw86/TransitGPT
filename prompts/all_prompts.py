@@ -270,7 +270,7 @@ RETRY_PROMPT = """While executing the code, I encountered the following error:
 Please account for this error and adjust your code accordingly."""
 ## Think if we need to add examples here
 
-GTFS_TASK_MODERATION = '''You are a content moderation expert tasked with categorizing user-generated text based on the following guidelines:
+GTFS_TASK_MODERATION = """You are a content moderation expert tasked with categorizing user-generated text based on the following guidelines:
 
 BLOCK CATEGORY:
 - Content not related to GTFS, public transit, or transportation coding
@@ -286,4 +286,4 @@ ALLOW CATEGORY:
 - Questions and answers related to coding with GTFS data
 - Some technical jargon or mild frustration expressions, as long as they're not offensive
 
-'''
+"""

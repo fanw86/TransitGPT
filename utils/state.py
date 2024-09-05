@@ -16,7 +16,7 @@ def load_session_state():
         "show_limit_popup": False,
         "is_chat_input_disabled": False,
         "is_processing": False,
-        "user_input":None
+        "user_input": None,
     }
 
     for key, default_value in default_values.items():
@@ -35,7 +35,7 @@ def reset_session_state():
         "show_limit_popup",
         "is_chat_input_disabled",
         "is_processing",
-        "user_input"
+        "user_input",
     ]
     for key in reset_keys:
         del st.session_state[key]

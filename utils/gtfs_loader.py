@@ -11,6 +11,7 @@ from utils.helper import list_files_in_zip
 DATE_FORMAT = "%Y%m%d"
 DATE_FORMAT_ALT = "%Y-%m-%d"
 
+
 class GTFSLoader:
     def __init__(self, gtfs, gtfs_path: str, distance_unit: str = "km"):
         self.gtfs = gtfs
@@ -96,7 +97,7 @@ class GTFSLoader:
                 try:
                     with self.zipfile.open(table + ".txt", "r") as f:
                         df = pd.read_csv(f, encoding="utf-8")
-                        setattr(self.feed,table,df) 
+                        setattr(self.feed, table, df)
                 except Exception as e:
                     print(f"Could not load {table} due to {e}")
 
@@ -121,7 +122,7 @@ class GTFSLoader:
         Returns:
         a value of type np.float32.
         """
-            
+
         if isinstance(val, float) or (
             isinstance(val, float) and np.isnan(val)
         ):  # Corrected handling for np.nan
@@ -131,7 +132,7 @@ class GTFSLoader:
         try:
             val = np.float32(val)
             return val
-        except ValueError: 
+        except ValueError:
             val = str(val).strip()
             h, m, s = map(float, val.split(":"))
             return np.float32(h * 3600 + m * 60 + s)
@@ -153,4 +154,4 @@ class GTFSLoader:
         try:
             return datetime.datetime.strptime(val, DATE_FORMAT).date()
         except ValueError:
-            return datetime.datetime.strptime(val, DATE_FORMAT_ALT).date() 
+            return datetime.datetime.strptime(val, DATE_FORMAT_ALT).date()

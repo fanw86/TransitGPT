@@ -43,7 +43,8 @@ def pickle_gtfs_loaders(file_mapping, output_directory, mapping_file_path):
             loader = GTFSLoader(
                 gtfs=agency_name,
                 gtfs_path=agency_data["file_loc"],
-                distance_unit=agency_data["distance_unit"] or "km",  # Default to 'km' if None
+                distance_unit=agency_data["distance_unit"]
+                or "km",  # Default to 'km' if None
             )
 
             # Load all tables

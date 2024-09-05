@@ -17,6 +17,7 @@ from utils.data_models import ChatInteraction
 from utils.eval_code import GTFS_Eval
 from prompts.generate_prompt import generate_dynamic_few_shot
 
+
 class LLMAgent:
     def __init__(
         self,
@@ -51,14 +52,15 @@ class LLMAgent:
         self.last_response = None
         self.chat_history = []
         self.load_system_prompt()
-        
+
     def load_system_prompt(self):
         ## Load system prompt
         self.system_prompt = self.evaluator.get_system_prompt(
             self.GTFS, self.distance_unit
         )
-        self.logger.info(f"Loaded system prompt for GTFS: {self.GTFS} with distance unit: {self.distance_unit}")
-        
+        self.logger.info(
+            f"Loaded system prompt for GTFS: {self.GTFS} with distance unit: {self.distance_unit}"
+        )
 
     def _setup_logger(self, log_file):
         logger = logging.getLogger(__name__)
@@ -71,7 +73,7 @@ class LLMAgent:
 
         # Create file handler which logs even debug messages
         file_handler = RotatingFileHandler(
-            log_file, maxBytes=2 * 1024 * 1024, backupCount=5, encoding='utf-8'
+            log_file, maxBytes=2 * 1024 * 1024, backupCount=5, encoding="utf-8"
         )
         file_handler.setLevel(logging.DEBUG)
 
@@ -129,7 +131,9 @@ class LLMAgent:
     def call_llm(self, query):
         model = self.model
         few_shot_examples = generate_dynamic_few_shot(query, n=3)
-        user_prompt = BASE_USER_PROMPT.format(user_query=query, examples=few_shot_examples)
+        user_prompt = BASE_USER_PROMPT.format(
+            user_query=query, examples=few_shot_examples
+        )
         messages = self.create_messages(self.system_prompt, user_prompt, model)
 
         client = self.clients[self.get_client_key(model)]
@@ -224,7 +228,9 @@ class LLMAgent:
             last_interaction.evaluation_result, self.max_rows, self.max_chars
         )
         executable_pattern = r"```python\n(.*?)```"
-        code_response = re.findall(executable_pattern, last_interaction.assistant_response, re.DOTALL)
+        code_response = re.findall(
+            executable_pattern, last_interaction.assistant_response, re.DOTALL
+        )
         user_prompt = FINAL_LLM_USER_PROMPT.format(
             question=last_interaction.user_prompt,
             response=code_response,

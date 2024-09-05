@@ -2,10 +2,9 @@ import re
 import pandas as pd
 from thefuzz import fuzz, process
 from geopy.distance import geodesic
+from geopy.geocoders import Nominatim
 import streamlit as st
 import googlemaps
-
-gmaps = googlemaps.Client(key=st.secrets["GMAP_API"])
 
 
 def remove_text_in_braces(text):
@@ -13,12 +12,18 @@ def remove_text_in_braces(text):
 
 
 def get_geo_location(location_info):
-    try:
-        location = gmaps.geocode(location_info)
-        geometry = location[0]["geometry"]["location"]
-        return (geometry["lat"], geometry["lng"]) if location else None
-    except:
-        return None
+    if "GMAP_API" in st.secrets:
+        try:
+            gmaps = googlemaps.Client(key=st.secrets["GMAP_API"])
+            location = gmaps.geocode(location_info)
+            geometry = location[0]["geometry"]["location"]
+            return (geometry["lat"], geometry["lng"]) if location else None
+        except:
+            return None
+    else:
+        geolocator = Nominatim(user_agent="gtfs2code")
+        location = geolocator.geocode(location_info)
+        return (location.latitude, location.longitude) if location else None
 
 
 def fuzzy_match(string: str, pattern: str, threshold: int = 80) -> bool:
@@ -247,7 +252,7 @@ def find_route(feed, search_term, threshold=80):
 
     # Perform the fuzzy matching on the long series
     match = process.extractOne(search_term, long_series, scorer=fuzz.ratio)
-    
+
     if match[1] >= threshold:
         route_row = feed.routes.iloc[match[2]]
         return route_row

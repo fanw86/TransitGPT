@@ -1,5 +1,6 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+
 def generate_prompt(documents, threshold=0.1):
     """
     Generate prompts based on the given documents and filter relevant terms using TF-IDF.
@@ -26,12 +27,13 @@ def generate_prompt(documents, threshold=0.1):
 
     return relevant_terms
 
+
 # Example usage
 if __name__ == "__main__":
     documents = [
         "This is a sample document.",
         "This document is another example.",
-        "TF-IDF is used to find relevant terms."
+        "TF-IDF is used to find relevant terms.",
     ]
     relevant_terms = generate_prompt(documents, threshold=0.1)
     for term, score in relevant_terms:

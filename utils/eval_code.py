@@ -1,9 +1,9 @@
-
 import sys
 import traceback
 import re
 import _pickle as cPickle
 import gzip
+
 ## For Evals
 from utils.eval_imports import import_namespace
 
@@ -11,11 +11,13 @@ from utils.eval_imports import import_namespace
 from utils.constants import TIMEOUT_SECONDS
 from prompts.generate_prompt import generate_system_prompt
 
+
 def load_zipped_pickle(filename):
-    with gzip.open(filename, 'rb') as f:
+    with gzip.open(filename, "rb") as f:
         loaded_object = cPickle.load(f)
         return loaded_object
-    
+
+
 class GTFS_Eval:
     def __init__(self, file_mapping):
         self.current_loader = None
@@ -112,7 +114,9 @@ class GTFS_Eval:
             timer.start()
             execution_thread.start()
             # Wait for the execution thread to finish, with a timeout of TIMEOUT_SECONDS
-            execution_thread.join(TIMEOUT_SECONDS)  # If the thread doesn't finish in TIMEOUT_SECONDS, join() will return
+            execution_thread.join(
+                TIMEOUT_SECONDS
+            )  # If the thread doesn't finish in TIMEOUT_SECONDS, join() will return
             # Cancel the timer to prevent it from calling the timeout_handler if execution finished in time
             timer.cancel()
 

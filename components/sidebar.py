@@ -9,6 +9,7 @@ from utils.state import reset_session_state, load_session_state
 def initialize_agent(model):
     return LLMAgent(file_mapping, model)
 
+
 def load_agent_evaluator():
     # Clear chat history on change of model or GTFS feed or units
     if len(st.session_state.chat_history) > 0:

@@ -1,4 +1,3 @@
-
 from pydantic import BaseModel, Field
 from typing import Any, Optional, Literal
 from datetime import datetime
@@ -37,4 +36,4 @@ class FeedbackEntry(BaseModel):
     user_comment: Optional[str] = None
     code_eval_result: Optional[str] = None
     figure: Optional[str] = None
-    final_response : Optional[str]
+    final_response: Optional[str]

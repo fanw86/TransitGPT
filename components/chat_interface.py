@@ -40,7 +40,10 @@ def safe_folium_display(folium_map):
                 }
             )
     else:
-        st.error(f"Expected a Folium Map object, but received a different type. Received object of type: {type(folium_map)}")
+        st.error(
+            f"Expected a Folium Map object, but received a different type. Received object of type: {type(folium_map)}"
+        )
+
 
 def safe_fig_display(fig):
     if isinstance(fig, plt.Figure):
@@ -56,7 +59,9 @@ def safe_fig_display(fig):
             st.error(f"Error displaying Plotly figure: {str(e)}")
             st.write("Figure data (non-rendered):")
     else:
-        st.error(f"Expected a Matplotlib or Plotly Figure object, but received a different type. Received object of type: {type(fig)}")
+        st.error(
+            f"Expected a Matplotlib or Plotly Figure object, but received a different type. Received object of type: {type(fig)}"
+        )
 
 
 def apply_color_codes(text):
@@ -65,11 +70,12 @@ def apply_color_codes(text):
         return f'<span style="color: {color}">{color}</span>'
 
     # Replace color codes with HTML spans
-    colored_text = re.sub(r'(#[0-9A-Fa-f]{6})', color_replacer, text)
-    
+    colored_text = re.sub(r"(#[0-9A-Fa-f]{6})", color_replacer, text)
+
     # Wrap the entire text in a paragraph tag to ensure inline HTML is rendered
     return colored_text
-    
+
+
 def display_code_output(message, only_text=False):
     if "code_output" not in message or only_text:
         return
@@ -81,18 +87,21 @@ def display_code_output(message, only_text=False):
     code_output = message["code_output"]
     with st.expander("✅Code Evaluation Result:", expanded=False):
         st.write(code_output)
-        
+
+
 def display_fig_map(code_output):
     if "plot" in code_output and code_output["plot"] is not None:
         safe_fig_display(code_output["plot"])
     if "map" in code_output and code_output["map"] is not None:
         safe_folium_display(code_output["map"])
 
+
 def display_figure(fig):
     if isinstance(fig, go.Figure):
         st.plotly_chart(fig, use_container_width=True)
     elif isinstance(fig, plt.Figure):
         st.pyplot(fig, use_container_width=True)
+
 
 def display_feedback_ui(fb_agent, message_id, col2, col3):
     with col3:
@@ -110,6 +119,7 @@ def display_feedback_ui(fb_agent, message_id, col2, col3):
             on_change=fb_agent.on_feedback_change,
         )
 
+
 def display_llm_response(fb_agent, uuid, message, i):
     # Display Code if final response is different from the initial LLM response
     only_text = message["only_text"]
@@ -117,11 +127,13 @@ def display_llm_response(fb_agent, uuid, message, i):
         with st.expander("👨‍💻Code", expanded=False):
             # with st.expander("LLM Response", expanded=False):
             executable_pattern = r"```python\n(.*?)```"
-            executable_code = re.findall(executable_pattern, message["code_response"], re.DOTALL)
-            code_block = "```python\n" + executable_code[0] +"\n```"
+            executable_code = re.findall(
+                executable_pattern, message["code_response"], re.DOTALL
+            )
+            code_block = "```python\n" + executable_code[0] + "\n```"
             st.markdown(code_block)
 
-    col1, col2, col3 = st.columns([6, 2, 1])    
+    col1, col2, col3 = st.columns([6, 2, 1])
     with col1:
         if "code_output" in message and only_text is False:
             if message.get("eval_success", False):  # Default to False
@@ -151,7 +163,6 @@ def display_llm_response(fb_agent, uuid, message, i):
                 st.markdown(colored_response, unsafe_allow_html=True)
     if isinstance(message["code_output"], dict):
         display_fig_map(message["code_output"])
-    
 
 
 def display_chat_history(fb_agent: FeedbackAgent, uuid: str):

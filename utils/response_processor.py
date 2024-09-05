@@ -24,18 +24,20 @@ def process_user_input(user_input: str):
                 role="assistant",
                 final_response="Something went wrong. Please try again.",
                 error_message=llm_response,
-                code_response=None
+                code_response=None,
             )
         else:
-            code_output, eval_success, error_message, only_text, llm_response = agent.evaluate_code(
-                retry_code, llm_response
+            code_output, eval_success, error_message, only_text, llm_response = (
+                agent.evaluate_code(retry_code, llm_response)
             )
             final_response = llm_response
             stream_placeholder = st.empty()
             if not only_text:
                 with st.spinner("Almost there..."):
-                    final_response = get_final_response(agent, eval_success, code_output, stream_placeholder)
-        
+                    final_response = get_final_response(
+                        agent, eval_success, code_output, stream_placeholder
+                    )
+
             chat_entry = ChatHistoryEntry(
                 role="assistant",
                 final_response=final_response,
@@ -49,15 +51,22 @@ def process_user_input(user_input: str):
 
             # Add feedback for the new assistant message, including final_response
             create_feedback_entry(
-                user_input, agent, llm_response, eval_success, code_output, error_message, final_response
+                user_input,
+                agent,
+                llm_response,
+                eval_success,
+                code_output,
+                error_message,
+                final_response,
             )
+
 
 def process_cancellation():
     chat_entry = ChatHistoryEntry(
         role="assistant",
         final_response="The operation was cancelled.",
         only_text=True,
-        is_cancelled=True
+        is_cancelled=True,
     )
     st.session_state.chat_history.append(chat_entry.dict())
     st.info("The operation was cancelled.")

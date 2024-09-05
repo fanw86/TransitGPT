@@ -15,6 +15,7 @@ chat_box_js = """
 </div>
 """
 
+
 def set_chat_box(query, input):
     js = chat_box_js.format(query=query, input=input)
     st.components.v1.html(js, height=0)

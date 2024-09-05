@@ -30,9 +30,11 @@ def select_relevant_examples(query, examples, n=3, threshold=0.1):
     vectorizer = TfidfVectorizer().fit_transform(all_texts)
     # Compute cosine similarity
     cosine_similarities = cosine_similarity(vectorizer[0:1], vectorizer[1:]).flatten()
-    
+
     # Filter examples based on threshold and get top n
-    relevant_indices = [i for i, score in enumerate(cosine_similarities) if score > threshold]
+    relevant_indices = [
+        i for i, score in enumerate(cosine_similarities) if score > threshold
+    ]
     relevant_indices.sort(key=lambda i: cosine_similarities[i], reverse=True)
     top_indices = relevant_indices[:n]
 
