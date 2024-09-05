@@ -239,7 +239,7 @@ def find_stops_by_address(
     return matched_stops
 
 
-def find_route(feed, search_term):
+def find_route(feed, search_term, threshold=80):
     route_fields = ["route_id", "route_short_name", "route_long_name"]
 
     # Create a long Series with all fields
@@ -247,5 +247,9 @@ def find_route(feed, search_term):
 
     # Perform the fuzzy matching on the long series
     match = process.extractOne(search_term, long_series, scorer=fuzz.ratio)
-    route_row = feed.routes.iloc[match[2]]
-    return route_row
+    
+    if match[1] >= threshold:
+        route_row = feed.routes.iloc[match[2]]
+        return route_row
+    else:
+        return None  # No match found above the threshold
