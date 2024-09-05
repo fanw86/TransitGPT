@@ -1,72 +1,15 @@
-import os
-import _pickle as cPickle
-import gzip
 import gtfs_kit as gk
 import pandas as pd
 import numpy as np
 import zipfile
 import datetime
 import traceback
-import json
 from typing import Optional, Any
 from functools import lru_cache
 from utils.helper import list_files_in_zip
 
 DATE_FORMAT = "%Y%m%d"
 DATE_FORMAT_ALT = "%Y-%m-%d"
-
-def pickle_gtfs_loaders(file_mapping, output_directory, mapping_file_path):
-    """
-    Create, pickle, and store GTFSLoader objects based on the provided file mapping.
-    Update the file_mapping with pickle locations and save it to a specified path.
-
-    Args:
-    file_mapping (dict): A dictionary containing agency names as keys and dictionaries
-                         with 'file_loc' and 'distance_unit' as values.
-    output_directory (str): The directory where pickled objects will be stored.
-    mapping_file_path (str): The file path where the updated file_mapping will be saved.
-
-    Returns:
-    None
-    """
-    if not os.path.exists(output_directory):
-        os.makedirs(output_directory)
-
-    for agency_name, agency_data in file_mapping.items():
-        try:
-            # Create GTFSLoader object
-            loader = GTFSLoader(
-                gtfs=agency_name,
-                gtfs_path=agency_data['file_loc'],
-                distance_unit=agency_data['distance_unit'] or 'km'  # Default to 'km' if None
-            )
-
-            # Load all tables
-            loader.load_all_tables()
-
-            # Create a filename based on the agency name
-            filename = f"{agency_name}_gtfs_loader.pkl"
-            filepath = output_directory + "/" + filename
-
-            # Pickle and save the loader
-            with gzip.open(filepath, 'wb') as f:
-                cPickle.dump(loader, f)
-
-            print(f"Pickled and stored {agency_name} at {filepath}")
-
-            # Add pickle location to file_mapping
-            agency_data['pickle_loc'] = filepath
-
-        except Exception as e:
-            print(f"Error processing {agency_name}: {str(e)}")
-            # Add error information to file_mapping
-            agency_data['error'] = str(e)
-
-    # Save updated file_mapping
-    with open(mapping_file_path, 'w') as f:
-        json.dump(file_mapping, f, indent=2)
-
-    print(f"Updated file mapping saved to {mapping_file_path}")
 
 class GTFSLoader:
     def __init__(self, gtfs, gtfs_path: str, distance_unit: str = "km"):
