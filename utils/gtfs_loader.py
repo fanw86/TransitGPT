@@ -63,7 +63,7 @@ def pickle_gtfs_loaders(file_mapping, output_directory, mapping_file_path):
             agency_data['error'] = str(e)
 
     # Save updated file_mapping
-    with open(mapping_file_path, 'w') as f:
+    with open(mapping_file_path, 'w', encoding='utf-8') as f:
         json.dump(file_mapping, f, indent=2)
 
     print(f"Updated file mapping saved to {mapping_file_path}")

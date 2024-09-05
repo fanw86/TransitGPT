@@ -6,6 +6,7 @@ from logging.handlers import RotatingFileHandler
 from prompts.all_prompts import (
     FINAL_LLM_SYSTEM_PROMPT,
     FINAL_LLM_USER_PROMPT,
+    BASE_USER_PROMPT,
     RETRY_PROMPT,
 )
 from utils.constants import LOG_FILE
@@ -14,7 +15,7 @@ from utils.helper import summarize_large_output
 from utils.llm_client import OpenAIClient, GroqClient, AnthropicClient
 from utils.data_models import ChatInteraction
 from utils.eval_code import GTFS_Eval
-
+from prompts.generate_prompt import generate_dynamic_few_shot
 
 class LLMAgent:
     def __init__(
@@ -70,7 +71,7 @@ class LLMAgent:
 
         # Create file handler which logs even debug messages
         file_handler = RotatingFileHandler(
-            log_file, maxBytes=10 * 1024 * 1024, backupCount=5
+            log_file, maxBytes=2 * 1024 * 1024, backupCount=5, encoding='utf-8'
         )
         file_handler.setLevel(logging.DEBUG)
 
@@ -125,8 +126,10 @@ class LLMAgent:
         self.logger.info(f"Calling LLM with following messages:\n {messages}")
         self.logger.info(f"Response from LLM: {response}")
 
-    def call_llm(self, user_prompt):
+    def call_llm(self, query):
         model = self.model
+        few_shot_examples = generate_dynamic_few_shot(query, n=3)
+        user_prompt = BASE_USER_PROMPT.format(user_query=query, examples=few_shot_examples)
         messages = self.create_messages(self.system_prompt, user_prompt, model)
 
         client = self.clients[self.get_client_key(model)]
@@ -136,7 +139,8 @@ class LLMAgent:
             self.logger.error(f"LLM call failed: {response}")
         else:
             self.last_response = response
-            self.update_chat_history(user_prompt, response)
+            # Within chat history only store the user query (without the examples) and the response
+            self.update_chat_history(query, response)
             self.log_llm_interaction(messages, response)
 
         return response, call_success
@@ -173,6 +177,7 @@ class LLMAgent:
                 self.logger.error(f"LLM call failed on retry {retry + 1}")
                 break
 
+        # Update the error message with the latest error
         error_message = f"Evaluation failed after {calls_made} {'call' if calls_made == 1 else 'calls'}\nLast Error:\n{error}"
         return None, False, error_message, False, llm_response
 

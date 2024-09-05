@@ -205,9 +205,6 @@ example_6:
     question: Find directions from Orchard Downs to Newmark Civil Engineering Laboratory now
     answer: |
         ```python
-        def remove_text_in_braces(text):
-            return re.sub(r"\(.*?\)", "", text).strip()
-
         def format_time_hhmmss(time):
             time = int(time)
             return f"{time // 3600:02d}:{(time % 3600) // 60:02d}:{time % 60:02d}"
@@ -217,7 +214,7 @@ example_6:
 
             # If still no matches and city is provided, use geolocation (assuming get_geo_location function exists)
             if matched_stops.empty and city:
-                matched_stops = find_stops_by_address(feed, query, radius_meters, num_stops)
+                matched_stops = find_stops_by_address(feed, query, city, radius_meters, num_stops)
                 
             return matched_stops
 
@@ -339,8 +336,7 @@ example_8:
 
             # If still no matches and city is provided, use geolocation (assuming get_geo_location function exists)
             if matched_stops.empty and city:
-                address = f"{query}, {city}"
-                matched_stops = find_stops_by_address(feed, address, radius_meters, num_stops)
+                matched_stops = find_stops_by_address(feed, query, city, radius_meters, num_stops)
 
             return matched_stops
 
