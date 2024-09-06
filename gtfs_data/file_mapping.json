@@ -2,56 +2,56 @@
   "CUMTD": {
     "file_loc": "gtfs_data/Urbana-Champaign Urbana Mass Transit District (MTD)-IL/gtfs_mod.zip",
     "distance_unit": "m",
-    "pickle_loc": "gtfs_data/feed_pickles/CUMTD_gtfs_loader.pkl"
+    "pickle_loc": "gtfs_data\\feed_pickles\\CUMTD_gtfs_loader.pkl"
   },
   "DART": {
     "file_loc": "gtfs_data/Dallas-Dallas Area Rapid Transit (DART)-TX/gtfs.zip",
     "distance_unit": "km",
-    "pickle_loc": "gtfs_data/feed_pickles/DART_gtfs_loader.pkl"
+    "pickle_loc": "gtfs_data\\feed_pickles\\DART_gtfs_loader.pkl"
   },
   "SFMTA": {
     "file_loc": "gtfs_data/San Francisco-San Francisco Municipal Transportation Agency (SFMTA, Muni)-CA/gtfs.zip",
     "distance_unit": "km",
-    "pickle_loc": "gtfs_data/feed_pickles/SFMTA_gtfs_loader.pkl"
+    "pickle_loc": "gtfs_data\\feed_pickles\\SFMTA_gtfs_loader.pkl"
   },
   "CTA": {
     "file_loc": "gtfs_data/Chicago-Chicago Transit Authority (CTA)-IL/gtfs.zip",
     "distance_unit": "m",
-    "pickle_loc": "gtfs_data/feed_pickles/CTA_gtfs_loader.pkl"
+    "pickle_loc": "gtfs_data\\feed_pickles\\CTA_gtfs_loader.pkl"
   },
   "MBTA": {
     "file_loc": "gtfs_data/Boston-Massachusetts Bay Transportation Authority (MBTA)-MA/gtfs.zip",
     "distance_unit": null,
-    "pickle_loc": "gtfs_data/feed_pickles/MBTA_gtfs_loader.pkl"
+    "pickle_loc": "gtfs_data\\feed_pickles\\MBTA_gtfs_loader.pkl"
   },
   "TheBus": {
     "file_loc": "gtfs_data/Honolulu-TheBus-HI/gtfs.zip",
     "distance_unit": null,
-    "pickle_loc": "gtfs_data/feed_pickles/TheBus_gtfs_loader.pkl"
+    "pickle_loc": "gtfs_data\\feed_pickles\\TheBus_gtfs_loader.pkl"
   },
   "SDMTS": {
     "file_loc": "gtfs_data/San Diego-San Diego International Airport, Metropolitan Transit System (MTS)-CA/gtfs.zip",
     "distance_unit": "km",
-    "pickle_loc": "gtfs_data/feed_pickles/SDMTS_gtfs_loader.pkl"
+    "pickle_loc": "gtfs_data\\feed_pickles\\SDMTS_gtfs_loader.pkl"
   },
   "VTA": {
     "file_loc": "gtfs_data/San Jose-Santa Clara Valley Transportation Authority (VTA)-CA/gtfs.zip",
     "distance_unit": "km",
-    "pickle_loc": "gtfs_data/feed_pickles/VTA_gtfs_loader.pkl"
+    "pickle_loc": "gtfs_data\\feed_pickles\\VTA_gtfs_loader.pkl"
   },
   "AC Transit": {
     "file_loc": "gtfs_data/Oakland-Alameda-Contra Costa Transit District (AC Transit)-CA/gtfs.zip",
     "distance_unit": "m",
-    "pickle_loc": "gtfs_data/feed_pickles/AC Transit_gtfs_loader.pkl"
+    "pickle_loc": "gtfs_data\\feed_pickles\\AC Transit_gtfs_loader.pkl"
   },
   "samTrans": {
     "file_loc": "gtfs_data/San Mateo-San Mateo County Transit District (samTrans)-CA/gtfs.zip",
     "distance_unit": null,
-    "pickle_loc": "gtfs_data/feed_pickles/samTrans_gtfs_loader.pkl"
+    "pickle_loc": "gtfs_data\\feed_pickles\\samTrans_gtfs_loader.pkl"
   },
   "Caltrain": {
     "file_loc": "gtfs_data/San Francisco-Caltrain-CA/gtfs.zip",
     "distance_unit": "m",
-    "pickle_loc": "gtfs_data/feed_pickles/Caltrain_gtfs_loader.pkl"
+    "pickle_loc": "gtfs_data\\feed_pickles\\Caltrain_gtfs_loader.pkl"
   }
 }
