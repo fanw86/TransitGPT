@@ -14,6 +14,11 @@
     "distance_unit": "km",
     "pickle_loc": "gtfs_data/feed_pickles/SFMTA_gtfs_loader.pkl"
   },
+  "CTA": {
+    "file_loc": "gtfs_data/Chicago-Chicago Transit Authority (CTA)-IL/gtfs.zip",
+    "distance_unit": "m",
+    "pickle_loc": "gtfs_data/feed_pickles/CTA_gtfs_loader.pkl"
+  },
   "MBTA": {
     "file_loc": "gtfs_data/Boston-Massachusetts Bay Transportation Authority (MBTA)-MA/gtfs.zip",
     "distance_unit": null,
