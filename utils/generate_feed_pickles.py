@@ -5,8 +5,6 @@ import _pickle as cPickle
 import gzip
 import json
 from pathlib import Path
-from utils.constants import file_mapping
-from utils.gtfs_loader import GTFSLoader
 
 warnings.filterwarnings("ignore")
 
@@ -16,7 +14,8 @@ current_dir = Path(__file__).parent.resolve()
 # Add the parent directory to sys.path
 parent_dir = current_dir.parent
 sys.path.append(str(parent_dir))
-
+from utils.constants import file_mapping
+from utils.gtfs_loader import GTFSLoader
 
 
 def pickle_gtfs_loaders(file_mapping, output_directory, mapping_file_path):

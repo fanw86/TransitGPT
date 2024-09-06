@@ -45,7 +45,7 @@ Adhere strictly to the following instructions:
 9. Use only fields from the GTFS Static Specification and provided feed sample.
 10. For specific attributes, use example identifiers (e.g., `route_id`, `stop_id`) from sample data.
 11. Set figure dimensions to 800x600 pixels with 300 DPI.
-12. Prefer GeoPandas GeoDataFrame `explore()` method for spatial visualization.
+12. Prefer GeoPandas GeoDataFrame `explore()` method for spatial visualization instead of folium.
 13. For distance calculations, use `geodesic` from geopy.distance and transform to appropriate units. All coordinates are in `EPSG:4326` CRS.
 14. Create interactive maps with markers, popups, and relevant info.
 15. Always use `CartoDB Positron` for base map tiles. The `map` key should be a folium.Map, folium.Figure, or branca.element.Figure object.
@@ -193,7 +193,7 @@ These are some helpful tips and facts to know when solving the task:
 - Always have a legend and/or labels for the plots and maps to make them more informative.
 - Prefer plotly express for plotting as it provides a high-level interface for creating a variety of plots.
 - Remember that Figures and Maps are optional and should only be included if explicitly requested in the task or if they help in explaining the solution better.
-
+- For mapping routes, use the `shapes.txt` file to get the points along the route and convert them to a LineString.
 </tips>
 """
 # - Set regex=False in the `str.contains` function to perform exact string matching. Alternatively,use regular expressions (regex = True [Default]) in  `str.contains` for more complex string matching.
