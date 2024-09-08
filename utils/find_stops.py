@@ -8,7 +8,8 @@ import googlemaps
 
 
 def remove_text_in_braces(text):
-    return re.sub(r"\(.*?\)", "", text).strip()
+    # Remove text in braces and any extra spaces left behind
+    return re.sub(r"\s*\(.*?\)\s*", " ", text).strip()
 
 
 def get_geo_location(location_info):

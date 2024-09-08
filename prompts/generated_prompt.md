@@ -19,7 +19,7 @@ Common data types:
 - All IDs and names are strings
 - Coordinates are floats
 - "Time" variables are integers (seconds since midnight). For example, 3600 would represent 1:00 AM, 43200 would represent 12:00 PM (noon), and 86400 would represent 24:00:00 or 12:00 AM (midnight). Time can extend to the next day. For example, 92100 is equivalent to 25:35:00 which represents 1:35 AM on the next day
-- The distance units for this GTFS feed are in `Meters`
+- The distance units for this GTFS feed are in `Kilometers`
 - For any operations that involve date such as `start_date`, use the `datetime.date` module to handle date operations.
 - Colors are in hexadecimal format without the leading `#` character
 
@@ -31,12 +31,12 @@ These are the datatypes for all files within the current GTFS:
 
 <data-type>
 
+- `agency_id`: string
 - `agency_name`: string
 - `agency_url`: string
 - `agency_timezone`: string
 - `agency_lang`: string
 - `agency_phone`: string
-- `agency_fare_url`: string
 
 </data-type>
 
@@ -67,17 +67,35 @@ These are the datatypes for all files within the current GTFS:
 
 </data-type>
 
+### feed_info.txt
+
+<data-type>
+
+- `feed_publisher_name`: string
+- `feed_publisher_url`: string
+- `feed_lang`: string
+- `feed_start_date`: date
+- `feed_end_date`: date
+- `feed_version`: string
+- `feed_contact_email`: string
+
+</data-type>
+
 ### routes.txt
 
 <data-type>
 
 - `route_id`: string
+- `agency_id`: string
 - `route_short_name`: string
 - `route_long_name`: string
+- `route_desc`: string
 - `route_type`: integer
 - `route_url`: string
 - `route_color`: string
 - `route_text_color`: string
+- `route_sort_order`: integer
+- `network_id`: string
 
 </data-type>
 
@@ -93,6 +111,26 @@ These are the datatypes for all files within the current GTFS:
 
 </data-type>
 
+### stops.txt
+
+<data-type>
+
+- `stop_id`: string
+- `stop_code`: string
+- `stop_name`: string
+- `stop_desc`: string
+- `platform_code`: string
+- `stop_lat`: float
+- `stop_lon`: float
+- `zone_id`: string
+- `stop_url`: string
+- `level_id`: string
+- `location_type`: integer
+- `parent_station`: string
+- `wheelchair_boarding`: integer
+
+</data-type>
+
 ### stop_times.txt
 
 <data-type>
@@ -104,23 +142,11 @@ These are the datatypes for all files within the current GTFS:
 - `stop_sequence`: integer
 - `stop_headsign`: string
 - `pickup_type`: integer
+- `drop_off_type`: integer
+- `timepoint`: integer
+- `continuous_pickup`: integer
+- `continuous_drop_off`: integer
 - `shape_dist_traveled`: float
-
-</data-type>
-
-### stops.txt
-
-<data-type>
-
-- `stop_id`: string
-- `stop_code`: string
-- `stop_name`: string
-- `stop_desc`: string
-- `stop_lat`: float
-- `stop_lon`: float
-- `location_type`: integer
-- `parent_station`: string
-- `wheelchair_boarding`: integer
 
 </data-type>
 
@@ -131,6 +157,7 @@ These are the datatypes for all files within the current GTFS:
 - `from_stop_id`: string
 - `to_stop_id`: string
 - `transfer_type`: integer
+- `min_transfer_time`: integer
 
 </data-type>
 
@@ -141,10 +168,13 @@ These are the datatypes for all files within the current GTFS:
 - `route_id`: string
 - `service_id`: string
 - `trip_id`: string
+- `trip_headsign`: string
+- `trip_short_name`: string
 - `direction_id`: integer
 - `block_id`: string
 - `shape_id`: string
 - `wheelchair_accessible`: integer
+- `bikes_allowed`: integer
 
 </data-type>
 
@@ -157,22 +187,22 @@ These are the datatypes for all files within the current GTFS:
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
+      <th>agency_id</th>
       <th>agency_name</th>
       <th>agency_url</th>
       <th>agency_timezone</th>
       <th>agency_lang</th>
       <th>agency_phone</th>
-      <th>agency_fare_url</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>Chicago Transit Authority</td>
-      <td>http://transitchicago.com</td>
-      <td>America/Chicago</td>
-      <td>en</td>
-      <td>1-888-YOURCTA</td>
-      <td>http://www.transitchicago.com/travel_information/fares/default.aspx</td>
+      <td>1</td>
+      <td>MBTA</td>
+      <td>http://www.mbta.com</td>
+      <td>America/New_York</td>
+      <td>EN</td>
+      <td>617-222-3200</td>
     </tr>
   </tbody>
 </table>
@@ -197,7 +227,7 @@ These are the datatypes for all files within the current GTFS:
   </thead>
   <tbody>
     <tr>
-      <td>66601</td>
+      <td>BUS32024-hba34ns1-Weekday-02</td>
       <td>1</td>
       <td>1</td>
       <td>1</td>
@@ -205,32 +235,32 @@ These are the datatypes for all files within the current GTFS:
       <td>1</td>
       <td>0</td>
       <td>0</td>
-      <td>2024-08-16</td>
-      <td>2024-08-24</td>
+      <td>2024-08-02</td>
+      <td>2024-08-23</td>
     </tr>
     <tr>
-      <td>66602</td>
+      <td>BUS32024-hbb34ns1-Weekday-02</td>
+      <td>1</td>
       <td>1</td>
       <td>1</td>
       <td>1</td>
       <td>1</td>
       <td>0</td>
       <td>0</td>
-      <td>0</td>
-      <td>2024-08-16</td>
-      <td>2024-08-24</td>
+      <td>2024-08-02</td>
+      <td>2024-08-23</td>
     </tr>
     <tr>
-      <td>66603</td>
+      <td>BUS32024-hbc34ns1-Weekday-02</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
       <td>0</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
       <td>0</td>
-      <td>0</td>
-      <td>2024-08-16</td>
-      <td>2024-08-24</td>
+      <td>2024-08-02</td>
+      <td>2024-08-23</td>
     </tr>
   </tbody>
 </table>
@@ -244,23 +274,57 @@ These are the datatypes for all files within the current GTFS:
       <th>service_id</th>
       <th>date</th>
       <th>exception_type</th>
+      <th>holiday_name</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>66701</td>
-      <td>2024-09-02</td>
+      <td>LRV32024-hlm34011-Weekday-01</td>
+      <td>2024-08-16</td>
       <td>2</td>
+      <td>NaN</td>
     </tr>
     <tr>
-      <td>66702</td>
-      <td>2024-09-02</td>
-      <td>2</td>
+      <td>RTL32024-hmo34bw6-Saturday-01</td>
+      <td>2024-08-17</td>
+      <td>1</td>
+      <td>NaN</td>
     </tr>
     <tr>
-      <td>66703</td>
-      <td>2024-09-02</td>
-      <td>2</td>
+      <td>RTL32024-hmo34bw7-Sunday-01</td>
+      <td>2024-08-18</td>
+      <td>1</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+</feed-sample>
+
+### feed_info.txt (feed.feed_info)
+<feed-sample>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>feed_publisher_name</th>
+      <th>feed_publisher_url</th>
+      <th>feed_lang</th>
+      <th>feed_start_date</th>
+      <th>feed_end_date</th>
+      <th>feed_version</th>
+      <th>feed_contact_email</th>
+      <th>feed_id</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>MBTA</td>
+      <td>http://www.mbta.com</td>
+      <td>EN</td>
+      <td>2024-08-02</td>
+      <td>2024-08-24</td>
+      <td>Summer 2024, 2024-08-09T21:10:59+00:00, version D</td>
+      <td>developer@mbta.com</td>
+      <td>mbta-ma-us</td>
     </tr>
   </tbody>
 </table>
@@ -272,41 +336,69 @@ These are the datatypes for all files within the current GTFS:
   <thead>
     <tr style="text-align: right;">
       <th>route_id</th>
+      <th>agency_id</th>
       <th>route_short_name</th>
       <th>route_long_name</th>
+      <th>route_desc</th>
       <th>route_type</th>
       <th>route_url</th>
       <th>route_color</th>
       <th>route_text_color</th>
+      <th>route_sort_order</th>
+      <th>route_fare_class</th>
+      <th>line_id</th>
+      <th>listed_route</th>
+      <th>network_id</th>
     </tr>
   </thead>
   <tbody>
     <tr>
+      <td>Red</td>
       <td>1</td>
+      <td>n/a-Red</td>
+      <td>Red Line</td>
+      <td>Rapid Transit</td>
       <td>1</td>
-      <td>Bronzeville/Union Station</td>
-      <td>3</td>
-      <td>http://www.transitchicago.com/bus/1/</td>
-      <td>565a5c</td>
-      <td>ffffff</td>
+      <td>https://www.mbta.com/schedules/Red</td>
+      <td>DA291C</td>
+      <td>FFFFFF</td>
+      <td>10010</td>
+      <td>Rapid Transit</td>
+      <td>line-Red</td>
+      <td>NaN</td>
+      <td>rapid_transit</td>
     </tr>
     <tr>
-      <td>2</td>
-      <td>2</td>
-      <td>Hyde Park Express</td>
-      <td>3</td>
-      <td>http://www.transitchicago.com/bus/2/</td>
-      <td>b71234</td>
-      <td>ffffff</td>
+      <td>Mattapan</td>
+      <td>1</td>
+      <td>n/a-Mattapan</td>
+      <td>Mattapan Trolley</td>
+      <td>Rapid Transit</td>
+      <td>0</td>
+      <td>https://www.mbta.com/schedules/Mattapan</td>
+      <td>DA291C</td>
+      <td>FFFFFF</td>
+      <td>10011</td>
+      <td>Rapid Transit</td>
+      <td>line-Mattapan</td>
+      <td>NaN</td>
+      <td>m_rapid_transit</td>
     </tr>
     <tr>
-      <td>3</td>
-      <td>3</td>
-      <td>King Drive</td>
-      <td>3</td>
-      <td>http://www.transitchicago.com/bus/3/</td>
-      <td>565a5c</td>
-      <td>ffffff</td>
+      <td>Orange</td>
+      <td>1</td>
+      <td>n/a-Orange</td>
+      <td>Orange Line</td>
+      <td>Rapid Transit</td>
+      <td>1</td>
+      <td>https://www.mbta.com/schedules/Orange</td>
+      <td>ED8B00</td>
+      <td>FFFFFF</td>
+      <td>10020</td>
+      <td>Rapid Transit</td>
+      <td>line-Orange</td>
+      <td>NaN</td>
+      <td>rapid_transit</td>
     </tr>
   </tbody>
 </table>
@@ -326,25 +418,119 @@ These are the datatypes for all files within the current GTFS:
   </thead>
   <tbody>
     <tr>
-      <td>66600095</td>
-      <td>41.911304</td>
-      <td>-87.631222</td>
+      <td>010128</td>
+      <td>42.329848</td>
+      <td>-71.083876</td>
+      <td>10001</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>010128</td>
+      <td>42.329788</td>
+      <td>-71.083268</td>
+      <td>10002</td>
+      <td>0.050552</td>
+    </tr>
+    <tr>
+      <td>010128</td>
+      <td>42.330089</td>
+      <td>-71.083198</td>
+      <td>10003</td>
+      <td>0.084480</td>
+    </tr>
+  </tbody>
+</table>
+</feed-sample>
+
+### stops.txt (feed.stops)
+<feed-sample>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>stop_id</th>
+      <th>stop_code</th>
+      <th>stop_name</th>
+      <th>stop_desc</th>
+      <th>platform_code</th>
+      <th>platform_name</th>
+      <th>stop_lat</th>
+      <th>stop_lon</th>
+      <th>zone_id</th>
+      <th>stop_address</th>
+      <th>stop_url</th>
+      <th>level_id</th>
+      <th>location_type</th>
+      <th>parent_station</th>
+      <th>wheelchair_boarding</th>
+      <th>municipality</th>
+      <th>on_street</th>
+      <th>at_street</th>
+      <th>vehicle_type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
       <td>1</td>
+      <td>1</td>
+      <td>Washington St opp Ruggles St</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>42.330957</td>
+      <td>-71.082754</td>
+      <td>ExpressBus-Downtown</td>
+      <td>NaN</td>
+      <td>https://www.mbta.com/stops/1</td>
+      <td>NaN</td>
       <td>0</td>
-    </tr>
-    <tr>
-      <td>66600095</td>
-      <td>41.911304</td>
-      <td>-87.631222</td>
-      <td>2</td>
-      <td>49</td>
-    </tr>
-    <tr>
-      <td>66600095</td>
-      <td>41.911180</td>
-      <td>-87.631290</td>
+      <td>NaN</td>
+      <td>1</td>
+      <td>Boston</td>
+      <td>Washington Street</td>
+      <td>Ruggles Street</td>
       <td>3</td>
-      <td>106</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>10</td>
+      <td>Theo Glynn Way @ Newmarket Sq</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>42.330555</td>
+      <td>-71.068787</td>
+      <td>LocalBus</td>
+      <td>NaN</td>
+      <td>https://www.mbta.com/stops/10</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>1</td>
+      <td>Boston</td>
+      <td>Theodore Glynn Way</td>
+      <td>Newmarket Square</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>10000</td>
+      <td>10000</td>
+      <td>Tremont St opp Temple Pl</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>42.355692</td>
+      <td>-71.062911</td>
+      <td>LocalBus</td>
+      <td>NaN</td>
+      <td>https://www.mbta.com/stops/10000</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>1</td>
+      <td>Boston</td>
+      <td>Tremont Street</td>
+      <td>Temple Place</td>
+      <td>3</td>
     </tr>
   </tbody>
 </table>
@@ -362,93 +548,59 @@ These are the datatypes for all files within the current GTFS:
       <th>stop_sequence</th>
       <th>stop_headsign</th>
       <th>pickup_type</th>
+      <th>drop_off_type</th>
+      <th>timepoint</th>
+      <th>checkpoint_id</th>
+      <th>continuous_pickup</th>
+      <th>continuous_drop_off</th>
       <th>shape_dist_traveled</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>84253143420</td>
-      <td>40860.0</td>
-      <td>40860.0</td>
-      <td>30216</td>
-      <td>18</td>
-      <td>Midway</td>
-      <td>0</td>
-      <td>79785</td>
-    </tr>
-    <tr>
-      <td>84253143420</td>
-      <td>40980.0</td>
-      <td>40980.0</td>
-      <td>30206</td>
-      <td>19</td>
-      <td>Midway</td>
-      <td>0</td>
-      <td>85229</td>
-    </tr>
-    <tr>
-      <td>84253143420</td>
-      <td>41100.0</td>
-      <td>41100.0</td>
-      <td>30023</td>
-      <td>20</td>
-      <td>Midway</td>
-      <td>0</td>
-      <td>90717</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### stops.txt (feed.stops)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>stop_id</th>
-      <th>stop_code</th>
-      <th>stop_name</th>
-      <th>stop_desc</th>
-      <th>stop_lat</th>
-      <th>stop_lon</th>
-      <th>location_type</th>
-      <th>parent_station</th>
-      <th>wheelchair_boarding</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
+      <td>62502594</td>
+      <td>21000.0</td>
+      <td>21000.0</td>
+      <td>875</td>
       <td>1</td>
-      <td>1</td>
-      <td>Jackson &amp; Austin Terminal</td>
-      <td>Jackson &amp; Austin Terminal, Northeastbound, Bus Terminal</td>
-      <td>41.876330</td>
-      <td>-87.774111</td>
-      <td>0</td>
       <td>NaN</td>
+      <td>0</td>
       <td>1</td>
+      <td>1.0</td>
+      <td>fhill</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.000000</td>
     </tr>
     <tr>
+      <td>62502594</td>
+      <td>21000.0</td>
+      <td>21000.0</td>
+      <td>520</td>
       <td>2</td>
-      <td>2</td>
-      <td>5900 W Jackson</td>
-      <td>5900 W Jackson, Eastbound, Southside of the Street</td>
-      <td>41.877075</td>
-      <td>-87.771324</td>
-      <td>0</td>
       <td>NaN</td>
-      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.490586</td>
     </tr>
     <tr>
-      <td>4</td>
-      <td>4</td>
-      <td>5700 W Jackson</td>
-      <td>5700 W Jackson, Eastbound, Southside of the Street</td>
-      <td>41.876992</td>
-      <td>-87.768264</td>
-      <td>0</td>
+      <td>62502594</td>
+      <td>21060.0</td>
+      <td>21060.0</td>
+      <td>11521</td>
+      <td>3</td>
       <td>NaN</td>
-      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.747945</td>
     </tr>
   </tbody>
 </table>
@@ -462,23 +614,51 @@ These are the datatypes for all files within the current GTFS:
       <th>from_stop_id</th>
       <th>to_stop_id</th>
       <th>transfer_type</th>
+      <th>min_transfer_time</th>
+      <th>min_walk_time</th>
+      <th>min_wheelchair_time</th>
+      <th>suggested_buffer_time</th>
+      <th>wheelchair_transfer</th>
+      <th>from_trip_id</th>
+      <th>to_trip_id</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>30176</td>
-      <td>30175</td>
-      <td>0</td>
+      <td>70020</td>
+      <td>70021</td>
+      <td>1</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>63145536</td>
+      <td>63145670</td>
     </tr>
     <tr>
-      <td>30174</td>
-      <td>30175</td>
-      <td>0</td>
+      <td>70020</td>
+      <td>70021</td>
+      <td>1</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>63145536</td>
+      <td>63283809</td>
     </tr>
     <tr>
-      <td>30258</td>
-      <td>30256</td>
-      <td>0</td>
+      <td>70020</td>
+      <td>70021</td>
+      <td>1</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>63283808</td>
+      <td>63145670</td>
     </tr>
   </tbody>
 </table>
@@ -492,47 +672,59 @@ These are the datatypes for all files within the current GTFS:
       <th>route_id</th>
       <th>service_id</th>
       <th>trip_id</th>
+      <th>trip_headsign</th>
+      <th>trip_short_name</th>
       <th>direction_id</th>
       <th>block_id</th>
       <th>shape_id</th>
-      <th>direction</th>
       <th>wheelchair_accessible</th>
-      <th>schd_trip_id</th>
+      <th>trip_route_type</th>
+      <th>route_pattern_id</th>
+      <th>bikes_allowed</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>X9</td>
-      <td>66701</td>
-      <td>6670019418020</td>
       <td>1</td>
-      <td>667000003563</td>
-      <td>66708469</td>
-      <td>North</td>
+      <td>BUS32024-hba34ns1-Weekday-02</td>
+      <td>63075073</td>
+      <td>Harvard</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>A747-392</td>
+      <td>010128</td>
       <td>1</td>
-      <td>19418020</td>
+      <td>NaN</td>
+      <td>1-_-0</td>
+      <td>1</td>
     </tr>
     <tr>
-      <td>X9</td>
-      <td>66701</td>
-      <td>6670021451020</td>
       <td>1</td>
-      <td>667000002145</td>
-      <td>66708470</td>
-      <td>North</td>
+      <td>BUS32024-hba34ns1-Weekday-02</td>
+      <td>63075078</td>
+      <td>Harvard</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>A01-1</td>
+      <td>010128</td>
       <td>1</td>
-      <td>21451020</td>
+      <td>NaN</td>
+      <td>1-_-0</td>
+      <td>1</td>
     </tr>
     <tr>
-      <td>X9</td>
-      <td>66701</td>
-      <td>6670021767020</td>
       <td>1</td>
-      <td>667000003551</td>
-      <td>66708470</td>
-      <td>North</td>
+      <td>BUS32024-hba34ns1-Weekday-02</td>
+      <td>63075083</td>
+      <td>Harvard</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>A747-392</td>
+      <td>010128</td>
       <td>1</td>
-      <td>21767020</td>
+      <td>NaN</td>
+      <td>1-_-0</td>
+      <td>1</td>
     </tr>
   </tbody>
 </table>
@@ -699,4 +891,12 @@ These are some helpful tips and facts to know when solving the task:
 - Prefer plotly express for plotting as it provides a high-level interface for creating a variety of plots.
 - Remember that Figures and Maps are optional and should only be included if explicitly requested in the task or if they help in explaining the solution better.
 - For mapping routes, use the `shapes.txt` file to get the points along the route and convert them to a LineString.
+- Never use identifier such as `route_id` or `trip_id` on a continuous scale or axis. Treat them as categorical variables.
+
+### Headway/Frequency Calculations
+- The headway is the time between consecutive vehicles or buses. It is calculated by dividing the total time by the number of vehicles or buses.
+- The frequency is the number of vehicles or buses that run per hour. It is calculated by dividing 60 minutes by the headway.
+- The headway and frequency are important metrics to understand the service level of a transit system.
+- To calculate headway of a route, choose a representative stop (stop_sequence=1) and find the time difference between consecutive trips for a given time period
+
 </tips>

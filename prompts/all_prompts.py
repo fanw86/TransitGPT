@@ -194,6 +194,14 @@ These are some helpful tips and facts to know when solving the task:
 - Prefer plotly express for plotting as it provides a high-level interface for creating a variety of plots.
 - Remember that Figures and Maps are optional and should only be included if explicitly requested in the task or if they help in explaining the solution better.
 - For mapping routes, use the `shapes.txt` file to get the points along the route and convert them to a LineString.
+- Never use identifier such as `route_id` or `trip_id` on a continuous scale or axis. Treat them as categorical variables.
+
+### Headway/Frequency Calculations
+- The headway is the time between consecutive vehicles or buses. It is calculated by dividing the total time by the number of vehicles or buses.
+- The frequency is the number of vehicles or buses that run per hour. It is calculated by dividing 60 minutes by the headway.
+- The headway and frequency are important metrics to understand the service level of a transit system.
+- To calculate headway of a route, choose a representative stop (stop_sequence=1) and find the time difference between consecutive trips for a given time period
+
 </tips>
 """
 # - Set regex=False in the `str.contains` function to perform exact string matching. Alternatively,use regular expressions (regex = True [Default]) in  `str.contains` for more complex string matching.

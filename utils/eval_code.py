@@ -3,6 +3,7 @@ import traceback
 import re
 import _pickle as cPickle
 import gzip
+import threading  # Add this import
 
 ## For Evals
 from utils.eval_imports import import_namespace
@@ -90,43 +91,25 @@ class GTFS_Eval:
         # Work on a copy of feed. Every run is a new instance
         nm.update({"feed": self.current_loader.feed.copy()})
         try:
-            # Set a timeout for execution
-            import threading
-            import _thread
-
             def execute_code():
                 global execution_result
                 execution_result = None
-                try:
-                    exec(code, nm)
-                    execution_result = nm.get("result")
-                except Exception as e:
-                    execution_result = e
+                exec(code, nm)
+                execution_result = nm.get("result")
 
-            def timeout_handler():
-                _thread.interrupt_main()
-
-            # Define the timeout duration in seconds
-            # Create a new thread to execute the code
-            execution_thread = threading.Thread(target=execute_code)
-            # Create a timer that will call the timeout_handler after TIMEOUT_SECONDS
-            timer = threading.Timer(TIMEOUT_SECONDS, timeout_handler)
-            timer.start()
-            execution_thread.start()
-            # Wait for the execution thread to finish, with a timeout of TIMEOUT_SECONDS
-            execution_thread.join(
-                TIMEOUT_SECONDS
-            )  # If the thread doesn't finish in TIMEOUT_SECONDS, join() will return
-            # Cancel the timer to prevent it from calling the timeout_handler if execution finished in time
-            timer.cancel()
-
-            if execution_thread.is_alive():
+            thread = threading.Thread(target=execute_code)
+            thread.start()
+            thread.join(timeout=TIMEOUT_SECONDS)
+            if thread.is_alive():
                 raise TimeoutError("Code execution timed out")
 
             if isinstance(execution_result, Exception):
                 raise execution_result
 
             return (execution_result, True, None, False)
+        except TimeoutError as te:
+            error_info = f"TimeoutError: {str(te)}"
+            return (None, False, error_info, False)
         except Exception as e:
             error_info = self._get_detailed_error_info(e, code)
             return (None, False, error_info, False)

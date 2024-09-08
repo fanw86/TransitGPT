@@ -19,8 +19,8 @@
     "distance_unit": "m",
     "pickle_loc": "gtfs_data\\feed_pickles\\CTA_gtfs_loader.pkl"
   },
-  "MBTA": {
-    "file_loc": "gtfs_data/Boston-Massachusetts Bay Transportation Authority (MBTA)-MA/gtfs.zip",
+  "MBTA (Only)": {
+    "file_loc": "gtfs_data/Boston-Massachusetts Bay Transportation Authority (MBTA)-MA/mbta_gtfs.zip",
     "distance_unit": null,
     "pickle_loc": "gtfs_data\\feed_pickles\\MBTA_gtfs_loader.pkl"
   },
