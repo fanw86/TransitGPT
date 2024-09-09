@@ -18,7 +18,27 @@ def load_zipped_pickle(filename):
         loaded_object = cPickle.load(f)
         return loaded_object
 
+class PropagatingThread(threading.Thread):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)  # Call the parent constructor
 
+    def run(self):
+        self.exc = None
+        self.ret = None
+        try:
+            if hasattr(self, '_Thread__target'):
+                self.ret = self._Thread__target(*self._Thread__args, **self._Thread__kwargs)
+            else:
+                self.ret = self._target(*self._args, **self._kwargs)
+        except BaseException as e:
+            self.exc = e
+
+    def join(self, timeout=None):
+        super(PropagatingThread, self).join(timeout)
+        if self.exc:
+            raise self.exc
+        return self.ret
+    
 class GTFS_Eval:
     def __init__(self, file_mapping):
         self.current_loader = None
@@ -35,7 +55,15 @@ class GTFS_Eval:
                 f"loader_{key.lower()}",
                 gtfs_loader,
             )
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        # Remove the evaluate method from the state
+        del state['evaluate']
+        return state
 
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        
     def load_current_feed(self, GTFS):
         if not self.gtfs or self.gtfs != GTFS:
             current_loader = getattr(self, f"loader_{GTFS.lower()}")
@@ -65,54 +93,61 @@ class GTFS_Eval:
     def evaluate(self, code):
         """
         Evaluates the given code and returns the result.
-
-        Parameters:
-            code (str): The code to be evaluated.
-
-        Returns:
-            tuple: A tuple containing the result of the evaluation, a boolean indicating if the evaluation was successful,
-                   detailed error information if the evaluation failed, and a boolean indicating if response is only text.
         """
-        # Format string input to extract only the code
+        # Extract executable code from the input
         executable_pattern = r"```python\n(.*?)```"
         executable_code = re.findall(executable_pattern, code, re.DOTALL)
-        if len(executable_code) > 0:
+        if executable_code:
             code = executable_code[0]
-            code = (
-                code.split("```python")[1].split("```")[0]
-                if "```python" in code
-                else code
-            )
         else:
-            # Has no code block. Send back with only text response
-            return (None, True, None, True)
-        nm = globals()  # Keep the existing global variables
+            return {
+                "code_output": code,
+                "eval_success": False,
+                "error_message": None,
+                "only_text": True
+            }  # No code block
+
+        nm = globals()  # Keep existing global variables
         nm.update(import_namespace)  # Update with import_namespace
-        # Work on a copy of feed. Every run is a new instance
-        nm.update({"feed": self.current_loader.feed.copy()})
+        nm["feed"] = self.current_loader.feed.copy()  # Work on a copy of feed
+
         try:
             def execute_code():
                 global execution_result
-                execution_result = None
-                exec(code, nm)
-                execution_result = nm.get("result")
-
-            thread = threading.Thread(target=execute_code)
+                try:
+                    exec(code, nm)
+                    execution_result = nm.get("result")
+                except Exception as inner_e:
+                    raise inner_e
+            thread = PropagatingThread(target=execute_code)
+            thread.daemon = True
             thread.start()
             thread.join(timeout=TIMEOUT_SECONDS)
             if thread.is_alive():
                 raise TimeoutError("Code execution timed out")
 
-            if isinstance(execution_result, Exception):
-                raise execution_result
-
-            return (execution_result, True, None, False)
+            return {
+                "code_output": execution_result,
+                "eval_success": True,
+                "error_message": None,
+                "only_text": False
+            }
         except TimeoutError as te:
-            error_info = f"TimeoutError: {str(te)}"
-            return (None, False, error_info, False)
+            print(f"TimeoutError: {str(te)}")
+            return {
+                "code_output": None,
+                "eval_success": False,
+                "error_message": f"TimeoutError: {str(te)}",
+                "only_text": False
+            }
         except Exception as e:
-            error_info = self._get_detailed_error_info(e, code)
-            return (None, False, error_info, False)
+            error_message = self._get_detailed_error_info(e, code)
+            return {
+                "code_output": None,
+                "eval_success": False,
+                "error_message": error_message,
+                "only_text": False
+            }  # Return actual error message
 
     def _get_detailed_error_info(self, error: Exception, code: str) -> str:
         """
@@ -145,15 +180,15 @@ class GTFS_Eval:
             f"Error Message: {str(error)}",
             "Relevant Code:",
             relevant_code + "\n",
-            "Traceback (most recent call last):",
+            # "Traceback (most recent call last):",
         ]
 
-        for filename, line_num, func_name, text in tb:
-            if filename == "<string>":
-                filename = "Executed Code"
-            error_info.append(f"  File '{filename}', line {line_num}, in {func_name}")
-            if text:
-                error_info.append(f"    {text.strip()}")
+        # for filename, line_num, func_name, text in tb:
+        #     if filename == "<string>":
+        #         filename = "Executed Code"
+        #     error_info.append(f"  File '{filename}', line {line_num}, in {func_name}")
+        #     if text:
+        #         error_info.append(f"    {text.strip()}")
 
         return "\n".join(error_info)
 

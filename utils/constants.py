@@ -1,7 +1,7 @@
 import json
 
 # Set timeout to 3 minutes
-TIMEOUT_SECONDS = 1 * 60
+TIMEOUT_SECONDS = 3 * 60 
 
 # File to store sample questions
 QUESTIONS_FILE = "data/sample_questions.json"

@@ -25,3 +25,4 @@ thefuzz
 tabulate
 googlemaps
 branca
+stqdm

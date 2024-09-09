@@ -17,7 +17,7 @@ def load_agent_evaluator():
     print("<<<==================Initializing Chat App=====================>>>")
     print(f"Call count: {st.session_state['call_count']}, time: {time.ctime()}")
     GTFS = st.session_state["GTFS"]
-    with st.spinner(f"Loading `{GTFS}` GTFS Feed and setting up LLM Agent..."):
+    with st.status(f"Loading `{GTFS}` GTFS Feed and setting up LLM Agent...") as status:
         model = st.session_state["model"]
         distance_unit = file_mapping[GTFS]["distance_unit"]
         if "agent" not in st.session_state:
@@ -27,6 +27,7 @@ def load_agent_evaluator():
             agent = st.session_state["agent"]
             agent.update_agent(GTFS, model, distance_unit)
         st.session_state["call_count"] += 1
+        status.update(label=f"Loaded GTFS feed: {GTFS} ({distance_unit})", state="complete")
     # Loaded GTFS feed
     st.toast(f"Loaded GTFS feed: {GTFS} ({distance_unit})", icon="🚌")
 

@@ -7,7 +7,7 @@ from streamlit_folium import folium_static
 from components.sidebar import clear_chat_history
 import plotly.graph_objects as go
 from folium import Map
-
+from utils.constants import TIMEOUT_SECONDS
 
 @st.dialog("Maximum number of messages reached!")
 def clear_chat():
@@ -125,7 +125,6 @@ def display_llm_response(fb_agent, uuid, message, i):
     only_text = message["only_text"]
     if not only_text:
         with st.expander("👨‍💻Code", expanded=False):
-            # with st.expander("LLM Response", expanded=False):
             executable_pattern = r"```python\n(.*?)```"
             executable_code = re.findall(
                 executable_pattern, message["code_response"], re.DOTALL
@@ -135,16 +134,22 @@ def display_llm_response(fb_agent, uuid, message, i):
 
     col1, col2, col3 = st.columns([6, 2, 1])
     with col1:
-        if "code_output" in message and only_text is False:
-            if message.get("eval_success", False):  # Default to False
+        if "code_output" in message and not only_text:
+            if message.get("eval_success", False):
                 display_code_output(message)
             else:
-                with st.expander("❌ :red[Code evaluation failed]", expanded=False):
-                    st.error(f"\n {message['error_message']}")
-                st.warning(
-                    "Something went wrong with running the code. Please edit your prompt or toggle `🔘Allow Retry`.",
-                    icon="⚠",
-                )
+                error_message = message['error_message']
+                if "TimeoutError" in error_message:
+                    st.warning(f"Code execution timed out. Timeout limit is {TIMEOUT_SECONDS//60} minutes.", icon="⏰")
+                    return  # Skip displaying the final message
+                with st.expander("❌ :red[Error Message]", expanded=False):
+                    st.error(f"\n {error_message}")
+                if not st.session_state.get("retry_code", False):
+                    st.error("Please edit your prompt or toggle `🔘Allow Retry`.", icon="⚠")
+                else:
+                    st.error("Code execution Failed! Please try again with a different prompt.", icon="⚠")
+                return # Skip displaying the final message
+                
 
     message_id = f"{uuid}_{i}"
     st.session_state.current_message_id = message_id
@@ -153,7 +158,7 @@ def display_llm_response(fb_agent, uuid, message, i):
         colored_response = apply_color_codes(message["final_response"])
         if message["is_cancelled"]:
             with col1:
-                st.info(message["final_response"])
+                st.info(message["final_response"], icon="🚨")
         else:
             display_feedback_ui(fb_agent, message_id, col2, col3)
             if len(colored_response) <= 500:

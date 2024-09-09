@@ -149,9 +149,13 @@ class LLMAgent:
 
         return response, call_success
 
-    def evaluate(self, llm_response):
+    def execute(self, llm_response):
         self.logger.info("Evaluating code from LLM response")
-        result, success, error, only_text = self.evaluator.evaluate(llm_response)
+        output = self.evaluator.evaluate(llm_response)
+        result = output["code_output"]
+        success = output["eval_success"]
+        error = output["error_message"]
+        only_text = output["only_text"]
         if self.chat_history:
             self.chat_history[-1].evaluation_result = result
             self.chat_history[-1].code_success = success
@@ -164,8 +168,9 @@ class LLMAgent:
         calls_made = 1  # Initialize with 1 for the initial evaluation
 
         for retry in range(self.max_retry):
-            result, success, error, only_text = self.evaluate(llm_response)
-            if success or only_text:
+            result, success, error, only_text = self.execute(llm_response)
+            print({"result": result, "success": success, "error": error, "only_text": only_text})
+            if success or only_text or ("TimeoutError" in error):
                 return result, success, error, only_text, llm_response
 
             if retry < self.max_retry - 1:  # Don't increment on the last iteration
@@ -257,7 +262,7 @@ class LLMAgent:
             if retry_code:
                 return self.evaluate_with_retry(llm_response)
             else:
-                result, success, error, only_text = self.evaluate(llm_response)
+                result, success, error, only_text = self.execute(llm_response)
                 return result, success, error, only_text, llm_response
 
     def reset(self):
