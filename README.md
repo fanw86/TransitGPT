@@ -60,21 +60,25 @@ GTFS2CODE is a specialized chatbot that helps transit enthusiasts retrieve trans
 
 - `chat_app.py`: Main Streamlit application
 - `components/`: UI components and interface setup
-- `utils/`: Utility functions and core logic
+- `utils/`: Utility functions and helper methods
 - `prompts/`: LLM prompts and examples
 - `data/`: Sample questions and few-shot examples
 - `gtfs_data/`: GTFS feed files and mappings
-- `gtfs_agent/`: GTFS data loading and processing
+- `gtfs_agent/`: GTFS data loading, processing, and LLM agent
+- `evaluator/`: Code execution and evaluation
 - `tests/`: Unit tests for various components
 
 ## Key Files
 
-- `utils/gtfs_loader.py`: GTFS data loading and processing
-- `utils/agent.py`: LLM Agent implementation
-- `utils/eval_code.py`: Code execution and evaluation
+- `gtfs_agent/gtfs_loader.py`: GTFS data loading and processing
+- `gtfs_agent/agent.py`: LLM Agent implementation
+- `evaluator/eval_code.py`: Code execution and evaluation
 - `utils/feedback.py`: Feedback collection system
 - `prompts/generate_prompt.py`: Dynamic prompt generation
-- `gtfs_agent/gtfs_loader.py`: GTFS data loading and processing
+- `utils/generate_feed_pickles.py`: Generate pickled GTFS feeds
+- `utils/constants.py`: Constant values used across the project
+- `utils/helper.py`: Helper functions for various tasks
+- `gtfs_agent/llm_client.py`: LLM API clients for different models
 
 ## Disclaimer
 
