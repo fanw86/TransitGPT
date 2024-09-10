@@ -7,7 +7,7 @@ import threading  # Add this import
 
 ## For Evals
 from evaluator.eval_imports import import_namespace
-
+from streamlit.runtime.scriptrunner import add_script_run_ctx
 # Custom Imports
 from utils.constants import TIMEOUT_SECONDS
 from prompts.generate_prompt import generate_system_prompt
@@ -120,6 +120,7 @@ class GTFS_Eval:
                 except Exception as inner_e:
                     raise inner_e
             thread = PropagatingThread(target=execute_code)
+            add_script_run_ctx(thread)
             thread.daemon = True
             thread.start()
             thread.join(timeout=TIMEOUT_SECONDS)
