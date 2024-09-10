@@ -22,7 +22,7 @@
   "MBTA (Only)": {
     "file_loc": "gtfs_data/Boston-Massachusetts Bay Transportation Authority (MBTA)-MA/mbta_gtfs.zip",
     "distance_unit": null,
-    "pickle_loc": "gtfs_data\\feed_pickles\\MBTA_gtfs_loader.pkl"
+    "pickle_loc": "gtfs_data\\feed_pickles\\MBTA (Only)_gtfs_loader.pkl"
   },
   "TheBus": {
     "file_loc": "gtfs_data/Honolulu-TheBus-HI/gtfs.zip",

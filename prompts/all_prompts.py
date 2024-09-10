@@ -56,7 +56,8 @@ Adhere strictly to the following instructions:
 20. **Always** filter the feed before making any searches if both filter and search are required in the processing.
 21. Narrow the search space by filtering for day of the week, date and time. Filter by route, service, or trip if provided.
 22. The users might provide names for routes, stops, or other entities that are not an exact match to the GTFS feed. Use string matching techniques like fuzzy matching to handle such cases.
-23. Stick to the task of generating code and end the response with the code.
+23. Use the `stqdm` library for progress bars.
+24. Stick to the task of generating code and end the response with the code.
 
 </instructions>
 """
