@@ -26,27 +26,34 @@ example_2:
     answer: |
         ```python
         # Filter stop_times for route_id '25490'
-        route_25490_trips = feed.trips[feed.trips['route_id'] == '25490']['trip_id']
-        route_25490_stop_times = feed.stop_times[feed.stop_times['trip_id'].isin(route_25490_trips)]
+        route_25490_trips = feed.trips[feed.trips['route_id'] == 'GREEN']['trip_id']
+        route_25490_stop_times = feed.stop_times[feed.stop_times['trip_id'].isin(route_green_trips)]
+        # Merge with feed.trips to get direction_id
+        route_25490_stop_times = route_25490_stop_times.merge(feed.trips, on='trip_id')
 
         # Calculate trip durations
-        trip_durations = route_25490_stop_times.groupby('trip_id').agg({
-            'arrival_time': lambda x: x.max() - x.min()
+        trip_durations = route_25490_stop_times.groupby(['trip_id','direction_id']).agg({
+            'arrival_time': lambda x: (x.max() - x.min()) / 60 # convert to minutes
         })
 
         # Calculate average duration
-        avg_duration = trip_durations['arrival_time'].mean()
+        trip_durations = trip_durations.rename(columns={'arrival_time': 'trip_duration'}).reset_index()
+        avg_duration = trip_durations['trip_duration'].mean()
 
         # Create the plot
-        fig = px.histogram(trip_durations.reset_index(), x='arrival_time', 
-                           title='Distribution of Trip Durations for Route 25490')
+        color_map = {direction: px.colors.qualitative.Set1[i] for i, direction in enumerate(trip_durations['direction_id'].unique())}
+        fig = px.histogram(trip_durations, x='trip_duration', 
+                            color='direction_id',
+                            title='Distribution of Trip Durations for Route 25490', 
+                            labels={"trip_duration": "Trip Duration (min)", "direction_id": "Direction ID"},
+                            color_discrete_map = color_map)
+        fig.update_layout(legend_title_text='Direction')
 
         result = {
             'answer': avg_duration,  # This is a timedelta object
             'additional_info': f"This calculation is based on {len(trip_durations)} trips.",
             'plot': fig  # This is a plotly Figure object
         }
-        # Note: The plot shows the distribution of trip durations for route_id '25490'
         ```
 
 example_3:

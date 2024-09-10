@@ -169,7 +169,7 @@ class LLMAgent:
 
         for retry in range(self.max_retry):
             result, success, error, only_text = self.execute(llm_response)
-            print({"result": result, "success": success, "error": error, "only_text": only_text})
+            # print({"result": result, "success": success, "error": error, "only_text": only_text})
             if success or only_text or ("TimeoutError" in error):
                 return result, success, error, only_text, llm_response
 

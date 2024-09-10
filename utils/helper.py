@@ -107,7 +107,7 @@ def truncate_text(text: str, max_chars: int) -> str:
 
 
 def summarize_large_output(
-    output: Any, max_rows: int = 100, max_chars: int = 1200
+    output: Any, max_rows: int = 20, max_chars: int = 2000
 ) -> str:
     if isinstance(output, pd.DataFrame):
         if len(output) > max_rows:
@@ -124,12 +124,12 @@ def summarize_large_output(
             return f"List with {len(output)} items. First {max_rows} items: {str(output[:max_rows])}... [truncated]"
         return f"List with {len(output)} items: {str(output)}"
     elif isinstance(output, dict):
-        if len(output) > max_rows:
-            truncated_dict = dict(list(output.items())[:max_rows])
-            return f"Dict with {len(output)} keys. First {max_rows} items: {truncated_dict}... [truncated]"
-        return f"Dict with {len(output)} keys: {str(output)}"
+        truncated_dict = dict(list(output.items())[:max_rows])
+        truncated_dict = {k:str(v)[:max_chars] for k,v  in truncated_dict.items()}
+        return f"Dict with {len(output)} keys. First {max_rows} items: {truncated_dict}... [truncated]"
     else:
         return truncate_text(str(output), max_chars)
+
 
 
 def plotly_fig_to_base64(fig):

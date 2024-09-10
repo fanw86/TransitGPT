@@ -64,6 +64,8 @@ GTFS2CODE is a specialized chatbot that helps transit enthusiasts retrieve trans
 - `prompts/`: LLM prompts and examples
 - `data/`: Sample questions and few-shot examples
 - `gtfs_data/`: GTFS feed files and mappings
+- `gtfs_agent/`: GTFS data loading and processing
+- `tests/`: Unit tests for various components
 
 ## Key Files
 
@@ -72,6 +74,7 @@ GTFS2CODE is a specialized chatbot that helps transit enthusiasts retrieve trans
 - `utils/eval_code.py`: Code execution and evaluation
 - `utils/feedback.py`: Feedback collection system
 - `prompts/generate_prompt.py`: Dynamic prompt generation
+- `gtfs_agent/gtfs_loader.py`: GTFS data loading and processing
 
 ## Disclaimer
 

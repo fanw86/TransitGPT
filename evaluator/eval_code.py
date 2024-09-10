@@ -12,6 +12,9 @@ from streamlit.runtime.scriptrunner import add_script_run_ctx
 from utils.constants import TIMEOUT_SECONDS
 from prompts.generate_prompt import generate_system_prompt
 
+# Ignore warnings as LLM tend to use old documentation
+import warnings
+warnings.filterwarnings("ignore")
 
 def load_zipped_pickle(filename):
     with gzip.open(filename, "rb") as f:

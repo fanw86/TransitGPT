@@ -47,9 +47,9 @@ def create_feedback_entry(
         elif isinstance(code_output, (pd.DataFrame, pd.Series)):
             feedback_entry.code_eval_result = code_output.to_string()
         else:
-            feedback_entry.code_eval_result = str(code_output)
+            feedback_entry.code_eval_result = str(code_output)[:5000]
     else:
-        feedback_entry.code_eval_result = str(error_message)
+        feedback_entry.code_eval_result = str(error_message)[:5000]
 
     collection_name = st.session_state["fb_agent"].collection_name
     st.session_state["fb_agent"].db.collection(collection_name).document(
