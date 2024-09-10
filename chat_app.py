@@ -1,9 +1,9 @@
 import streamlit as st
 
 ## Custom imports
-from utils.response_processor import process_user_input, process_cancellation
+from components.response_processor import process_user_input, process_cancellation
 from utils.constants import MAX_MESSAGES
-from utils.state import load_session_state
+from components.state import load_session_state
 from components.sidebar import (
     setup_sidebar,
     load_agent_evaluator,

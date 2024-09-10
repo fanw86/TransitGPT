@@ -12,9 +12,9 @@ from prompts.all_prompts import (
 from utils.constants import LOG_FILE
 from typing import List, Dict, Any, Tuple
 from utils.helper import summarize_large_output
-from utils.llm_client import OpenAIClient, GroqClient, AnthropicClient
+from gtfs_agent.llm_client import OpenAIClient, GroqClient, AnthropicClient
 from utils.data_models import ChatInteraction
-from utils.eval_code import GTFS_Eval
+from evaluator.eval_code import GTFS_Eval
 from prompts.generate_prompt import generate_dynamic_few_shot
 
 

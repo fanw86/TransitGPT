@@ -8,7 +8,7 @@ from prompts.all_prompts import (
     TASK_TIPS,
 )
 from prompts.gtfs_file_field_type import GTFS_FILE_FIELD_TYPE_MAPPING
-from utils.gtfs_loader import GTFSLoader
+from gtfs_agent.gtfs_loader import GTFSLoader
 from functools import lru_cache
 from utils.constants import FEW_SHOT_EXAMPLES_FILE
 from sklearn.feature_extraction.text import TfidfVectorizer

@@ -15,7 +15,7 @@ current_dir = Path(__file__).parent.resolve()
 parent_dir = current_dir.parent
 sys.path.append(str(parent_dir))
 from utils.constants import file_mapping
-from utils.gtfs_loader import GTFSLoader
+from gtfs_agent.gtfs_loader import GTFSLoader
 
 
 def pickle_gtfs_loaders(file_mapping, output_directory, mapping_file_path):

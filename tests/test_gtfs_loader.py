@@ -7,7 +7,7 @@ import datetime
 
 # Add the parent directory to the sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from utils.gtfs_loader import GTFSLoader
+from gtfs_agent.gtfs_loader import GTFSLoader
 
 @pytest.fixture
 def mock_gtfs_loader():

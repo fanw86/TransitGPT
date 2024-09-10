@@ -6,7 +6,7 @@ import gzip
 import threading  # Add this import
 
 ## For Evals
-from utils.eval_imports import import_namespace
+from evaluator.eval_imports import import_namespace
 
 # Custom Imports
 from utils.constants import TIMEOUT_SECONDS

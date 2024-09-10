@@ -6,7 +6,7 @@ from unittest import mock
 # Add the parent directory to the sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from utils.llm_client import OpenAIClient, GroqClient, AnthropicClient
+from gtfs_agent.llm_client import OpenAIClient, GroqClient, AnthropicClient
 
 # Note: These tests will require mocking the API calls
 

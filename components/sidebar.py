@@ -1,8 +1,8 @@
 import time
 import streamlit as st
-from utils.agent import LLMAgent
+from gtfs_agent.agent import LLMAgent
 from utils.constants import file_mapping, LLMs, disclaimer_text, copyright_text
-from utils.state import reset_session_state, load_session_state
+from components.state import reset_session_state, load_session_state
 
 
 @st.cache_resource(show_spinner=False)

@@ -5,7 +5,7 @@ import pytest
 # Add the parent directory to the sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from utils.eval_code import GTFS_Eval, load_zipped_pickle
+from evaluator.eval_code import GTFS_Eval, load_zipped_pickle
 
 def test_load_zipped_pickle(tmp_path):
     # Create a mock pickle file for testing
