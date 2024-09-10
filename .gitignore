@@ -16,3 +16,4 @@ kent_seminar/
 notebooks/
 TODO.md
 demo.py
+!images/*.png
