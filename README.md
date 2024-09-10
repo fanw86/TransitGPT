@@ -2,6 +2,19 @@
 
 GTFS2CODE is a specialized chatbot that helps transit enthusiasts retrieve transit information and analyze GTFS feeds via code.
 
+
+<p align="center">
+  <img src="images/Viz_cap.png" alt="GTFS2CODE Visualization Capabilities" style="max-width: 60%;">
+</p>
+
+## Architecture Overview
+
+<p align="center">
+  <img src="images/GTFS2CODE_arch_mod.png" alt="GTFS2CODE Architecture" style="max-width: 60%;">
+</p>
+
+This diagram illustrates the high-level architecture of the GTFS2CODE system, showing how different components interact.
+
 ## Features
 
 - Interactive chat interface for querying GTFS data
