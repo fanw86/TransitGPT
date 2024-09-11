@@ -17,7 +17,6 @@ example_1:
             'answer': trip_count,
             'additional_info': "This count includes all trips scheduled for fridays according to the calendar, excluding any exceptions in calendar_dates."
         }
-        # Note: No plot or map for this example
         ```
 
 example_2:
@@ -166,21 +165,14 @@ example_5:
         min_trips_date = trip_count_df['trip_count'].idxmin()
         min_trips_count = trip_count_df.loc[min_trips_date, 'trip_count']
 
-        # Create the plot
-        fig = px.line(trip_count_df.reset_index(), x='index', y='trip_count', 
-                      title=f'Trip Counts for Route {route_id}')
-
         result = {
             'answer': {
                 'date': min_trips_date,
                 'trip_count': min_trips_count
             },
             'additional_info': f"This analysis covered the period from {start_date} to {end_date}. The route analyzed was {route_id}.",
-            'plot': fig  # This is a plotly Figure object
         }
         ```
-
-        This code identifies the date with the fewest trips for the specified route, provides the trip count for that date, and creates a line plot showing how the number of trips varies over time. The additional information includes the date range of the analysis and the route ID that was analyzed.
 
 example_6:
     feed: CUMTD
