@@ -384,7 +384,7 @@ example_9:
         # Create an interactive map
         m = gdf.explore(
             column="stop_name",
-            tooltip=["stop_name", "stop_id"],
+            tooltip=["stop_name", "stop_id"], # Tooltip must be a column name
             popup=True,
             name="Mid-block Stops",
             style_kwds={"color": "red"},

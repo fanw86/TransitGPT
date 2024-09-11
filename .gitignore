@@ -17,3 +17,4 @@ notebooks/
 TODO.md
 demo.py
 !images/*.png
+benchmark/

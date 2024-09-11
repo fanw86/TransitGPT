@@ -11,6 +11,7 @@ import pandas as pd
 import plotly
 import plotly.express as px
 import shapely
+import streamlit as st
 from shapely.geometry import LineString, Point, Polygon
 from thefuzz import process, fuzz
 from stqdm import stqdm
@@ -51,5 +52,6 @@ import_namespace = {
     "find_nearby_stops": find_nearby_stops,
     "find_stops_by_address": find_stops_by_address,
     "find_route": find_route,
+    "st": st,
     "result": None,
 }

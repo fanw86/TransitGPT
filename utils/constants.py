@@ -16,6 +16,8 @@ FEW_SHOT_EXAMPLES_FILE = "data/few_shot.yaml"
 
 # Define the maximum number of messages to keep in the chat history
 MAX_MESSAGES = 16
+MAIN_LLM_TEMPERATURE = 0.5
+FINAL_LLM_TEMPERATURE = 0.7
 
 FILE_MAPPING_LOC = "gtfs_data/file_mapping.json"
 file_mapping = json.loads(open(FILE_MAPPING_LOC).read())

@@ -5,8 +5,7 @@ from groq import Groq, GroqError
 from anthropic import Anthropic, AnthropicError
 import streamlit as st
 from abc import ABC, abstractmethod
-
-
+from utils.constants import MAIN_LLM_TEMPERATURE, FINAL_LLM_TEMPERATURE
 class LLMClient(ABC):
     @abstractmethod
     def call(self, model, messages, system_prompt=None) -> Tuple[str, bool]:
@@ -23,7 +22,9 @@ class OpenAIClient(LLMClient):
             response = self.client.chat.completions.create(
                 model=model,
                 messages=messages,
+                temperature=MAIN_LLM_TEMPERATURE,
             )
+            self.logger.info(f"Raw Response from OpenAI: {response}")
             return response.choices[0].message.content, True
         except OpenAIError as e:
             self.logger.error(f"OpenAI API call failed: {str(e)}")
@@ -34,6 +35,7 @@ class OpenAIClient(LLMClient):
             stream = self.client.chat.completions.create(
                 model=model,
                 messages=messages,
+                temperature=FINAL_LLM_TEMPERATURE,
                 stream=True,
             )
             for chunk in stream:
@@ -54,7 +56,9 @@ class GroqClient(LLMClient):
             response = self.client.chat.completions.create(
                 model=model,
                 messages=messages,
+                temperature=MAIN_LLM_TEMPERATURE,
             )
+            self.logger.info(f"Raw Response from Groq: {response}")
             return response.choices[0].message.content, True
         except GroqError as e:
             self.logger.error(f"Groq API call failed: {str(e)}")
@@ -80,7 +84,9 @@ class AnthropicClient(LLMClient):
                 system=cache_system_prompt,
                 messages=messages,
                 max_tokens=4096,
+                temperature=MAIN_LLM_TEMPERATURE,
             )
+            self.logger.info(f"Raw Response from Anthropic: {response}")
             return response.content[0].text, True
         except AnthropicError as e:
             self.logger.error(f"Anthropic API call failed: {str(e)}")
