@@ -428,9 +428,18 @@ example_10:
         # Create a color palette for routes
         color_palette = px.colors.qualitative.Plotly
 
+        # Create a feature group for the legend
+        feature_group = folium.FeatureGroup(name="Post-midnight Routes")
+        m.add_child(feature_group)
+
         # Plot each shape
         for i, shape_id in enumerate(shapes_to_plot):
             shape_points = feed.shapes[feed.shapes['shape_id'] == shape_id].sort_values('shape_pt_sequence')
+            
+            # Get route information
+            trip_id = feed.trips[feed.trips['shape_id'] == shape_id]['trip_id'].iloc[0]
+            route_id = feed.trips[feed.trips['trip_id'] == trip_id]['route_id'].iloc[0]
+            route_name = feed.routes[feed.routes['route_id'] == route_id]['route_long_name'].iloc[0]
 
             # Create a LineString from the shape points
             line = LineString(zip(shape_points['shape_pt_lon'], shape_points['shape_pt_lat']))
@@ -440,13 +449,22 @@ example_10:
 
             # Add to map
             color = color_palette[i % len(color_palette)]
-            gdf.explore(m=m, color=color, width=3)
+            
+            folium.GeoJson(
+                gdf,
+                style_function=lambda x, color=color: {'color': color, 'weight': 3},
+                tooltip=f"Route: {route_name}"
+            ).add_to(feature_group)
+
+        # Add layer control to toggle the legend
+        folium.LayerControl().add_to(m)
 
         # Store the result
         result = {
             "answer": f"Found {len(post_midnight_routes)} routes that operate post midnight.",
             "additional_info": f"These routes have trips that depart after 24:00:00 (86400 seconds since midnight). "
-                            f"The map shows the shapes of these routes, each in a different color.",
+                            f"The map shows the shapes of these routes, each in a different color. "
+                            f"Hover over a route to see its name, and use the layer control to toggle visibility.",
             "map": m
-                }
+        }
         ```
