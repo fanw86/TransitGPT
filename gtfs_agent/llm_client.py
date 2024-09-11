@@ -6,16 +6,24 @@ from anthropic import Anthropic, AnthropicError
 import streamlit as st
 from abc import ABC, abstractmethod
 from utils.constants import MAIN_LLM_TEMPERATURE, FINAL_LLM_TEMPERATURE
+
 class LLMClient(ABC):
     @abstractmethod
     def call(self, model, messages, system_prompt=None) -> Tuple[str, bool]:
+        pass
+
+    @abstractmethod
+    def set_logger(self, logger):
         pass
 
 
 class OpenAIClient(LLMClient):
     def __init__(self):
         self.client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-        self.logger = logging.getLogger(__name__)
+        self.logger = None
+
+    def set_logger(self, logger):
+        self.logger = logger
 
     def call(self, model, messages, system_prompt=None) -> Tuple[str, bool]:
         try:
@@ -49,7 +57,10 @@ class OpenAIClient(LLMClient):
 class GroqClient(LLMClient):
     def __init__(self):
         self.client = Groq(api_key=st.secrets["GROQ_API_KEY"])
-        self.logger = logging.getLogger(__name__)
+        self.logger = None
+
+    def set_logger(self, logger):
+        self.logger = logger
 
     def call(self, model, messages, system_prompt=None) -> Tuple[str, bool]:
         try:
@@ -68,7 +79,10 @@ class GroqClient(LLMClient):
 class AnthropicClient(LLMClient):
     def __init__(self):
         self.client = Anthropic(api_key=st.secrets["ANTHROPIC_API_KEY"])
-        self.logger = logging.getLogger(__name__)
+        self.logger = None
+
+    def set_logger(self, logger):
+        self.logger = logger
 
     def call(self, model, messages, system_prompt) -> Tuple[str, bool]:
         cache_system_prompt = [

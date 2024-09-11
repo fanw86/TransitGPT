@@ -49,6 +49,11 @@ class LLMAgent:
             "llama": GroqClient(),
             "claude": AnthropicClient(),
         }
+        
+        # Set the logger for each client
+        for client in self.clients.values():
+            client.set_logger(self.logger)
+
         self.result = None
         self.last_response = None
         self.chat_history = []

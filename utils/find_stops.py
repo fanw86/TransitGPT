@@ -259,3 +259,45 @@ def find_route(feed, search_term, threshold=80):
         return route_row
     else:
         return None  # No match found above the threshold
+
+
+## TODO: Attempt to combine all the search functions for stop matching into one function
+def find_stops(feed, query: str, address: str = None, street1_root: str = None, street2_root: str = None, threshold: int = 80, radius_meters: float = 200, max_stops: int = 5) -> pd.DataFrame:
+    """
+    Find stops based on various search criteria.
+
+    This function combines the functionality of finding stops by full name,
+    street name, intersection, and address proximity.
+
+    Args:
+        feed: An object containing stop information.
+        query (str): The main search query. Can be a stop name, street name, or intersection.
+        address (str, optional): The full address for proximity-based searches.
+        street1_root (str, optional): The first street name for intersection searches.
+        street2_root (str, optional): The second street name for intersection searches.
+        threshold (int, optional): The fuzzy matching threshold. Defaults to 80.
+        radius_meters (float, optional): The search radius for address-based searches. Defaults to 200 meters.
+        max_stops (int, optional): The maximum number of stops to return. Defaults to 5.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the matched stops.
+    """
+    results = pd.DataFrame()
+
+    # Intersection search
+    if street1_root and street2_root:
+        results = find_stops_by_intersection(feed, street1_root, street2_root, threshold)
+    
+    if street1_root and not street2_root:
+        results = find_stops_by_street(feed, street1_root, threshold)
+    
+    # Full name or street name search
+    if results.empty:
+        results = find_stops_by_full_name(feed, query, threshold)
+    
+    # Address proximity search
+    if results.empty and address:
+        city = address.split(',')[-2].strip() if len(address.split(',')) > 2 else None
+        results = find_stops_by_address(feed, query, city, radius_meters, max_stops)
+    
+    return results

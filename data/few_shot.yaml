@@ -26,8 +26,8 @@ example_2:
     answer: |
         ```python
         # Filter stop_times for route_id '25490'
-        route_25490_trips = feed.trips[feed.trips['route_id'] == 'GREEN']['trip_id']
-        route_25490_stop_times = feed.stop_times[feed.stop_times['trip_id'].isin(route_green_trips)]
+        route_25490_trips = feed.trips[feed.trips['route_id'] == '25490']['trip_id']
+        route_25490_stop_times = feed.stop_times[feed.stop_times['trip_id'].isin(route_25490_trips)]
         # Merge with feed.trips to get direction_id
         route_25490_stop_times = route_25490_stop_times.merge(feed.trips, on='trip_id')
 
@@ -210,7 +210,7 @@ example_6:
             time = int(time)
             return f"{time // 3600:02d}:{(time % 3600) // 60:02d}:{time % 60:02d}"
 
-        def find_stops(feed, query, city, num_stops=5, radius_meters=200):
+        def get_stops(feed, query, city, num_stops=5, radius_meters=200):
             matched_stops = find_stops_by_full_name(feed, query)
 
             # If still no matches and city is provided, use geolocation (assuming get_geo_location function exists)
@@ -285,8 +285,8 @@ example_6:
         start_query, end_query = "Orchard Downs", "Newmark Civil Engineering Laboratory"
         city = "Champaign, IL, USA"
 
-        start_stops = find_stops(feed, start_query, city)
-        end_stops = find_stops(feed, end_query, city)
+        start_stops = get_stops(feed, start_query, city)
+        end_stops = get_stops(feed, end_query, city)
 
         if start_stops.empty or end_stops.empty:
             result = {
@@ -333,7 +333,7 @@ example_8:
     question: Find the stop at University St and Victor Ave
     answer: |
         ```python
-        def find_stops(feed, query: str, street1_root: str, street2_root: str, city, num_stops=5, radius_meters=200):
+        def get_stops(feed, query: str, street1_root: str, street2_root: str, city, num_stops=5, radius_meters=200):
             matched_stops = find_stops_by_intersection(feed, street1_root, street2_root)
 
             # If still no matches and city is provided, use geolocation (assuming get_geo_location function exists)
@@ -342,7 +342,7 @@ example_8:
 
             return matched_stops
 
-        matched_stops = find_stops(feed, "University St and Victor Ave", street1_root="University", street2_root="Victor", city= "Champaign, IL, USA")
+        matched_stops = get_stops(feed, "University St and Victor Ave", street1_root="University", street2_root="Victor", city= "Champaign, IL, USA")
         if not matched_stops.empty:
             result = {
                 'answer': f"Found {len(matched_stops)} potential stop(s) near University and Victor",
@@ -467,4 +467,200 @@ example_10:
                             f"Hover over a route to see its name, and use the layer control to toggle visibility.",
             "map": m
         }
+        ```
+
+example_11:
+    feed: CUMTD
+    question: How far does the Orange route travel from University and Victor to University and Fourth in the eastbound direction?
+    answer: |
+        ```python
+        # Find the Orange route
+        orange_route = find_route(feed, "Orange")
+        if orange_route is None:
+            result = {
+                'answer': "Could not find the Orange route",
+                'additional_info': "Please check if the route name is correct."
+            }
+        else:
+            route_id = orange_route['route_id']
+
+            # Find the stops
+            start_stops = find_stops_by_intersection(feed, "University", "Victor")
+            end_stops = find_stops_by_intersection(feed, "University", "Fourth")
+
+            if start_stops.empty or end_stops.empty:
+                result = {
+                    'answer': "Could not find one or both of the specified stops",
+                    'additional_info': "Please check if the stop names are correct."
+                }
+            else:
+                # Get all trips for the Orange route
+                orange_trips = feed.trips[feed.trips['route_id'] == route_id]
+
+                # Filter for eastbound trips (assuming direction_id 0 is eastbound)
+                eastbound_trips = orange_trips[orange_trips['direction_id'] == 0]
+
+                if eastbound_trips.empty:
+                    result = {
+                        'answer': "Could not find eastbound trips for the Orange route",
+                        'additional_info': "Please check if the route has eastbound service."
+                    }
+                else:
+                    # Get stop times for eastbound trips
+                    stop_times = feed.stop_times[feed.stop_times['trip_id'].isin(eastbound_trips['trip_id'])]
+
+                    # Function to find the correct stop for a given trip
+                    def find_correct_stop(stops, stop_times, trip_id):
+                        trip_stop_ids = stop_times[stop_times['trip_id'] == trip_id]['stop_id']
+                        matching_stops = stops[stops['stop_id'].isin(trip_stop_ids)]
+                        return matching_stops.iloc[0] if not matching_stops.empty else None
+
+                    # Find the first trip that includes both a start and end stop
+                    valid_trip = None
+                    start_stop = None
+                    end_stop = None
+
+                    for trip_id in eastbound_trips['trip_id']:
+                        potential_start = find_correct_stop(start_stops, stop_times, trip_id)
+                        potential_end = find_correct_stop(end_stops, stop_times, trip_id)
+                        if potential_start is not None and potential_end is not None:
+                            valid_trip = trip_id
+                            start_stop = potential_start
+                            end_stop = potential_end
+                            break
+
+                    if valid_trip is None:
+                        result = {
+                            'answer': "Could not find a trip that includes both stops",
+                            'additional_info': "The specified stops might not be on the same trip of the Orange route."
+                        }
+                    else:
+                        trip_stops = stop_times[stop_times['trip_id'] == valid_trip].sort_values('stop_sequence')
+
+                        start_index = trip_stops[trip_stops['stop_id'] == start_stop['stop_id']].index[0]
+                        end_index = trip_stops[trip_stops['stop_id'] == end_stop['stop_id']].index[0]
+
+                        if start_index > end_index:
+                            result = {
+                                'answer': "The specified direction (eastbound) does not match the stop order",
+                                'additional_info': "Please check if you meant westbound instead."
+                            }
+                        else:
+                            # Calculate the distance
+                            if 'shape_dist_traveled' in trip_stops.columns:
+                                start_dist = trip_stops.loc[start_index, 'shape_dist_traveled']
+                                end_dist = trip_stops.loc[end_index, 'shape_dist_traveled']
+                                distance = end_dist - start_dist
+                            else:
+                                # If shape_dist_traveled is not available, use geodesic distance
+                                distance = 0
+                                for i in range(start_index, end_index):
+                                    stop1 = feed.stops[feed.stops['stop_id'] == trip_stops.iloc[i]['stop_id']].iloc[0]
+                                    stop2 = feed.stops[feed.stops['stop_id'] == trip_stops.iloc[i+1]['stop_id']].iloc[0]
+                                    distance += geodesic((stop1['stop_lat'], stop1['stop_lon']), 
+                                                        (stop2['stop_lat'], stop2['stop_lon'])).meters
+
+                            result = {
+                                'answer': f"The Orange route travels approximately {distance:.2f} meters from University and Victor to University and Fourth in the eastbound direction.",
+                                'additional_info': f"Start stop: {start_stop['stop_name']} (ID: {start_stop['stop_id']})\n"
+                                                f"End stop: {end_stop['stop_name']} (ID: {end_stop['stop_id']})\n"
+                                                f"Route: {orange_route['route_long_name']} (ID: {route_id})\n"
+                                                f"Trip ID used for calculation: {valid_trip}"
+                            }
+
+        # The result dictionary now contains the answer and additional information
+        ```
+
+example_12:
+    feed: CUMTD
+    question: Find directions from University and Victor to Illinois Terminal
+    answer: |
+        ```python
+        # Function to check if a trip is circular
+        def is_circular_trip(stop_times):
+            first_stop = stop_times.iloc[0]['stop_id']
+            last_stop = stop_times.iloc[-1]['stop_id']
+            return first_stop == last_stop
+
+        # Get all unique route_ids
+        all_routes = feed.routes['route_id'].unique()
+
+        circular_routes = []
+
+        # Progress bar
+        total_routes = len(all_routes)
+        my_bar = st.progress(0, text="Analyzing routes. Please wait.")
+
+        for i, route_id in enumerate(all_routes):
+            # Update progress bar
+            percent_complete = int((i + 1) / total_routes * 100)
+            progress_text = f"Analyzing Routes: {percent_complete}% complete. Current Route: {route_id}"
+            my_bar.progress(percent_complete, text=progress_text)
+
+            # Get all trips for this route
+            route_trips = feed.trips[feed.trips['route_id'] == route_id]['trip_id']
+
+            # Check if any trip of this route is circular
+            for trip_id in route_trips:
+                trip_stops = feed.stop_times[feed.stop_times['trip_id'] == trip_id].sort_values('stop_sequence')
+                if is_circular_trip(trip_stops):
+                    circular_routes.append(route_id)
+                    break  # If we found a circular trip, no need to check other trips of this route
+
+        # Remove duplicates
+        circular_routes = list(set(circular_routes))
+
+        # Get route details
+        circular_route_details = feed.routes[feed.routes['route_id'].isin(circular_routes)]
+
+        # Create a map
+        center_lat = feed.stops['stop_lat'].mean()
+        center_lon = feed.stops['stop_lon'].mean()
+        m = folium.Map(location=[center_lat, center_lon], zoom_start=11, tiles='CartoDB positron')
+
+        # Create a color palette for routes
+        color_palette = px.colors.qualitative.Plotly
+
+        # Create a feature group for the legend
+        feature_group = folium.FeatureGroup(name="Circular Routes")
+        m.add_child(feature_group)
+
+        # Plot each circular route
+        for i, route_id in enumerate(circular_routes):
+            # Get all shape_ids for this route
+            route_shape_ids = feed.trips[feed.trips['route_id'] == route_id]['shape_id'].unique()
+
+            for shape_id in route_shape_ids:
+                shape_points = feed.shapes[feed.shapes['shape_id'] == shape_id].sort_values('shape_pt_sequence')
+
+                # Get route information
+                route_name = feed.routes[feed.routes['route_id'] == route_id]['route_long_name'].iloc[0]
+
+                # Create a line from the shape points
+                line = list(zip(shape_points['shape_pt_lat'], shape_points['shape_pt_lon']))
+
+                # Add to map
+                color = color_palette[i % len(color_palette)]
+
+                folium.PolyLine(
+                    locations=line,
+                    color=color,
+                    weight=3,
+                    opacity=0.8,
+                    tooltip=f"Route: {route_name}"
+                ).add_to(feature_group)
+
+        # Add layer control to toggle the legend
+        folium.LayerControl().add_to(m)
+
+        # Prepare the result
+        result = {
+            "answer": f"Found {len(circular_routes)} circular routes.",
+            "additional_info": "Circular routes are those where the first and last stop are the same for at least one trip. "
+                            "The following routes are circular:\n\n" + 
+                            circular_route_details[['route_id', 'route_short_name', 'route_long_name']].to_string(index=False),
+            "map": m
+        }
+
+        # The result dictionary now contains the answer, additional information, and the map
         ```
