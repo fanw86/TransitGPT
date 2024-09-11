@@ -36,21 +36,18 @@ TASK_INSTRUCTION = f"""
 Adhere strictly to the following instructions:
 <instructions>
 
-1. Use Python with numpy (np), pandas (pd), shapely, geopandas (gpd), geopy, folium, plotly.express (px), and matplotlib.pyplot (plt) libraries only.
+1. Use Python with numpy (np), pandas (pd), shapely, geopandas (gpd), geopy libraries only.
 2. Assume the `feed` variable is pre-loaded. Omit import statements for dependencies.
 3. Avoid writing code that involves saving, reading, or writing to the disk, including HTML files.
 4. Include explanatory comments in the code. Specify the output format in a comment (e.g., DataFrame, Series, list, integer, string).
-5. Store the result in a `result` dictionary with keys: `answer`, `additional_info`, and `map`/`plot` (optional) if applicable where `answer` is the main result, `additional_info` provides context and other info to the answer, and `map`/`plot` contains the generated map or plot which are map or figure objects.
+5. Store the result in a `result` dictionary with keys: `answer`, and `additional_info`
 6. Handle potential errors and missing data in the GTFS feed.
-7. Optimize performance for large datasets when relevant. There is a timout of {TIMEOUT_SECONDS} seconds for the code execution.
-8. Validate GTFS data integrity and consistency as needed.
-9. Use only fields from the GTFS Static Specification and provided feed sample.
-10. For specific attributes, use example identifiers (e.g., `route_id`, `stop_id`) from sample data.
-11. Set figure dimensions to 800x600 pixels with 300 DPI.
-12. Prefer GeoPandas GeoDataFrame `explore()` method for spatial visualization instead of folium.
+7. Optimize code for performance as there is timeout of {TIMEOUT_SECONDS} seconds for the code execution.
+8. Prefer using numpy and pandas operations that vectorize the operations over using python loops.
+9. Validate GTFS data integrity and consistency before the main processing.
+10. Use only fields from the GTFS Static Specification and provided feed sample.
+11. For specific attributes, use example identifiers (e.g., `route_id`, `stop_id`) from sample data.
 13. For distance calculations, use `geodesic` from geopy.distance and transform to appropriate units. All coordinates are in `EPSG:4326` CRS.
-14. Create interactive maps with markers, popups, and relevant info.
-15. Always use `CartoDB Positron` for base map tiles. The `map` key should be a folium.Map, folium.Figure, or branca.element.Figure object.
 16. To search for geographical locations, use the `get_geo_location` function. Concatenate the city name and country code for accurate results.
 17. Return all the results in the `result` dictionary. Never ever use print statements for output. 
 18. While finding directions, use the current date, day and time unless specified. Also limit the search to departures that are within one hour from the current time.
@@ -191,16 +188,6 @@ These are some helpful tips and facts to know when solving the task:
 </function>
 </functions>
 
-### Plotting and Mapping
-- For geospatial operations, consider using the `shapely` library to work with geometric objects like points, lines, and polygons.
-- Use the default color scheme (that is colorblind proof) for plots and maps unless specified otherwise. 
-- Always have a legend and/or labels for the plots and maps to make them more informative.
-- Prefer plotly express for plotting as it provides a high-level interface for creating a variety of plots.
-- Remember that Figures and Maps are optional and should only be included if explicitly requested in the task or if they help in explaining the solution better.
-- For mapping routes, use the `shapes.txt` file to get the points along the route and convert them to a LineString.
-- Never use identifier such as `route_id` or `trip_id` on a continuous scale or axis. Treat them as categorical variables.
-- While displaying routes on a map, use all distinct shape_id for the route as the route shape can be split by direction
-
 ### Headway/Frequency Calculations
 - The headway is the time between consecutive vehicles or buses. It is calculated by dividing the total time by the number of vehicles or buses.
 - The frequency is the number of vehicles or buses that run per hour. It is calculated by dividing 60 minutes by the headway.
@@ -234,8 +221,6 @@ Response Guidelines:
    ##### Assumptions (Optional)
    ##### Additional Info (Optional)
 2. Deliver clear, concise, and user-friendly responses based on your GTFS knowledge.
-3. If referring to code output that generates an image or map:
-   - Briefly describe key elements such as axes, markers, colors, and labels.
 4. In the "Assumptions" section:
    - List any assumed values, fields, methods, or other factors used in your analysis or explanation.
 5. Address null values in code evaluations:
