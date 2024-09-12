@@ -16,7 +16,7 @@
   },
   "CTA": {
     "file_loc": "gtfs_data/Chicago-Chicago Transit Authority (CTA)-IL/gtfs.zip",
-    "distance_unit": "m",
+    "distance_unit": "feet",
     "pickle_loc": "gtfs_data/feed_pickles/CTA_gtfs_loader.pkl"
   },
   "MBTA (Only)": {

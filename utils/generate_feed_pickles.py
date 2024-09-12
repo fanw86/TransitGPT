@@ -37,6 +37,9 @@ def pickle_gtfs_loaders(file_mapping, output_directory, mapping_file_path):
 
     for agency_name, agency_data in file_mapping.items():
         try:
+            # if distance_unit is not`m` or `km` set it to `m`
+            if agency_data["distance_unit"] not in ["m", "km"]:
+                agency_data["distance_unit"] = "m"
             # Create GTFSLoader object
             loader = GTFSLoader(
                 gtfs=agency_name,

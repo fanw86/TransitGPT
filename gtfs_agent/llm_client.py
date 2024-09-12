@@ -74,12 +74,13 @@ class AnthropicClient(LLMClient):
                 "cache_control": {"type": "ephemeral"},
             }
         ]
+        max_tokens = 8192 if "sonnet" in model else 4096
         try:
             response = self.client.beta.prompt_caching.messages.create(
                 model=model,
                 system=cache_system_prompt,
                 messages=messages,
-                max_tokens=4096,
+                max_tokens=max_tokens,
             )
             return response.content[0].text, True
         except AnthropicError as e:

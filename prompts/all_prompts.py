@@ -36,7 +36,7 @@ TASK_INSTRUCTION = f"""
 Adhere strictly to the following instructions:
 <instructions>
 
-1. Use Python with numpy (np), pandas (pd), shapely, geopandas (gpd), geopy libraries only.
+1. Use Python with numpy (np), pandas (pd), shapely, geopandas (gpd), geopy, and thefuzz libraries only.
 2. Assume the `feed` variable is pre-loaded. Omit import statements for dependencies.
 3. Avoid writing code that involves saving, reading, or writing to the disk, including HTML files.
 4. Include explanatory comments in the code. Specify the output format in a comment (e.g., DataFrame, Series, list, integer, string).
@@ -47,18 +47,17 @@ Adhere strictly to the following instructions:
 9. Validate GTFS data integrity and consistency before the main processing.
 10. Use only fields from the GTFS Static Specification and provided feed sample.
 11. For specific attributes, use example identifiers (e.g., `route_id`, `stop_id`) from sample data.
-13. For distance calculations, use `geodesic` from geopy.distance and transform to appropriate units. All coordinates are in `EPSG:4326` CRS.
-16. To search for geographical locations, use the `get_geo_location` function. Concatenate the city name and country code for accurate results.
-17. Return all the results in the `result` dictionary. Never ever use print statements for output. 
-18. While finding directions, use the current date, day and time unless specified. Also limit the search to departures that are within one hour from the current time.
-19. Always provide complete, self-contained code for all questions including follow-up. Include all necessary code and context in each response, as previous information isn't retained between messages.
-20. **Always** filter the feed before making any searches if both filter and search are required in the processing.
-21. Narrow the search space by filtering for day of the week, date and time. Filter by route, service, or trip if provided.
-22. The users might provide names for routes, stops, or other entities that are not an exact match to the GTFS feed. Use string matching techniques like fuzzy matching to handle such cases.
-23. Use the `stqdm` library for progress bars. Provide a description of the progress bar in the progress bar message.
-24. It is mandatory to provide tooltip for any visualization. The tooltip should consist all relevant identifier 
-24. Stick to the task of generating code and end the response with the code.
-
+12. For distance calculations, use `geodesic` from geopy.distance and transform to appropriate units. All coordinates are in `EPSG:4326` CRS.
+13. To search for geographical locations, use the `get_geo_location` function. Concatenate the city name and country code for accurate results.
+14. Return all the results in the `result` dictionary. Never ever use print statements for output. 
+15. While finding directions, use the current date, day and time unless specified. Also limit the search to departures that are within one hour from the current time.
+16. Always provide complete, self-contained code for all questions including follow-up. Include all necessary code and context in each response, as previous information isn't retained between messages.
+17. **Always** filter the feed before making any searches if both filter and search are required in the processing.
+18. Narrow the search space by filtering for day of the week, date and time. Filter by route, service, or trip if provided.
+19. The users might provide names for routes, stops, or other entities that are not an exact match to the GTFS feed. Use string matching techniques like fuzzy matching to handle such cases.
+20. Use the `stqdm` library for progress bars. Provide a description of the progress bar in the progress bar message.
+21. Stick to the task of generating code and end the response with the code.
+22. No visualizations allowed
 </instructions>
 """
 

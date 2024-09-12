@@ -1,4 +1,5 @@
 import json
+import streamlit as st
 
 # Set timeout to 5 minutes
 TIMEOUT_SECONDS = 5 * 60 
@@ -20,13 +21,17 @@ MAX_MESSAGES = 16
 FILE_MAPPING_LOC = "gtfs_data/file_mapping.json"
 file_mapping = json.loads(open(FILE_MAPPING_LOC).read())
 
-LLMs = [
-    "claude-3-5-sonnet-20240620",
-    "gpt-4o",
-    "gpt-4o-mini",
-    "llama-3.1-8b-instant",
-    # "gpt-3.5-turbo",
-]
+# Populate LLMs based on available API keys
+LLMs = []
+
+if "ANTHROPIC_API_KEY" in st.secrets:
+    LLMs.extend(["claude-3-5-sonnet-20240620", "claude-3-haiku-20240307"])
+
+if "OPENAI_API_KEY" in st.secrets:
+    LLMs.extend(["gpt-4o-2024-08-06", "gpt-4o-mini"])
+
+if "GROQ_API_KEY" in st.secrets:
+    LLMs.append("llama-3.1-8b-instant")
 
 disclaimer_text = """
 This chatbot is an AI-powered tool designed to assist with GTFS data analysis and code generation. Please be aware of the following:
