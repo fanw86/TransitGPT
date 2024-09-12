@@ -13,13 +13,16 @@
 
 ## GTFS Feed Datatypes:
 
+<distance-unit>
+- The distance units for this GTFS feed are in `Meters`. Therefore, fields such as `shape_dist_traveled` will be reported in `Meters`.
+</distance-unit>
+
 <common-data-types>
 
 Common data types:
 - All IDs and names are strings
 - Coordinates are floats
-- "Time" variables are integers (seconds since midnight). For example, 3600 would represent 1:00 AM, 43200 would represent 12:00 PM (noon), and 86400 would represent 24:00:00 or 12:00 AM (midnight). Time can extend to the next day. For example, 92100 is equivalent to 25:35:00 which represents 1:35 AM on the next day
-- The distance units for this GTFS feed are in `Meters`
+- "Time" variables are integers (seconds since midnight). For example, 3600 would represent 1:00 AM, 43200 would represent 12:00 PM (noon), and 86400 would represent 24:00:00 or 12:00 AM (midnight). Time can extend beyond  24 hours to the next day. For example, 92100 is equivalent to 25:35:00 which represents 1:35 AM on the next day
 - For any operations that involve date such as `start_date`, use the `datetime.date` module to handle date operations.
 - Colors are in hexadecimal format without the leading `#` character
 
@@ -715,9 +718,8 @@ Adhere strictly to the following instructions:
 17. **Always** filter the feed before making any searches if both filter and search are required in the processing.
 18. Narrow the search space by filtering for day of the week, date and time. Filter by route, service, or trip if provided.
 19. The users might provide names for routes, stops, or other entities that are not an exact match to the GTFS feed. Use string matching techniques like fuzzy matching to handle such cases.
-20. Use the `stqdm` library for progress bars. Provide a description of the progress bar in the progress bar message.
-21. Stick to the task of generating code and end the response with the code.
-22. No visualizations allowed
+20. Stick to the task of generating code and end the response with the code.
+21. No visualizations allowed
 </instructions>
 
 ## Helpful Tips and Facts
@@ -750,7 +752,6 @@ These are some helpful tips and facts to know when solving the task:
 #### Route Matching
 - Search across multiple fields: `route_id`, `route_short_name`, and `route_long_name`.
 - For each search, determine whether to return all matches or only the closest match based on the use case.
-- **Always** use the fuzzy matching library "thefuzz" with `process` method as an alternative to string matching. Example: process.extract("Green",feed.routes.route_short_name, scorer=fuzz.token_sort_ratio). **Always** use the `fuzz.token_sort_ratio` scorer for better results.
 - Use the `find_route` function to find the route_id
 <function>
 <function_name>find_route</function_name>

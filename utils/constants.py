@@ -14,11 +14,14 @@ LOG_FILE = "logs/llm_agent.log"
 # Few shot examples
 FEW_SHOT_EXAMPLES_FILE = "data/few_shot.yaml"
 
-
+## LLM HYPERPARAMETERS
 # Define the maximum number of messages to keep in the chat history
 MAX_MESSAGES = 16
-MAIN_LLM_TEMPERATURE = 0.5
+MAIN_LLM_TEMPERATURE = 0.3
 FINAL_LLM_TEMPERATURE = 0.7
+
+TOP_P = 0.9
+REPETITION_PENALTY = 1.1
 
 FILE_MAPPING_LOC = "gtfs_data/file_mapping.json"
 file_mapping = json.loads(open(FILE_MAPPING_LOC).read())
