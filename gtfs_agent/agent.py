@@ -16,7 +16,8 @@ from gtfs_agent.llm_client import OpenAIClient, GroqClient, AnthropicClient
 from utils.data_models import ChatInteraction
 from evaluator.eval_code import GTFS_Eval
 from prompts.generate_prompt import generate_dynamic_few_shot
-
+from folium import Map, Figure
+from streamlit_folium import folium_static
 
 class LLMAgent:
     def __init__(
@@ -48,6 +49,11 @@ class LLMAgent:
             "llama": GroqClient(),
             "claude": AnthropicClient(),
         }
+        
+        # Set the logger for each client
+        for client in self.clients.values():
+            client.set_logger(self.logger)
+
         self.result = None
         self.last_response = None
         self.chat_history = []
@@ -145,7 +151,7 @@ class LLMAgent:
             self.last_response = response
             # Within chat history only store the user query (without the examples) and the response
             self.update_chat_history(query, response)
-            self.log_llm_interaction(messages, response)
+            # self.log_llm_interaction(messages, response)
 
         return response, call_success
 
@@ -169,8 +175,18 @@ class LLMAgent:
 
         for retry in range(self.max_retry):
             result, success, error, only_text = self.execute(llm_response)
-            # print({"result": result, "success": success, "error": error, "only_text": only_text})
-            if success or only_text or ("TimeoutError" in error):
+            
+            # Check if result contains a map and if it's renderable
+            map_success = True
+            if isinstance(result, dict) and 'map' in result:
+                try:
+                    with st.spinner("Checking map renderability..."):
+                        folium_static(result['map'])
+                except Exception as e:
+                    map_success = False
+                    error = f"Error rendering Folium map: {str(e)}"
+
+            if (success and map_success) or only_text or ("TimeoutError" in error):
                 return result, success, error, only_text, llm_response
 
             if retry < self.max_retry - 1:  # Don't increment on the last iteration
