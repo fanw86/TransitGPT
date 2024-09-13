@@ -16,7 +16,6 @@ from gtfs_agent.llm_client import OpenAIClient, GroqClient, AnthropicClient
 from utils.data_models import ChatInteraction
 from evaluator.eval_code import GTFS_Eval
 from prompts.generate_prompt import generate_dynamic_few_shot
-from folium import Map, Figure
 from streamlit_folium import folium_static
 
 class LLMAgent:
@@ -248,13 +247,13 @@ class LLMAgent:
         summarized_evaluation = summarize_large_output(
             last_interaction.evaluation_result, self.max_rows, self.max_chars
         )
-        executable_pattern = r"```python\n(.*?)```"
-        code_response = re.findall(
-            executable_pattern, last_interaction.assistant_response, re.DOTALL
-        )
+        # executable_pattern = r"```python\n(.*?)```"
+        # code_response = re.findall(
+        #     executable_pattern, last_interaction.assistant_response, re.DOTALL
+        # )
         user_prompt = FINAL_LLM_USER_PROMPT.format(
             question=last_interaction.user_prompt,
-            response=code_response,
+            response=last_interaction.assistant_response, # ATTENTION: Passing whole response instead of code response
             evaluation=summarized_evaluation,
             success=last_interaction.code_success,
             error=last_interaction.error_message,

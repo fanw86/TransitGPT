@@ -12,3 +12,7 @@ maxMessageSize = 512
 [logger]
 level = "info"
 messageFormat = "%(asctime)s %(message)s"
+
+[global]
+showWarningOnDirectExecution = false
+dataFrameSerialization = "legacy"

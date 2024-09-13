@@ -183,14 +183,19 @@ example_6:
             time = int(time)
             return f"{time // 3600:02d}:{(time % 3600) // 60:02d}:{time % 60:02d}"
 
-        def find_stops(feed, query, city, num_stops=5, radius_meters=200):
+        def find_stops(feed, query: str, city: str, num_stops: int = 5, radius_meters: int = 200):
             matched_stops = find_stops_by_full_name(feed, query)
-
+            address = f"{query}, {city}"
             # If still no matches and city is provided, use geolocation (assuming get_geo_location function exists)
             if matched_stops.empty and city:
-                matched_stops = find_stops_by_address(feed, query, city, radius_meters, num_stops)
+                matched_stop, matched_address = find_stops_by_address(
+                    feed=feed,
+                    address = address
+                    radius_meters=radius_meters,
+                    max_stops=num_stops
+                )
                 
-            return matched_stops
+            return matched_stops, matched_address
 
 
         def find_route_directions(feed, start_stops, end_stops):
@@ -258,8 +263,8 @@ example_6:
         start_query, end_query = "Orchard Downs", "Newmark Civil Engineering Laboratory"
         city = "Champaign, IL, USA"
 
-        start_stops = find_stops(feed, start_query, city)
-        end_stops = find_stops(feed, end_query, city)
+        start_stops, start_address = find_stops(feed, start_query, city)
+        end_stops, end_address = find_stops(feed, end_query, city)
 
         if start_stops.empty or end_stops.empty:
             result = {
@@ -307,11 +312,17 @@ example_8:
     answer: |
         ```python
         def find_stops(feed, query: str, street1_root: str, street2_root: str, city, num_stops=5, radius_meters=200):
-            matched_stops = find_stops_by_intersection(feed, street1_root, street2_root)
+            matched_stops = find_stops_by_intersection(feed, street1_root=street1_root, street2_root=street2_root)
 
             # If still no matches and city is provided, use geolocation (assuming get_geo_location function exists)
+            address = f"{query}, {city}"
             if matched_stops.empty and city:
-                matched_stops = find_stops_by_address(feed, query, city, radius_meters, num_stops)
+                matched_stops, matched_address = find_stops_by_address(
+                    feed=feed,
+                    address= address,
+                    radius_meters=radius_meters,
+                    max_stops=num_stops
+                )
 
             return matched_stops
 
@@ -342,7 +353,7 @@ example_9:
     answer: |
         ```python
         # Find stops on Illinois street
-        illinois_stops = find_stops_by_street(feed, "Illinois", threshold=80)
+        illinois_stops = find_stops_by_street(feed, street_root="Illinois", threshold=80)
 
         # Filter for mid-block stops
         mid_block_stops = illinois_stops[illinois_stops['stop_name'].str.contains('MB', case=False, na=False)]
@@ -386,8 +397,8 @@ example_11:
             route_id = orange_route['route_id']
 
             # Find the stops
-            start_stops = find_stops_by_intersection(feed, "University", "Victor")
-            end_stops = find_stops_by_intersection(feed, "University", "Fourth")
+            start_stops = find_stops_by_intersection(feed, street1_root="University", street2_root="Victor")
+            end_stops = find_stops_by_intersection(feed, street1_root="University", street2_root="Fourth")
 
             if start_stops.empty or end_stops.empty:
                 result = {

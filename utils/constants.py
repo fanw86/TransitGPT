@@ -17,7 +17,7 @@ FEW_SHOT_EXAMPLES_FILE = "data/few_shot.yaml"
 ## LLM HYPERPARAMETERS
 # Define the maximum number of messages to keep in the chat history
 MAX_MESSAGES = 16
-MAIN_LLM_TEMPERATURE = 0.3
+MAIN_LLM_TEMPERATURE = 0.5
 FINAL_LLM_TEMPERATURE = 0.7
 
 TOP_P = 0.9
@@ -36,7 +36,7 @@ if "OPENAI_API_KEY" in st.secrets:
     LLMs.extend(["gpt-4o-2024-08-06", "gpt-4o-mini"])
 
 if "GROQ_API_KEY" in st.secrets:
-    LLMs.append("llama-3.1-8b-instant")
+    LLMs.extend(["llama-3.1-8b-instant", "llama-3.1-70b-versatile", "gemma2-9b-it"])
 
 disclaimer_text = """
 This chatbot is an AI-powered tool designed to assist with GTFS data analysis and code generation. Please be aware of the following:
