@@ -1,7 +1,7 @@
 import time
 import yaml
 from prompts.all_prompts import (
-    TASK_KNOWLEDGE,
+    GTFS_STRUCTURE,
     BASE_PROMPT,
     BASE_GTFS_FEED_DATATYPES,
     TASK_INSTRUCTION,
@@ -119,7 +119,7 @@ def generate_system_prompt(loader: GTFSLoader) -> str:
 
     final_prompt = (
         BASE_PROMPT
-        + TASK_KNOWLEDGE
+        + GTFS_STRUCTURE
         + GTFS_FEED_DATATYPES
         + FILE_INFO
         + TASK_INSTRUCTION

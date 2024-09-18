@@ -4,6 +4,7 @@ import re
 import _pickle as cPickle
 import gzip
 import threading  # Add this import
+import copy  # Add this import at the top of the file
 
 ## For Evals
 from evaluator.eval_imports import import_namespace
@@ -112,7 +113,7 @@ class GTFS_Eval:
 
         nm = globals()  # Keep existing global variables
         nm.update(import_namespace)  # Update with import_namespace
-        nm["feed"] = self.current_loader.feed.copy()  # Work on a copy of feed
+        nm["feed"] = copy.deepcopy(self.current_loader.feed)  # Deep copy of feed
 
         try:
             def execute_code():

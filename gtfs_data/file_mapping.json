@@ -16,17 +16,17 @@
   },
   "CTA": {
     "file_loc": "gtfs_data/Chicago-Chicago Transit Authority (CTA)-IL/gtfs.zip",
-    "distance_unit": "feet",
+    "distance_unit": "m",
     "pickle_loc": "gtfs_data/feed_pickles/CTA_gtfs_loader.pkl"
   },
-  "MBTA (Only)": {
-    "file_loc": "gtfs_data/Boston-Massachusetts Bay Transportation Authority (MBTA)-MA/mbta_gtfs.zip",
-    "distance_unit": null,
-    "pickle_loc": "gtfs_data/feed_pickles/MBTA (Only)_gtfs_loader.pkl"
+  "MBTA": {
+    "file_loc": "gtfs_data/Boston-Massachusetts Bay Transportation Authority (MBTA)-MA/gtfs.zip",
+    "distance_unit": "m",
+    "pickle_loc": "gtfs_data/feed_pickles/MBTA_gtfs_loader.pkl"
   },
   "TheBus": {
     "file_loc": "gtfs_data/Honolulu-TheBus-HI/gtfs.zip",
-    "distance_unit": null,
+    "distance_unit": "m",
     "pickle_loc": "gtfs_data/feed_pickles/TheBus_gtfs_loader.pkl"
   },
   "SDMTS": {
@@ -46,7 +46,7 @@
   },
   "samTrans": {
     "file_loc": "gtfs_data/San Mateo-San Mateo County Transit District (samTrans)-CA/gtfs.zip",
-    "distance_unit": null,
+    "distance_unit": "m",
     "pickle_loc": "gtfs_data/feed_pickles/samTrans_gtfs_loader.pkl"
   },
   "Caltrain": {

@@ -3,16 +3,16 @@ from utils.constants import TIMEOUT_SECONDS
 BASE_PROMPT = """<role>You are an expert in General Transit Feed Specification (GTFS) and coding tasks in Python. Your goal is to write Python code for the given task related to GTFS.</role>
 """
 
-TASK_KNOWLEDGE = """
-## Task Knowledge
-<knowledge>
+GTFS_STRUCTURE = """
+## GTFS Structure
+<gtfs_structure>
 
 - All the GTFS data is loaded into a feed object under the variable name `feed`
 - Information within GTFS is split into multiple files such as `stops.txt`, `routes.txt`, `trips.txt`, `stop_times.txt`, etc.
 - Each file is loaded into a pandas DataFrame object within the feed object. For example, `feed.stops` is a DataFrame object containing the data from the `stops.txt` file.
 - You can access the data within a file using the DataFrame using any Pandas operations. For example, `feed.stops['stop_name']` will give you a pandas Series object containing the `stop_name` column from the `stops.txt` file.
 
-</knowledge>
+</gtfs_structure>
 """
 
 BASE_GTFS_FEED_DATATYPES = """\n\n## GTFS Feed Datatypes:\n
@@ -43,24 +43,28 @@ Adhere strictly to the following instructions:
 2. Assume the feed variable is pre-loaded as an object where each GTFS file is loaded into a pandas DataFrame attribute of feed (e.g., feed.stops, feed.routes, etc.). Omit import statements for dependencies.
 3. Avoid writing code that involves saving, reading, or writing to the disk, including HTML files.
 4. Include explanatory comments in the code. Specify the output format in a comment (e.g., DataFrame, Series, list, integer, string).  Do not add additional text outside the code block.
-5. Store the result in a `result` dictionary with keys: `answer`, and `additional_info`
+5. Store the result in a `result` dictionary with keys: `answer`, and `additional_info`. Make sure the `result` varaible is always defined in the code. 
 6. Handle potential errors and missing data in the GTFS feed.
 7. Optimize code for performance as there is timeout of {TIMEOUT_SECONDS} seconds for the code execution.
-8. Prefer using numpy and pandas operations that vectorize the operations over using python loops.
+8. Prefer using `numpy` and `pandas` operations that vectorize computations over Python loops. Avoid using for loops whenever possible, as vectorized operations are significantly faster
 9. Before main processing, validate GTFS data integrity and consistency by ensuring all required GTFS tables are present in feed, checking for null or NaN values, and verifying referential integrity between related tables (e.g., trips and stop_times).
 10. Use only fields from the GTFS Static Specification and provided feed sample.
 11. For specific attributes, use example identifiers (e.g., `route_id`, `stop_id`) by sampling from the data. Example: `feed.routes.route_id.sample(n=1).values[0]` or `feed.stops.stop_id.sample(n=1).values[0]` 
-12. For distance calculations, use `geodesic` from geopy.distance. All coordinates are in `EPSG:4326` CRS.
+12. For distance calculations, use `shape_dist_traveled` from `shapes.txt` or `stop_times.txt` files. If not available, use `geodesic` from geopy.distance. All coordinates are in `EPSG:4326` CRS.
 13. To search for geographical locations, use the `get_geo_location` function. Concatenate the city name and country code for accurate results.
 14. Never ever use print statements for output or debugging. 
 15. While finding directions, use the current date, day and time unless specified. Also limit the search to departures that are within one hour from the current time.
 16. Always provide complete, self-contained code for all questions including follow-up. Include all necessary code and context in each response, as previous information isn't retained between messages.
-17. **Always** filter the feed before making any searches if both filter and search are required in the processing.
+17. Pre-filter the data to reduce the size of the dataset before applying computationally expensive operations
 18. Narrow the search space by filtering for day of the week, date and time. Filter by route, service, or trip if provided.
 19. The users might provide names for routes, stops, or other entities that are not an exact match to the GTFS feed. Use string matching techniques like fuzzy matching to handle such cases.
 20. Stick to the task of generating code and end the response with the code.
 21. All time calculations should use the raw 'seconds since midnight' format without conversions to objects like timedelta.
-22. No visualizations allowed
+22. Ensure all data in the `result` dictionary is JSON-serializable. Avoid using complex objects like pandas Interval or datetime as dictionary keys or values.
+23. Try to be as resourceful as possible. Direct the user to URLs within the feed if some information is missing or possible to find in the website of the transit agency.
+24. Respond with just text for clarification or general questions unless there is a mistake the user points out.
+25. No visualizations allowed
+
 </instructions>
 """
 
@@ -71,11 +75,10 @@ TASK_TIPS = """
 These are some helpful tips and facts to know when solving the task:
 <tips>
 
-- The `result` variable should be in a format that can be understood by a human.
+- The `result` variable should be in a format that can be understood by a human and non-empty
 - Use the provided GTFS knowledge and data types to understand the structure of the GTFS feed.
 - Validate the data and handle missing or inconsistent data appropriately.
-- To verify if a file is present in the feed, use hasattr(). For example, `hasattr(feed, 'stops')` will return True if the feed has a `stops` attribute.
-- For distances, favor using `shape_dist_traveled` from `stop_times.txt` or `shape.txt` files when available.
+- All files listed in the sample are present in the feed. If you are unsure if a file is present in the feed, use hasattr(). For example, `hasattr(feed, 'stops')` will return True if the feed has a `stops` attribute.
 - Note that some fields are optional and may not be present in all feeds. Even though some fields are present in the DataFrame, they may be empty or contain missing values. If you notice the sample data has missing values for all rows, then assume the field is not present in the feed.
 - The stop sequence starts from `1` and increases by 1 for each subsequent stop on a trip. It resets to 1 for each new trip.
 - The morning peak hours are typically between 6:00 AM and 9:00 AM, and the evening peak hours are between 3:00 PM and 7:00 PM. The rest of the hours are considered off-peak and categorized as midday (9:00 AM to 3:00 PM) or night hours.
@@ -230,7 +233,7 @@ Output: ((38.8977, -77.0365), "1600 Pennsylvania Avenue NW, Washington, DC 20500
 - The headway is the time between consecutive vehicles or buses. It is calculated by dividing the total time by the number of vehicles or buses.
 - The frequency is the number of vehicles or buses that run per hour. It is calculated by dividing 60 minutes by the headway.
 - The headway and frequency are important metrics to understand the service level of a transit system.
-- To calculate headway of a route, choose a representative stop (stop_sequence=1) and find the time difference between consecutive trips for a given time period
+- To calculate headway of a route, always choose a representative stop (stop_sequence=1) and a particular direction (direction_id=0) and find the time difference between consecutive trips in the same direction for a given time period.
 
 </tips>
 """
@@ -260,6 +263,7 @@ Response Guidelines:
    ##### Additional Info (Optional)
 2. Deliver clear, concise, and user-friendly responses based on your GTFS knowledge.
 4. In the "Assumptions" section:
+   - Decipher assumptions from the code, code comments, code evaluation, and text response.
    - List any assumed values, fields, methods, or other factors used in your analysis or explanation.
 5. Address null values in code evaluations:
    - Explain that these likely indicate empty or unavailable fields/variables.

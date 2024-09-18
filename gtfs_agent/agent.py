@@ -167,43 +167,45 @@ class LLMAgent:
             self.chat_history[-1].error_message = error
         return result, success, error, only_text
 
-    def evaluate_with_retry(
-        self, llm_response: str
-    ) -> Tuple[Any, bool, str, bool, str]:
-        calls_made = 1  # Initialize with 1 for the initial evaluation
+    def evaluate_with_retry(self, llm_response: str) -> Tuple[Any, bool, str, bool, str]:
+        errors = []
 
-        for retry in range(self.max_retry):
+        for attempt in range(1, self.max_retry + 1):
             result, success, error, only_text = self.execute(llm_response)
             
-            # Check if result contains a map and if it's renderable
-            map_success = True
             if isinstance(result, dict) and 'map' in result:
-                try:
-                    with st.spinner("Checking map renderability..."):
-                        folium_static(result['map'])
-                except Exception as e:
-                    map_success = False
-                    error = f"Error rendering Folium map: {str(e)}"
+                success, error = self._check_map_renderability(result['map'])
 
-            if (success and map_success) or only_text or ("TimeoutError" in error):
-                return result, success, error, only_text, llm_response
+            if success or only_text or "TimeoutError" in error:
+                return result, success, "\n".join(errors), only_text, llm_response
 
-            if retry < self.max_retry - 1:  # Don't increment on the last iteration
-                calls_made += 1
+            errors.append(f"Attempt {attempt}: {error}")
+            self._log_retry_attempt(attempt, error)
 
-            st.write(f"Something wasn't right, retrying: attempt {retry + 1}")
-            self.logger.info(
-                f"Evaluation failed with error: {error}. Retrying attempt {retry + 1}"
-            )
+            if attempt < self.max_retry:
+                llm_response, call_success = self.call_llm_retry(error)
+                if not call_success:
+                    errors.append(f"Attempt {attempt + 1}: LLM call failed")
+                    break
 
-            llm_response, call_success = self.call_llm_retry(error)
-            if not call_success:
-                self.logger.error(f"LLM call failed on retry {retry + 1}")
-                break
-
-        # Update the error message with the latest error
-        error_message = f"Evaluation failed after {calls_made} {'call' if calls_made == 1 else 'calls'}\nLast Error:\n{error}"
+        error_message = self._format_error_message(attempt, errors)
         return None, False, error_message, False, llm_response
+
+    def _check_map_renderability(self, map_obj):
+        try:
+            with st.spinner("Checking map renderability..."):
+                folium_static(map_obj)
+            return True, None
+        except Exception as e:
+            return False, f"Error rendering Folium map: {str(e)}"
+
+    def _log_retry_attempt(self, attempt, error):
+        st.write(f"Something wasn't right, retrying: attempt {attempt}")
+        self.logger.info(f"Evaluation failed with error: {error}. Retrying attempt {attempt}")
+
+    def _format_error_message(self, attempts, errors):
+        call_str = 'call' if attempts == 1 else 'calls'
+        return f"Evaluation failed after {attempts} {call_str}\nErrors:\n" + "\n".join(errors)
 
     def get_retry_messages(self, error: str) -> List[Dict[str, str]]:
         messages = []
