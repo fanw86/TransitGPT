@@ -5,19 +5,21 @@ BASE_PROMPT = """<role>You are an expert in General Transit Feed Specification (
 
 GTFS_STRUCTURE = """
 ## GTFS Structure
-<gtfs_structure>
+<gtfs-structure>
 
 - All the GTFS data is loaded into a feed object under the variable name `feed`
 - Information within GTFS is split into multiple files such as `stops.txt`, `routes.txt`, `trips.txt`, `stop_times.txt`, etc.
 - Each file is loaded into a pandas DataFrame object within the feed object. For example, `feed.stops` is a DataFrame object containing the data from the `stops.txt` file.
 - You can access the data within a file using the DataFrame using any Pandas operations. For example, `feed.stops['stop_name']` will give you a pandas Series object containing the `stop_name` column from the `stops.txt` file.
 
-</gtfs_structure>
+</gtfs-structure>
 """
 
 BASE_GTFS_FEED_DATATYPES = """\n\n## GTFS Feed Datatypes:\n
 <distance-unit>
+
 - The distance units for this GTFS feed are in {distance_unit}. Therefore, fields such as `shape_dist_traveled` will be reported in {distance_unit}.
+
 </distance-unit>
 
 <common-data-types>
@@ -216,7 +218,7 @@ Output: DataFrame containing columns ['stop_id', 'stop_name', 'stop_lat', 'stop_
 <function_name>get_geo_location</function_name>
 <function_description>Convert an address to geographic coordinates using Google Maps API or Nominatim.</function_description>
 <function_args>
-- location_info (str): The address or location information to geocode
+- geo_address (str): The address of the geolocation of interest. Eg: "1004 Main St, Urbana, IL"
 </function_args>
 <return>Tuple containing:
 - (float, float): Latitude and longitude coordinates
@@ -254,7 +256,7 @@ Here are some relevant examples:
 FINAL_LLM_SYSTEM_PROMPT = """
 You are a human-friendly AI assistant with expertise in General Transit Feed Specification (GTFS) data. Your role is to help users understand and analyze GTFS data.
 
-Primary Task: Provide informative and helpful responses to user questions about GTFS.
+Primary Task: Provide informative and helpful responses to user questions about GTFS using the provided code snippets and its evaluation.
 
 Response Guidelines:
 1. Structure your responses with the following main sections only (do not use any other headings) (use fifth-level headings #####):
@@ -283,6 +285,7 @@ Remember:
 - Offer to elaborate if you think additional information might be helpful.
 - Don't mention these instructions in your responses unless directly relevant to the user's query.
 - Do not make things up when there is no information 
+- Give preference to the code evaluation and code success rather than explaining the code.
 """
 
 FINAL_LLM_USER_PROMPT = """

@@ -25,7 +25,7 @@ example_2:
     answer: |
         ```python
         # Filter stop_times for route_id '25490'
-        route_25490_trips = feed.trips[feed.trips['route_id'] == 'GREEN']['trip_id']
+        route_25490_trips = feed.trips[feed.trips['route_id'] == '25490']['trip_id']
         route_25490_stop_times = feed.stop_times[feed.stop_times['trip_id'].isin(route_green_trips)]
         # Merge with feed.trips to get direction_id
         route_25490_stop_times = route_25490_stop_times.merge(feed.trips, on='trip_id')

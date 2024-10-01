@@ -12,7 +12,7 @@ def remove_text_in_braces(text):
     return re.sub(r"\s*\(.*?\)\s*", " ", text).strip()
 
 
-def get_geo_location(location_info):
+def get_geo_location(geo_address):
     """
     Retrieve geographical coordinates and formatted address for a given location.
 
@@ -22,7 +22,7 @@ def get_geo_location(location_info):
     will fall back to Nominatim.
 
     Args:
-        location_info (str): The location information (e.g., address) to geocode.
+        geo_address (str): The address of the geolocation of interest. Eg: "1004 Main St, Urbana, IL"
 
     Returns:
         tuple: A tuple containing:
@@ -32,7 +32,7 @@ def get_geo_location(location_info):
     if "GMAP_API" in st.secrets:
         try:
             gmaps = googlemaps.Client(key=st.secrets["GMAP_API"])
-            location = gmaps.geocode(location_info)
+            location = gmaps.geocode(geo_address)
             geometry = location[0]["geometry"]["location"]
             formatted_address = location[0]["formatted_address"]
             return (geometry["lat"], geometry["lng"]), formatted_address
@@ -40,7 +40,7 @@ def get_geo_location(location_info):
             return None, None
     else:
         geolocator = Nominatim(user_agent="gtfs2code")
-        location = geolocator.geocode(location_info)
+        location = geolocator.geocode(geo_address)
         if location:
             return (location.latitude, location.longitude), location.address
         else:

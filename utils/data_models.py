@@ -11,6 +11,7 @@ class ChatInteraction(BaseModel):
     evaluation_result: Optional[Any] = None
     code_success: Optional[bool] = None
     error_message: Optional[str] = None
+    only_text: bool = False
 
 
 class ChatHistoryEntry(BaseModel):

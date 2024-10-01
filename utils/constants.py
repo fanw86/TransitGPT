@@ -33,7 +33,7 @@ if "ANTHROPIC_API_KEY" in st.secrets:
     LLMs.extend(["claude-3-5-sonnet-20240620", "claude-3-haiku-20240307"])
 
 if "OPENAI_API_KEY" in st.secrets:
-    LLMs.extend(["gpt-4o-2024-08-06", "gpt-4o-mini"])
+    LLMs.extend(["gpt-4o-2024-08-06", "gpt-4o-mini", "o1-mini-2024-09-12"])
 
 if "GROQ_API_KEY" in st.secrets:
     LLMs.extend(["llama-3.1-8b-instant", "llama-3.1-70b-versatile", "gemma2-9b-it"])

@@ -18,6 +18,7 @@ from evaluator.eval_code import GTFS_Eval
 from prompts.generate_prompt import generate_dynamic_few_shot
 from streamlit_folium import folium_static
 
+
 class LLMAgent:
     def __init__(
         self,
@@ -48,7 +49,7 @@ class LLMAgent:
             "llama": GroqClient(),
             "claude": AnthropicClient(),
         }
-        
+
         # Set the logger for each client
         for client in self.clients.values():
             client.set_logger(self.logger)
@@ -103,7 +104,7 @@ class LLMAgent:
     def get_client_key(model):
         if model.startswith("claude"):
             return "claude"
-        if model.startswith("gpt"):
+        if model.startswith("gpt") or model.startswith("o1"):
             return "gpt"
         return "llama"
 
@@ -112,22 +113,30 @@ class LLMAgent:
     ) -> List[Dict[str, str]]:
         messages = []
         for interaction in self.chat_history:
-            messages.append({"role": "user", "content": interaction.user_prompt})
-            messages.append(
-                {"role": "assistant", "content": interaction.assistant_response}
-            )
-        messages.append({"role": "user", "content": user_prompt})
+            if interaction.user_prompt.strip():
+                messages.append({"role": "user", "content": interaction.user_prompt})
+            if interaction.assistant_response.strip():
+                messages.append(
+                    {"role": "assistant", "content": interaction.assistant_response}
+                )
+        if user_prompt.strip():
+            messages.append({"role": "user", "content": user_prompt})
         if not model.startswith("claude"):
             messages.insert(0, {"role": "system", "content": system_prompt})
         return messages
 
-    def update_chat_history(self, user_prompt: str, response: str) -> None:
-        interaction = ChatInteraction(
-            system_prompt=self.system_prompt,
-            user_prompt=user_prompt,
-            assistant_response=response,
-        )
-        self.chat_history.append(interaction)
+    def update_chat_history(self, user_prompt: str, response: str, result: Any = None, success: bool = None, error: str = None, only_text: bool = None) -> None:
+        if user_prompt.strip() or response.strip():
+            interaction = ChatInteraction(
+                system_prompt=self.system_prompt,
+                user_prompt=user_prompt,
+                assistant_response=response,
+                evaluation_result=result,
+                code_success=success,
+                error_message=error,
+                only_text=only_text,
+            )
+            self.chat_history.append(interaction)
 
     def log_llm_interaction(self, messages: List, response: str) -> None:
         self.logger.info(f"Calling LLM with following messages:\n {messages}")
@@ -149,7 +158,7 @@ class LLMAgent:
         else:
             self.last_response = response
             # Within chat history only store the user query (without the examples) and the response
-            self.update_chat_history(query, response)
+            # self.update_chat_history(query, response)
             # self.log_llm_interaction(messages, response)
 
         return response, call_success
@@ -161,10 +170,14 @@ class LLMAgent:
         success = output["eval_success"]
         error = output["error_message"]
         only_text = output["only_text"]
-        if self.chat_history:
-            self.chat_history[-1].evaluation_result = result
-            self.chat_history[-1].code_success = success
-            self.chat_history[-1].error_message = error
+        self.update_chat_history(
+            self.chat_history[-1].user_prompt if self.chat_history else "",
+            self.last_response,
+            result,
+            success,
+            error,
+            only_text
+        )
         return result, success, error, only_text
 
     def evaluate_with_retry(self, llm_response: str) -> Tuple[Any, bool, str, bool, str]:
@@ -201,11 +214,15 @@ class LLMAgent:
 
     def _log_retry_attempt(self, attempt, error):
         st.write(f"Something wasn't right, retrying: attempt {attempt}")
-        self.logger.info(f"Evaluation failed with error: {error}. Retrying attempt {attempt}")
+        self.logger.info(
+            f"Evaluation failed with error: {error}. Retrying attempt {attempt}"
+        )
 
     def _format_error_message(self, attempts, errors):
-        call_str = 'call' if attempts == 1 else 'calls'
-        return f"Evaluation failed after {attempts} {call_str}\nErrors:\n" + "\n".join(errors)
+        call_str = "call" if attempts == 1 else "calls"
+        return f"Evaluation failed after {attempts} {call_str}\nErrors:\n" + "\n".join(
+            errors
+        )
 
     def get_retry_messages(self, error: str) -> List[Dict[str, str]]:
         messages = []
@@ -255,7 +272,7 @@ class LLMAgent:
         # )
         user_prompt = FINAL_LLM_USER_PROMPT.format(
             question=last_interaction.user_prompt,
-            response=last_interaction.assistant_response, # ATTENTION: Passing whole response instead of code response
+            response=last_interaction.assistant_response,  # ATTENTION: Passing whole response instead of code response
             evaluation=summarized_evaluation,
             success=last_interaction.code_success,
             error=last_interaction.error_message,

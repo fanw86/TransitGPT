@@ -74,7 +74,7 @@ def yaml_to_examples(yaml_file: str) -> str:
 
 
 def generate_fileinfo_dtypes(feed: GTFSLoader, file_list, distance_unit: str):
-    FILE_INFO = "\n\n## Sample from the feed:\n\n"
+    FILE_INFO = "\n\n## Sample from the feed: \n The following is a sample from the feed, showcasing the first five lines from each file:\n\n"
     GTFS_FEED_DATATYPES = BASE_GTFS_FEED_DATATYPES.format(distance_unit=distance_unit)
 
     for file_name in file_list:
@@ -95,6 +95,9 @@ def generate_fileinfo_dtypes(feed: GTFSLoader, file_list, distance_unit: str):
                         else:
                             GTFS_FEED_DATATYPES += f"- `{field}`: {df[field].dtype}\n"
                 GTFS_FEED_DATATYPES += "\n</data-type>\n\n"
+                GTFS_FEED_DATATYPES = GTFS_FEED_DATATYPES.replace(
+                    "GTFS_DISTANCE_UNITS", distance_unit
+                )
         except Exception as e:
             print(f"Failed to generate prompt for {file_name}: {e}")
             continue
