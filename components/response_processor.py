@@ -4,59 +4,42 @@ from utils.feedback import create_feedback_entry
 from utils.data_models import ChatHistoryEntry
 
 
-def get_final_response(agent, eval_success: bool, code_output, stream_placeholder):
-    if eval_success and code_output is not None:
-        final_response = agent.call_final_llm(stream_placeholder)
-        return final_response
-    return "Something went wrong. Please try again."
-
-
 def process_user_input(user_input: str):
     agent = st.session_state.agent
-    retry_code = st.session_state.retry_code
     model = st.session_state.model
     with st.chat_message("assistant", avatar="🚍"):
-        with st.spinner(f"Getting response from {model}..."):
-            llm_response, call_success = agent.call_llm(user_input)
-        if not call_success:
+        with st.spinner(f"Processing your request with {model}..."):
+            retry_code = st.session_state.retry_code
+            result, success, error, only_text, llm_response, final_response, validation_response = agent.run_workflow(user_input, retry_code)
+
+        if not success and error == "LLM call failed":
             st.error("Something went wrong. Please try again.")
             chat_entry = ChatHistoryEntry(
                 role="assistant",
                 final_response="Something went wrong. Please try again.",
-                error_message=llm_response,
+                error_message=error,
                 code_response=None,
             )
         else:
-            code_output, eval_success, error_message, only_text, llm_response = (
-                agent.evaluate_code(retry_code, llm_response)
-            )
-            final_response = llm_response
-            stream_placeholder = st.empty()
-            if not only_text:
-                with st.spinner("Almost there..."):
-                    final_response = get_final_response(
-                        agent, eval_success, code_output, stream_placeholder
-                    )
-
             chat_entry = ChatHistoryEntry(
                 role="assistant",
                 final_response=final_response,
-                code_response=llm_response,
-                code_output=code_output,
-                eval_success=eval_success,
-                error_message=error_message,
+                code_response=llm_response,  # Using final_response as code_response
+                code_output=result,
+                eval_success=success,
+                error_message=error,
                 only_text=only_text,
             )
             st.session_state.chat_history.append(chat_entry.dict())
 
-            # Add feedback for the new assistant message, including final_response
+            # Add feedback for the new assistant message
             create_feedback_entry(
                 user_input,
                 agent,
-                llm_response,
-                eval_success,
-                code_output,
-                error_message,
+                final_response,
+                success,
+                result,
+                error,
                 final_response,
             )
 

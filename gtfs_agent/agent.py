@@ -1,15 +1,13 @@
 import streamlit as st
-import logging
-import os
-import re
-from logging.handlers import RotatingFileHandler
+from datetime import datetime
+from rich.traceback import install as install_rich_traceback
 from prompts.all_prompts import (
     FINAL_LLM_SYSTEM_PROMPT,
     FINAL_LLM_USER_PROMPT,
     BASE_USER_PROMPT,
     RETRY_PROMPT,
 )
-from utils.constants import LOG_FILE
+from utils.constants import LOG_FILE, FINAL_LLM
 from typing import List, Dict, Any, Tuple
 from utils.helper import summarize_large_output
 from gtfs_agent.llm_client import OpenAIClient, GroqClient, AnthropicClient
@@ -17,7 +15,11 @@ from utils.data_models import ChatInteraction
 from evaluator.eval_code import GTFS_Eval
 from prompts.generate_prompt import generate_dynamic_few_shot
 from streamlit_folium import folium_static
+from traceloop.sdk import Traceloop
+from traceloop.sdk.decorators import workflow, task
+from utils.logger import setup_logger, reset_logger
 
+Traceloop.init(disable_batch=True, api_key=st.secrets["TRACELOOP_API_KEY"])
 
 class LLMAgent:
     def __init__(
@@ -40,7 +42,7 @@ class LLMAgent:
         self.max_rows = max_rows
 
         ## Initialize the logger and clients
-        self.logger = self._setup_logger(LOG_FILE)
+        self.logger = setup_logger(LOG_FILE)
         self.logger.info(
             f"\nInitializing LLMAgent with model: {model}, GTFS: {self.GTFS} and distance unit: {self.distance_unit}"
         )
@@ -68,38 +70,6 @@ class LLMAgent:
             f"Loaded system prompt for GTFS: {self.GTFS} with distance unit: {self.distance_unit}"
         )
 
-    def _setup_logger(self, log_file):
-        logger = logging.getLogger(__name__)
-        logger.setLevel(logging.DEBUG)
-
-        # Create logs directory if it doesn't exist
-        log_dir = os.path.dirname(log_file)
-        if log_dir and not os.path.exists(log_dir):
-            os.makedirs(log_dir)
-
-        # Create file handler which logs even debug messages
-        file_handler = RotatingFileHandler(
-            log_file, maxBytes=2 * 1024 * 1024, backupCount=5, encoding="utf-8"
-        )
-        file_handler.setLevel(logging.DEBUG)
-
-        # Create console handler with a higher severity log level
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.ERROR)
-
-        # Create formatter and add it to the handlers
-        formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
-        file_handler.setFormatter(formatter)
-        console_handler.setFormatter(formatter)
-
-        # Add the handlers to the logger
-        logger.addHandler(file_handler)
-        logger.addHandler(console_handler)
-
-        return logger
-
     @staticmethod
     def get_client_key(model):
         if model.startswith("claude"):
@@ -115,6 +85,12 @@ class LLMAgent:
         for interaction in self.chat_history:
             if interaction.user_prompt.strip():
                 messages.append({"role": "user", "content": interaction.user_prompt})
+            else:
+                print(f"Empty user prompt: {interaction.user_prompt}")
+                self.logger.warning(
+                    f"Empty user prompt found at index {interaction}: {interaction.user_prompt!r}"
+                )
+                messages.append({"role": "user", "content": "..."})
             if interaction.assistant_response.strip():
                 messages.append(
                     {"role": "assistant", "content": interaction.assistant_response}
@@ -138,18 +114,16 @@ class LLMAgent:
             )
             self.chat_history.append(interaction)
 
-    def log_llm_interaction(self, messages: List, response: str) -> None:
-        self.logger.info(f"Calling LLM with following messages:\n {messages}")
-        self.logger.info(f"Response from LLM: {response}")
-
+    @task(name="Call LLM")
     def call_llm(self, query):
         model = self.model
+        self.logger.info(f"User Query: {query}. Calling {model}...")
         few_shot_examples = generate_dynamic_few_shot(query, n=3)
         user_prompt = BASE_USER_PROMPT.format(
             user_query=query, examples=few_shot_examples
         )
         messages = self.create_messages(self.system_prompt, user_prompt, model)
-
+        self.logger.info(f"Calling LLM with following messages:\n {messages}")
         client = self.clients[self.get_client_key(model)]
         response, call_success = client.call(model, messages, self.system_prompt)
 
@@ -157,13 +131,12 @@ class LLMAgent:
             self.logger.error(f"LLM call failed: {response}")
         else:
             self.last_response = response
-            # Within chat history only store the user query (without the examples) and the response
-            # self.update_chat_history(query, response)
-            # self.log_llm_interaction(messages, response)
+            self.logger.info(f"Response from LLM: {response}")
 
         return response, call_success
 
-    def execute(self, llm_response):
+    @task(name="Execute Code")
+    def execute(self, user_input: str, llm_response: str):
         self.logger.info("Evaluating code from LLM response")
         output = self.evaluator.evaluate(llm_response)
         result = output["code_output"]
@@ -171,8 +144,8 @@ class LLMAgent:
         error = output["error_message"]
         only_text = output["only_text"]
         self.update_chat_history(
-            self.chat_history[-1].user_prompt if self.chat_history else "",
-            self.last_response,
+            user_input,
+            llm_response,
             result,
             success,
             error,
@@ -180,11 +153,12 @@ class LLMAgent:
         )
         return result, success, error, only_text
 
-    def evaluate_with_retry(self, llm_response: str) -> Tuple[Any, bool, str, bool, str]:
+    @task(name="Evaluate with Retry")
+    def evaluate_with_retry(self, user_input: str, llm_response: str) -> Tuple[Any, bool, str, bool, str]:
         errors = []
 
         for attempt in range(1, self.max_retry + 1):
-            result, success, error, only_text = self.execute(llm_response)
+            result, success, error, only_text = self.execute(user_input, llm_response)
             
             if isinstance(result, dict) and 'map' in result:
                 success, error = self._check_map_renderability(result['map'])
@@ -227,9 +201,11 @@ class LLMAgent:
     def get_retry_messages(self, error: str) -> List[Dict[str, str]]:
         messages = []
         for interaction in self.chat_history:
-            messages.append({"role": "user", "content": interaction.user_prompt})
-            messages.append(
-                {"role": "assistant", "content": interaction.assistant_response}
+            if interaction.user_prompt.strip():
+                messages.append({"role": "user", "content": interaction.user_prompt})
+            if interaction.assistant_response.strip():
+                messages.append(
+                       {"role": "assistant", "content": interaction.assistant_response}
             )
 
         # Add the error message as part of the last assistant's response
@@ -244,6 +220,7 @@ class LLMAgent:
 
         return messages
 
+    @task(name="Call LLM Retry")
     def call_llm_retry(self, error: str) -> str:
         model = self.model
         self.logger.info(f"Retrying LLM call with model: {model}")
@@ -255,6 +232,7 @@ class LLMAgent:
         self.logger.info(f"LLM Response: {response}")
         return response, call_success
 
+    @task(name="Final LLM Call")
     def call_final_llm(self, stream_placeholder):
         system_prompt = FINAL_LLM_SYSTEM_PROMPT
         last_interaction = self.chat_history[-1] if self.chat_history else None
@@ -278,9 +256,9 @@ class LLMAgent:
             error=last_interaction.error_message,
         )
         # Hardcoded model for final LLM call
-        model = "gpt-4o-mini"
+        model = FINAL_LLM
         messages = self.create_messages(system_prompt, user_prompt, model)
-        self.logger.info(f"Following message sent to {model} : {messages}")
+        self.logger.info(f"Final LLM message sent to {model} : {messages}")
         full_response = ""
         client = self.clients["gpt"]
         # Stream the response
@@ -291,18 +269,27 @@ class LLMAgent:
         self.logger.info("Final response from LLM:\n %s", full_response)
         return full_response
 
-    def evaluate_code(self, retry_code, llm_response: str):
+    @task(name="Evaluate Code")
+    def evaluate_code(self, user_input, llm_response, retry_code):
         with st.status("Evaluating code..."):
             if retry_code:
-                return self.evaluate_with_retry(llm_response)
+                return self.evaluate_with_retry(user_input, llm_response)
             else:
-                result, success, error, only_text = self.execute(llm_response)
+                result, success, error, only_text = self.execute(user_input, llm_response)
                 return result, success, error, only_text, llm_response
 
     def reset(self):
         self.last_response = None
         self.chat_history = []
         self.result = None
+        self._reset_logger()
+
+    def _reset_logger(self):
+        self.logger = reset_logger(self.logger, LOG_FILE)
+
+        # Update logger for each client
+        for client in self.clients.values():
+            client.set_logger(self.logger)
 
     def update_agent(self, GTFS, model, distance_unit):
         self.reset()
@@ -314,3 +301,50 @@ class LLMAgent:
             f"Updating LLMAgent with model: {model}, GTFS: {GTFS} and distance unit: {distance_unit}"
         )
         self.load_system_prompt()
+
+    @workflow(name="LLM Agent Workflow")
+    def run_workflow(self, user_input: str, retry_code: bool = False):
+        llm_response, call_success = self.call_llm(user_input)
+        if not call_success:
+            return None, False, "LLM call failed", False, llm_response, None
+
+        result, success, error, only_text, llm_response = self.evaluate_code(
+            user_input, llm_response, retry_code=retry_code
+        )
+        
+        # New step: Validate evaluation results
+        validation_response = self.validate_evaluation(user_input, llm_response, result, success, error, only_text)
+        
+        if success or only_text:
+            final_response = self.call_final_llm(st.empty())
+        else:
+            final_response = None
+
+        return result, success, error, only_text, llm_response, final_response, validation_response
+
+    @task(name="Validate Evaluation")
+    def validate_evaluation(self, user_input: str, llm_response: str, result: Any, success: bool, error: str, only_text: bool):
+        validation_prompt = f"""
+        User Input: {user_input}
+        
+        Your Response:
+        {llm_response}
+        
+        Evaluation Result:
+        Success: {success}
+        Error: {error}
+        Only Text: {only_text}
+        Result: {result}
+        
+        Please validate the evaluation results:
+        Validate if the response to the user query is correct and if result is as expected.
+        
+        Return (True, None) if everything is correct, (False, "Reason for failure") if something is incorrect.
+        """
+        
+        messages = self.create_messages(self.system_prompt, validation_prompt, self.model)
+        client = self.clients["gpt"]
+        validation_response, _ = client.call(FINAL_LLM, messages, self.system_prompt)
+        
+        self.logger.info(f"Validation response from LLM: {validation_response}")
+        return validation_response

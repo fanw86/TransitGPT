@@ -18,6 +18,7 @@ FEW_SHOT_EXAMPLES_FILE = "data/few_shot.yaml"
 # Define the maximum number of messages to keep in the chat history
 MAX_MESSAGES = 16
 MAIN_LLM_TEMPERATURE = 0.5
+FINAL_LLM = "gpt-4o-mini"
 FINAL_LLM_TEMPERATURE = 0.7
 
 TOP_P = 0.9
