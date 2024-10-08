@@ -24,27 +24,27 @@ def is_json_serializable(obj):
     except (TypeError, OverflowError):
         return False
 
-
-def safe_folium_display(folium_map):
-    if isinstance(folium_map, Map):
+@st.cache_data
+def safe_folium_display(_folium_map):
+    if isinstance(_folium_map, Map):
         try:
-            folium_static(folium_map, height=400)
+            folium_static(_folium_map, height=400)
         except Exception as e:
             st.error(f"Error displaying Folium map: {str(e)}")
             st.write("Map data (non-rendered):")
             st.json(
                 {
                     k: v
-                    for k, v in folium_map.__dict__.items()
+                    for k, v in _folium_map.__dict__.items()
                     if is_json_serializable(v)
                 }
             )
     else:
         st.error(
-            f"Expected a Folium Map object, but received a different type. Received object of type: {type(folium_map)}"
+            f"Expected a Folium Map object, but received a different type. Received object of type: {type(_folium_map)}"
         )
 
-
+@st.cache_data
 def safe_fig_display(fig):
     if isinstance(fig, plt.Figure):
         try:
@@ -127,7 +127,7 @@ def display_llm_response(fb_agent, uuid, message, i):
         with st.expander("👨‍💻Code", expanded=False):
             executable_pattern = r"```python\n(.*?)```"
             executable_code = re.findall(
-                executable_pattern, message["code_response"], re.DOTALL
+                executable_pattern, message["main_response"], re.DOTALL
             )
             code_block = "```python\n" + executable_code[0] + "\n```"
             st.markdown(code_block)
@@ -135,6 +135,7 @@ def display_llm_response(fb_agent, uuid, message, i):
     col1, col2, col3 = st.columns([6, 2, 1])
     with col1:
         if "code_output" in message and not only_text:
+            # Default empty eval_success to False
             if message.get("eval_success", False):
                 display_code_output(message)
             else:
@@ -149,16 +150,26 @@ def display_llm_response(fb_agent, uuid, message, i):
                 else:
                     st.error("Code execution Failed! Please try again with a different prompt.", icon="⚠")
                 return # Skip displaying the final message
-                
+        else:
+            if only_text and "main_response" in message:
+                st.write(message["main_response"])
+            else:
+                if "error_message" in message:
+                    st.error(f"Call Failed! Error: {message['error_message']}", icon="⚠")
+                else:
+                    st.error("Call Failed! Please try again with a different LLM.", icon="⚠")
+            
 
-    message_id = f"{uuid}_{i}"
+    message_id = f"{uuid}_{i}"  
     st.session_state.current_message_id = message_id
 
-    if only_text or message["final_response"] != message["code_response"]:
-        colored_response = apply_color_codes(message["final_response"])
+    if only_text or message["summary_response"] != message["main_response"]:
+        if message["summary_response"] is None:
+            return
+        colored_response = apply_color_codes(message["summary_response"])
         if message["is_cancelled"]:
             with col1:
-                st.info(message["final_response"], icon="🚨")
+                st.info(message["summary_response"], icon="🚨")
         else:
             display_feedback_ui(fb_agent, message_id, col2, col3)
             if len(colored_response) <= 500:

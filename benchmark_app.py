@@ -243,12 +243,12 @@ def main():
                 )
                 st.json(selected_row[['feed', 'question', 'task']].to_dict(), expanded=True)
                 st.write(f"LLM Response:")
-                code_response = (
+                main_response = (
                     additional_data.get("llm_response", "N/A")
                     .split("```python")[1]
                     .split("```")[0]
                 )
-                st.code(code_response)
+                st.code(main_response)
             else:
                 st.write(additional_data)
 

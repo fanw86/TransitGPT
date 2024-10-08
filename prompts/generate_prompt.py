@@ -5,12 +5,14 @@ from prompts.all_prompts import (
     BASE_PROMPT,
     BASE_GTFS_FEED_DATATYPES,
     TASK_INSTRUCTION,
+    TASK_INSTRUCTION_VIZ,
     TASK_TIPS,
+    VISUALIZATION_TIPS,
 )
 from prompts.gtfs_file_field_type import GTFS_FILE_FIELD_TYPE_MAPPING
 from gtfs_agent.gtfs_loader import GTFSLoader
 from functools import lru_cache
-from utils.constants import FEW_SHOT_EXAMPLES_FILE
+from utils.constants import FEW_SHOT_EXAMPLES_FILE, FEW_SHOT_EXAMPLES_FILE_VIZ, FEW_SHOT_EXAMPLE_LIMIT
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -21,7 +23,7 @@ def load_yaml_examples(yaml_file):
         return yaml.safe_load(file)
 
 
-def select_relevant_examples(query, examples, n=3, threshold=0.1):
+def select_relevant_examples(query, examples, n=FEW_SHOT_EXAMPLE_LIMIT, threshold=0.1):
     # Create a list of all examples
     all_examples = [f"{ex['question']}\n{ex['answer']}" for ex in examples.values()]
     # Add the query to the list
@@ -41,8 +43,8 @@ def select_relevant_examples(query, examples, n=3, threshold=0.1):
     return [list(examples.values())[i] for i in top_indices]
 
 
-def generate_dynamic_few_shot(query, n=3):
-    examples = load_yaml_examples(FEW_SHOT_EXAMPLES_FILE)
+def generate_dynamic_few_shot(query, allow_viz, n=3):
+    examples = load_yaml_examples(FEW_SHOT_EXAMPLES_FILE_VIZ if allow_viz else FEW_SHOT_EXAMPLES_FILE)
     relevant_examples = select_relevant_examples(query, examples, n)
     examples = ["<examples>"]
     for ex in relevant_examples:
@@ -105,7 +107,7 @@ def generate_fileinfo_dtypes(feed: GTFSLoader, file_list, distance_unit: str):
     return FILE_INFO, GTFS_FEED_DATATYPES
 
 
-def generate_system_prompt(loader: GTFSLoader) -> str:
+def generate_system_prompt(loader: GTFSLoader, allow_viz: bool = False) -> str:
     distance_unit = loader.distance_unit
     GTFS = loader.gtfs
     feed = loader.feed
@@ -114,21 +116,25 @@ def generate_system_prompt(loader: GTFSLoader) -> str:
     FILE_INFO, GTFS_FEED_DATATYPES = generate_fileinfo_dtypes(
         feed, file_list, distance_unit
     )
-    # EXAMPLE_CODE = "## Sample Code Generation for Tasks\n\n Here are few examples that help you discern the logic\n"
-    # EXAMPLE_CODE = EXAMPLE_CODE + "\n\n" + yaml_to_examples(FEW_SHOT_EXAMPLES_FILE)
     print(
         f"Prompt generated for {GTFS} with distance units {distance_unit}: {time.ctime()}"
     )
+
+    # Choose the appropriate task instruction based on allow_viz
+    task_instruction = TASK_INSTRUCTION_VIZ if allow_viz else TASK_INSTRUCTION
 
     final_prompt = (
         BASE_PROMPT
         + GTFS_STRUCTURE
         + GTFS_FEED_DATATYPES
         + FILE_INFO
-        + TASK_INSTRUCTION
+        + task_instruction
         + TASK_TIPS
-        # + EXAMPLE_CODE
     )
+
+    # Add visualization tips if allow_viz is True
+    if allow_viz:
+        final_prompt += VISUALIZATION_TIPS
 
     with open("prompts/generated_prompt.md", "w", encoding="utf-8") as f:
         f.write(final_prompt)

@@ -67,12 +67,16 @@ class GTFS_Eval:
             print(f"Loaded feed {self.gtfs}")
         return current_loader
 
-    def get_system_prompt(self, GTFS: str, distance_unit: str = "m") -> str:
-        if self.system_prompt is None or self.gtfs != GTFS or self.distance_unit != distance_unit:
+    def get_system_prompt(self, GTFS, distance_unit, allow_viz):
+        if (
+            self.system_prompt is None
+            or self.gtfs != GTFS
+            or self.distance_unit != distance_unit
+        ):
             self.current_loader = self.load_current_feed(GTFS)
             self.distance_unit = distance_unit
             # Generate the system prompt
-            self.system_prompt = generate_system_prompt(self.current_loader)
+            self.system_prompt = generate_system_prompt(self.current_loader, allow_viz)
         return self.system_prompt
 
     def evaluate(self, code: str, timeout_seconds: int = TIMEOUT_SECONDS) -> Dict[str, Any]:
@@ -81,6 +85,8 @@ class GTFS_Eval:
         """
         # Extract executable code from the input
         executable_code = re.findall(r"```python\n(.*?)```", code, re.DOTALL)
+        
+        # For text only responses
         if not executable_code:
             return {"code_output": code, "eval_success": False, "error_message": None, "only_text": True}
 
@@ -101,7 +107,8 @@ class GTFS_Eval:
 
             if thread.is_alive():
                 raise TimeoutError("Code execution timed out")
-
+            if execution_result is None:
+                raise Exception("Code execution did not return a result. Please ensure the `result` variable is assigned")
             return {"code_output": execution_result, "eval_success": True, "error_message": None, "only_text": False}
 
         except TimeoutError as te:

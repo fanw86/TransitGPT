@@ -6,12 +6,12 @@ from components.state import reset_session_state, load_session_state
 
 
 @st.cache_resource(show_spinner=False)
-def initialize_agent(model):
-    return LLMAgent(file_mapping, model)
+def initialize_agent(model, allow_viz):
+    return LLMAgent(file_mapping, model, allow_viz=allow_viz)
 
 
 def load_agent_evaluator():
-    # Clear chat history on change of model or GTFS feed or units
+    # Clear chat history on change of model or GTFS feed
     if len(st.session_state.chat_history) > 0:
         clear_chat_history()
     print("<<<==================Initializing Chat App=====================>>>")
@@ -19,13 +19,14 @@ def load_agent_evaluator():
     GTFS = st.session_state["GTFS"]
     with st.status(f"Loading `{GTFS}` GTFS Feed and setting up LLM Agent...") as status:
         model = st.session_state["model"]
+        allow_viz = st.session_state["allow_viz"]
         distance_unit = file_mapping[GTFS]["distance_unit"]
         if "agent" not in st.session_state:
-            agent = initialize_agent(model)
+            agent = initialize_agent(model, allow_viz)
             st.session_state["agent"] = agent
         else:
             agent = st.session_state["agent"]
-            agent.update_agent(GTFS, model, distance_unit)
+            agent.update_agent(GTFS, model, distance_unit, allow_viz)
         st.session_state["call_count"] += 1
         status.update(label=f"Loaded GTFS feed: {GTFS} ({distance_unit})", state="complete")
     # Loaded GTFS feed
@@ -38,9 +39,18 @@ def clear_chat_history():
     load_session_state()
 
 
+def update_visualization_setting():
+    if "agent" in st.session_state:
+        st.session_state.agent.update_agent(
+            st.session_state.agent.GTFS,
+            st.session_state.agent.model,
+            st.session_state.agent.distance_unit,
+            st.session_state.allow_viz
+        )
+
+
 def setup_sidebar():
     # Sidebar for model selection and GTFS feed selection
-    # st.sidebar.title("GTFS2CODE🚌")
     st.sidebar.json(st.session_state, expanded=False)
 
     if "call_count" not in st.session_state:
@@ -67,14 +77,14 @@ def setup_sidebar():
         help="Select a GTFS feed to analyze.",
     )
 
-    # Ditance units
-    # st.sidebar.radio(
-    #     "Select Distance Units",
-    #     ["Meters (m)", "Kilometers (km)"],
-    #     key="distance_units",
-    #     help="GTFS allows both `m` and `km` as distance units",
-    #     on_change=load_agent_evaluator,
-    # )
+    st.sidebar.toggle(
+        "Allow Visualization",
+        value=True,
+        key="allow_viz",
+        help="LLM will generate visualization along with code.",
+        on_change=update_visualization_setting,
+    )
+    
     st.sidebar.toggle(
         "Allow Retry",
         value=True,

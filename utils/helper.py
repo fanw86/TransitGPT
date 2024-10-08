@@ -107,7 +107,7 @@ def truncate_text(text: str, max_chars: int) -> str:
 
 
 def summarize_large_output(
-    output: Any, max_rows: int = 20, max_chars: int = 2000
+    output: Any, max_rows: int = 10, max_chars: int = 2000
 ) -> str:
     if isinstance(output, pd.DataFrame):
         if len(output) > max_rows:

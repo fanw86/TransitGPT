@@ -15,7 +15,7 @@
 
 <distance-unit>
 
-- The distance units for this GTFS feed are in `Meters`. Therefore, fields such as `shape_dist_traveled` will be reported in `Meters`.
+- The distance units for this GTFS feed are in `Kilometers`. Therefore, fields such as `shape_dist_traveled` will be reported in `Kilometers`.
 
 </distance-unit>
 
@@ -82,6 +82,7 @@ These are the datatypes for all files within the current GTFS:
 - `currency_type`: string
 - `payment_method`: integer
 - `transfers`: integer
+- `agency_id`: string
 - `transfer_duration`: integer
 
 </data-type>
@@ -92,25 +93,6 @@ These are the datatypes for all files within the current GTFS:
 
 - `fare_id`: string
 - `route_id`: string
-- `origin_id`: string
-- `destination_id`: string
-- `contains_id`: string
-
-</data-type>
-
-### feed_info.txt
-
-<data-type>
-
-- `feed_publisher_name`: string
-- `feed_publisher_url`: string
-- `feed_lang`: string
-- `default_lang`: string
-- `feed_start_date`: date (datetime.date)
-- `feed_end_date`: date (datetime.date)
-- `feed_version`: string
-- `feed_contact_email`: string
-- `feed_contact_url`: string
 
 </data-type>
 
@@ -122,11 +104,12 @@ These are the datatypes for all files within the current GTFS:
 - `agency_id`: string
 - `route_short_name`: string
 - `route_long_name`: string
+- `route_url`: string
 - `route_desc`: string
 - `route_type`: integer
-- `route_url`: string
 - `route_color`: string
 - `route_text_color`: string
+- `route_sort_order`: integer
 
 </data-type>
 
@@ -138,7 +121,7 @@ These are the datatypes for all files within the current GTFS:
 - `shape_pt_lat`: float
 - `shape_pt_lon`: float
 - `shape_pt_sequence`: integer
-- `shape_dist_traveled`: float (`Meters`)
+- `shape_dist_traveled`: float (`Kilometers`)
 
 </data-type>
 
@@ -152,10 +135,8 @@ These are the datatypes for all files within the current GTFS:
 - `stop_id`: string
 - `stop_sequence`: integer
 - `stop_headsign`: string
-- `pickup_type`: integer
-- `drop_off_type`: integer
+- `shape_dist_traveled`: float (`Kilometers`)
 - `timepoint`: integer
-- `shape_dist_traveled`: float (`Meters`)
 
 </data-type>
 
@@ -166,16 +147,11 @@ These are the datatypes for all files within the current GTFS:
 - `stop_id`: string
 - `stop_code`: string
 - `stop_name`: string
-- `stop_desc`: string
 - `stop_lat`: float
 - `stop_lon`: float
-- `zone_id`: string
-- `stop_url`: string
-- `location_type`: integer
-- `parent_station`: string
-- `stop_timezone`: string
 - `wheelchair_boarding`: integer
 - `platform_code`: string
+- `stop_url`: string
 
 </data-type>
 
@@ -217,14 +193,14 @@ These are the datatypes for all files within the current GTFS:
   </thead>
   <tbody>
     <tr>
-      <td>CUMTD</td>
-      <td>Champaign Urbana Mass Transit District</td>
-      <td>https://www.mtd.org/</td>
-      <td>America/Chicago</td>
+      <td>SFMTA</td>
+      <td>San Francisco Municipal Transportation Agency</td>
+      <td>http://www.sfmta.com</td>
+      <td>America/Los_Angeles</td>
       <td>en</td>
-      <td>217-384-8188</td>
-      <td>NaN</td>
-      <td>mtdweb@mtd.org</td>
+      <td>311</td>
+      <td>https://SFMTA.com/Fares</td>
+      <td>munifeedback@sfmta.com</td>
     </tr>
   </tbody>
 </table>
@@ -249,31 +225,31 @@ These are the datatypes for all files within the current GTFS:
   </thead>
   <tbody>
     <tr>
-      <td>L1_SU</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
       <td>1</td>
-      <td>2024-08-11</td>
-      <td>2024-12-21</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>2024-06-22</td>
+      <td>2024-12-16</td>
     </tr>
     <tr>
-      <td>B3_NOSCH_MF</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
+      <td>2</td>
       <td>0</td>
       <td>0</td>
-      <td>2024-08-11</td>
-      <td>2024-12-21</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>2024-06-22</td>
+      <td>2024-12-16</td>
     </tr>
     <tr>
-      <td>GR4_SU</td>
+      <td>3</td>
       <td>0</td>
       <td>0</td>
       <td>0</td>
@@ -281,8 +257,34 @@ These are the datatypes for all files within the current GTFS:
       <td>0</td>
       <td>0</td>
       <td>1</td>
-      <td>2024-08-11</td>
-      <td>2024-12-21</td>
+      <td>2024-06-22</td>
+      <td>2024-12-16</td>
+    </tr>
+  </tbody>
+</table>
+</feed-sample>
+
+### calendar_attributes.txt (feed.calendar_attributes)
+<feed-sample>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>service_id</th>
+      <th>service_description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>WEEKDAY</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>SATURDAY</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>SUNDAY</td>
     </tr>
   </tbody>
 </table>
@@ -300,19 +302,49 @@ These are the datatypes for all files within the current GTFS:
   </thead>
   <tbody>
     <tr>
-      <td>L1_SU</td>
-      <td>2024-08-11</td>
+      <td>2</td>
+      <td>2024-06-22</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>M12</td>
+      <td>2024-06-22</td>
       <td>1</td>
     </tr>
     <tr>
-      <td>L1_SU</td>
-      <td>2024-08-18</td>
+      <td>3</td>
+      <td>2024-06-23</td>
+      <td>2</td>
+    </tr>
+  </tbody>
+</table>
+</feed-sample>
+
+### directions.txt (feed.directions)
+<feed-sample>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>route_id</th>
+      <th>direction_id</th>
+      <th>direction</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
       <td>1</td>
+      <td>0</td>
+      <td>Outbound</td>
     </tr>
     <tr>
-      <td>L1_SU</td>
-      <td>2024-08-25</td>
       <td>1</td>
+      <td>1</td>
+      <td>Inbound</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>0</td>
+      <td>Outbound</td>
     </tr>
   </tbody>
 </table>
@@ -328,25 +360,66 @@ These are the datatypes for all files within the current GTFS:
       <th>currency_type</th>
       <th>payment_method</th>
       <th>transfers</th>
+      <th>agency_id</th>
       <th>transfer_duration</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>FULL</td>
-      <td>1.0</td>
+      <td>1</td>
+      <td>3</td>
       <td>USD</td>
       <td>0</td>
-      <td>1</td>
-      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>5400</td>
     </tr>
     <tr>
-      <td>ISTOP</td>
-      <td>0.0</td>
+      <td>2</td>
+      <td>8</td>
       <td>USD</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</feed-sample>
+
+### fare_rider_categories.txt (feed.fare_rider_categories)
+<feed-sample>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>fare_id</th>
+      <th>rider_category_id</th>
+      <th>price</th>
+      <th>expiration_date</th>
+      <th>commencement_date</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
       <td>1</td>
-      <td>0</td>
-      <td>0</td>
+      <td>2</td>
+      <td>1.25</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>3</td>
+      <td>0.00</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>5</td>
+      <td>0.00</td>
+      <td>NaN</td>
+      <td>NaN</td>
     </tr>
   </tbody>
 </table>
@@ -359,64 +432,106 @@ These are the datatypes for all files within the current GTFS:
     <tr style="text-align: right;">
       <th>fare_id</th>
       <th>route_id</th>
-      <th>origin_id</th>
-      <th>destination_id</th>
-      <th>contains_id</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>FULL</td>
-      <td>NaN</td>
-      <td>f</td>
-      <td>NaN</td>
-      <td>NaN</td>
+      <td>1</td>
+      <td>1</td>
     </tr>
     <tr>
-      <td>FULL</td>
-      <td>1_YELLOW_ALT</td>
-      <td>i</td>
-      <td>NaN</td>
-      <td>NaN</td>
+      <td>1</td>
+      <td>12</td>
     </tr>
     <tr>
-      <td>FULL</td>
-      <td>10W_GOLD_ALT</td>
-      <td>i</td>
-      <td>NaN</td>
-      <td>NaN</td>
+      <td>1</td>
+      <td>14</td>
     </tr>
   </tbody>
 </table>
 </feed-sample>
 
-### feed_info.txt (feed.feed_info)
+### realtime_routes.txt (feed.realtime_routes)
 <feed-sample>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
-      <th>feed_publisher_name</th>
-      <th>feed_publisher_url</th>
-      <th>feed_lang</th>
-      <th>default_lang</th>
-      <th>feed_start_date</th>
-      <th>feed_end_date</th>
-      <th>feed_version</th>
-      <th>feed_contact_email</th>
-      <th>feed_contact_url</th>
+      <th>route_id</th>
+      <th>realtime_enabled</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>Champaign-Urbana Mass Transit District</td>
-      <td>https://mtd.org/</td>
-      <td>en</td>
-      <td>en</td>
-      <td>2024-08-11</td>
-      <td>2024-12-21</td>
-      <td>GTFS Feed 11/08/2024 – 21/12/2024 (Generated: 10/08/2024 11:21:45)</td>
-      <td>mtdweb@mtd.org</td>
-      <td>https://mtd.org/inside/contact/</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</feed-sample>
+
+### rider_categories.txt (feed.rider_categories)
+<feed-sample>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>rider_category_id</th>
+      <th>rider_category_description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2</td>
+      <td>Senior</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Child</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>Youth</td>
+    </tr>
+  </tbody>
+</table>
+</feed-sample>
+
+### route_attributes.txt (feed.route_attributes)
+<feed-sample>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>route_id</th>
+      <th>category</th>
+      <th>subcategory</th>
+      <th>running_way</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>2</td>
+      <td>201</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>12</td>
+      <td>3</td>
+      <td>301</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>1X</td>
+      <td>3</td>
+      <td>302</td>
+      <td>3</td>
     </tr>
   </tbody>
 </table>
@@ -431,46 +546,50 @@ These are the datatypes for all files within the current GTFS:
       <th>agency_id</th>
       <th>route_short_name</th>
       <th>route_long_name</th>
+      <th>route_url</th>
       <th>route_desc</th>
       <th>route_type</th>
-      <th>route_url</th>
       <th>route_color</th>
       <th>route_text_color</th>
+      <th>route_sort_order</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>TEAL_SUNDAY</td>
-      <td>CUMTD</td>
-      <td>120-TEAL_SUNDAY</td>
-      <td>Teal Sunday</td>
-      <td>NaN</td>
+      <td>1</td>
+      <td>SFMTA</td>
+      <td>1</td>
+      <td>CALIFORNIA</td>
+      <td>http://www.sfmta.com/1</td>
+      <td>5am-12 midnight daily</td>
       <td>3</td>
-      <td>https://mtd.org/maps-and-schedules/to-schedule/561875bc4cd84124b67031474c033949/</td>
-      <td>006991</td>
-      <td>ffffff</td>
+      <td>005B95</td>
+      <td>FFFFFF</td>
+      <td>NaN</td>
     </tr>
     <tr>
-      <td>RUBY_SUNDAY</td>
-      <td>CUMTD</td>
-      <td>110-RUBY_SUNDAY</td>
-      <td>Ruby Sunday</td>
-      <td>NaN</td>
+      <td>12</td>
+      <td>SFMTA</td>
+      <td>12</td>
+      <td>FOLSOM-PACIFIC</td>
+      <td>http://www.sfmta.com/12</td>
+      <td>6am-10pm daily</td>
       <td>3</td>
-      <td>https://mtd.org/maps-and-schedules/to-schedule/178f799322dd4b9982ec00cfb5a33fa0/</td>
-      <td>eb008b</td>
-      <td>000000</td>
+      <td>005B95</td>
+      <td>FFFFFF</td>
+      <td>NaN</td>
     </tr>
     <tr>
-      <td>ILLINI_LIMITED_SATURDAY</td>
-      <td>CUMTD</td>
-      <td>220-ILLINI_LIMITED_SATURDAY</td>
-      <td>Illini Limited Saturday</td>
-      <td>NaN</td>
+      <td>14</td>
+      <td>SFMTA</td>
+      <td>14</td>
+      <td>MISSION</td>
+      <td>http://www.sfmta.com/14</td>
+      <td>24 hour service daily</td>
       <td>3</td>
-      <td>https://mtd.org/maps-and-schedules/to-schedule/d5a1a2df7dce48e1b9d525f831e4d213/</td>
-      <td>5a1d5a</td>
-      <td>ffffff</td>
+      <td>005B95</td>
+      <td>FFFFFF</td>
+      <td>NaN</td>
     </tr>
   </tbody>
 </table>
@@ -490,25 +609,63 @@ These are the datatypes for all files within the current GTFS:
   </thead>
   <tbody>
     <tr>
-      <td>[@124.0.102302343@]1</td>
-      <td>40.115935</td>
-      <td>-88.240947</td>
+      <td>30</td>
+      <td>37.773571</td>
+      <td>-122.510014</td>
       <td>1</td>
       <td>0.000000</td>
     </tr>
     <tr>
-      <td>[@124.0.102302343@]1</td>
-      <td>40.115915</td>
-      <td>-88.240893</td>
-      <td>2</td>
-      <td>5.059104</td>
+      <td>30</td>
+      <td>37.773562</td>
+      <td>-122.510071</td>
+      <td>3</td>
+      <td>0.003172</td>
     </tr>
     <tr>
-      <td>[@124.0.102302343@]1</td>
-      <td>40.115502</td>
-      <td>-88.241050</td>
-      <td>3</td>
-      <td>52.901162</td>
+      <td>30</td>
+      <td>37.773264</td>
+      <td>-122.510050</td>
+      <td>4</td>
+      <td>0.023781</td>
+    </tr>
+  </tbody>
+</table>
+</feed-sample>
+
+### stop_attributes.txt (feed.stop_attributes)
+<feed-sample>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>stop_id</th>
+      <th>accessibility_id</th>
+      <th>cardinal_direction</th>
+      <th>relative_position</th>
+      <th>stop_city</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>6598</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>San Francisco</td>
+    </tr>
+    <tr>
+      <td>6599</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>San Francisco</td>
+    </tr>
+    <tr>
+      <td>6600</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>San Francisco</td>
     </tr>
   </tbody>
 </table>
@@ -525,48 +682,40 @@ These are the datatypes for all files within the current GTFS:
       <th>stop_id</th>
       <th>stop_sequence</th>
       <th>stop_headsign</th>
-      <th>pickup_type</th>
-      <th>drop_off_type</th>
-      <th>timepoint</th>
       <th>shape_dist_traveled</th>
+      <th>timepoint</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>1GN500__GN1_MF</td>
-      <td>20760.0</td>
-      <td>20760.0</td>
-      <td>LSE:8</td>
-      <td>0</td>
-      <td>NaN</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <td>1GN500__GN1_MF</td>
-      <td>20785.0</td>
-      <td>20785.0</td>
-      <td>GRNRACE:4</td>
+      <td>11593899</td>
+      <td>16320.0</td>
+      <td>16320.0</td>
+      <td>3892</td>
       <td>1</td>
       <td>NaN</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>NaN</td>
+      <td>0.000000</td>
+      <td>1</td>
     </tr>
     <tr>
-      <td>1GN500__GN1_MF</td>
-      <td>20825.0</td>
-      <td>20825.0</td>
-      <td>GRNBRCH:1</td>
+      <td>11593899</td>
+      <td>16361.0</td>
+      <td>16361.0</td>
+      <td>3875</td>
       <td>2</td>
       <td>NaN</td>
+      <td>0.172503</td>
       <td>0</td>
-      <td>0</td>
-      <td>0</td>
+    </tr>
+    <tr>
+      <td>11593899</td>
+      <td>16408.0</td>
+      <td>16408.0</td>
+      <td>3896</td>
+      <td>3</td>
       <td>NaN</td>
+      <td>0.370289</td>
+      <td>0</td>
     </tr>
   </tbody>
 </table>
@@ -580,63 +729,43 @@ These are the datatypes for all files within the current GTFS:
       <th>stop_id</th>
       <th>stop_code</th>
       <th>stop_name</th>
-      <th>stop_desc</th>
       <th>stop_lat</th>
       <th>stop_lon</th>
-      <th>zone_id</th>
-      <th>stop_url</th>
-      <th>location_type</th>
-      <th>parent_station</th>
-      <th>stop_timezone</th>
       <th>wheelchair_boarding</th>
       <th>platform_code</th>
+      <th>stop_url</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>150DALE:1</td>
-      <td>5437</td>
-      <td>U.S. 150 &amp; Dale (NE Corner)</td>
-      <td>NaN</td>
-      <td>40.114512</td>
-      <td>-88.180673</td>
-      <td>f</td>
-      <td>https://mtd.org/maps-and-schedules/bus-stops/info/150dale-1/</td>
+      <td>4200</td>
+      <td>14200</td>
+      <td>Crescent Ave &amp; Porter St</td>
+      <td>37.734895</td>
+      <td>-122.418214</td>
       <td>0</td>
-      <td>NaN</td>
-      <td>America/Chicago</td>
-      <td>0</td>
-      <td>NaN</td>
+      <td></td>
+      <td>https://www.sfmta.com/14200</td>
     </tr>
     <tr>
-      <td>150DALE:3</td>
-      <td>5437</td>
-      <td>U.S. 150 &amp; Dale (South Side)</td>
-      <td>NaN</td>
-      <td>40.114503</td>
-      <td>-88.180848</td>
-      <td>f</td>
-      <td>https://mtd.org/maps-and-schedules/bus-stops/info/150dale-3/</td>
+      <td>4201</td>
+      <td>14201</td>
+      <td>Crescent Ave &amp; Putnam St</td>
+      <td>37.735009</td>
+      <td>-122.411169</td>
       <td>0</td>
-      <td>NaN</td>
-      <td>America/Chicago</td>
-      <td>0</td>
-      <td>NaN</td>
+      <td></td>
+      <td>https://www.sfmta.com/14201</td>
     </tr>
     <tr>
-      <td>150DOD:5</td>
-      <td>2634</td>
-      <td>U.S. 150 &amp; Dodson (NE Far Side)</td>
-      <td>NaN</td>
-      <td>40.114158</td>
-      <td>-88.173105</td>
-      <td>f</td>
-      <td>https://mtd.org/maps-and-schedules/bus-stops/info/150dod-5/</td>
+      <td>4202</td>
+      <td>14202</td>
+      <td>Crescent Ave &amp; Putnam St</td>
+      <td>37.734911</td>
+      <td>-122.411283</td>
       <td>0</td>
-      <td>NaN</td>
-      <td>America/Chicago</td>
-      <td>0</td>
-      <td>NaN</td>
+      <td></td>
+      <td>https://www.sfmta.com/14202</td>
     </tr>
   </tbody>
 </table>
@@ -660,37 +789,37 @@ These are the datatypes for all files within the current GTFS:
   </thead>
   <tbody>
     <tr>
-      <td>GREENHOPPER</td>
-      <td>GN8_MF</td>
-      <td>[@7.0.41101146@][4][1237930167062]/24__GN8_MF</td>
-      <td>Parkland College</td>
       <td>1</td>
-      <td>GN8_MF</td>
-      <td>5W_HOPPER_81</td>
+      <td>1</td>
+      <td>11593899</td>
+      <td>Geary + 33rd Avenue</td>
       <td>0</td>
-      <td>0</td>
+      <td>102</td>
+      <td>103</td>
+      <td>NaN</td>
+      <td>NaN</td>
     </tr>
     <tr>
-      <td>SILVER_LIMITED_SUNDAY</td>
-      <td>SV1_NONUI_SU</td>
-      <td>[@124.0.92241454@][1484326515007]/37__SV1_NONUI_SU</td>
-      <td>Lincoln Square</td>
+      <td>1</td>
+      <td>1</td>
+      <td>11593900</td>
+      <td>Geary + 33rd Avenue</td>
       <td>0</td>
-      <td>SV1_NONUI_SU</td>
-      <td>[@124.0.92241454@]4</td>
-      <td>0</td>
-      <td>0</td>
+      <td>103</td>
+      <td>103</td>
+      <td>NaN</td>
+      <td>NaN</td>
     </tr>
     <tr>
-      <td>ORANGE</td>
-      <td>O4_RUBY_MF_(V001)</td>
-      <td>[@6.0.54216924@][1723045917795]/107__O4_RUBY_MF_(V001)</td>
-      <td>Butzow &amp; Lierman</td>
+      <td>1</td>
+      <td>1</td>
+      <td>11593901</td>
+      <td>Geary + 33rd Avenue</td>
       <td>0</td>
-      <td>O4_RUBY_MF_(V001)</td>
-      <td>[@6.0.54216924@]7</td>
-      <td>0</td>
-      <td>0</td>
+      <td>105</td>
+      <td>103</td>
+      <td>NaN</td>
+      <td>NaN</td>
     </tr>
   </tbody>
 </table>
@@ -701,31 +830,32 @@ These are the datatypes for all files within the current GTFS:
 Adhere strictly to the following instructions:
 <instructions>
 
-1. Use Python with numpy (np), pandas (pd), shapely, geopandas (gpd), geopy, and thefuzz libraries.  No other libraries should be used.
+1. Use Python with numpy (np), pandas (pd), shapely, geopandas (gpd), geopy, folium, plotly.express (px) and thefuzz libraries.  No other libraries should be used.
 2. Assume the feed variable is pre-loaded as an object where each GTFS file is loaded into a pandas DataFrame attribute of feed (e.g., feed.stops, feed.routes, etc.). Omit import statements for dependencies.
 3. Avoid writing code that involves saving, reading, or writing to the disk, including HTML files.
 4. Include explanatory comments in the code. Specify the output format in a comment (e.g., DataFrame, Series, list, integer, string).  Do not add additional text outside the code block.
-5. Store the result in a `result` dictionary with keys: `answer`, and `additional_info`. Make sure the `result` varaible is always defined in the code. 
+5. Store the result in a `result` dictionary with keys: `answer`, `additional_info`, and `map`/`plot` (optional) if applicable where `answer` is the main result, `additional_info` provides context and other info to the answer, and `map`/`plot` contains the generated map or plot which are map or figure objects.
 6. Handle potential errors and missing data in the GTFS feed.
 7. Optimize code for performance as there is timeout of 300 seconds for the code execution.
-8. Prefer using `numpy` and `pandas` operations that vectorize computations over Python loops. Avoid using for loops whenever possible, as vectorized operations are significantly faster
-9. Before main processing, validate GTFS data integrity and consistency by ensuring all required GTFS tables are present in feed, checking for null or NaN values, and verifying referential integrity between related tables (e.g., trips and stop_times).
+8. Prefer using `numpy` and `pandas` operations that uses vector computations over Python loops. Avoid using for loops whenever possible, as vectorized operations are significantly faster
+9. Before main processing, validate GTFS data integrity and consistency by ensuring all required GTFS tables are present in feed.
 10. Use only fields from the GTFS Static Specification and provided feed sample.
 11. For specific attributes, use example identifiers (e.g., `route_id`, `stop_id`) by sampling from the data. Example: `feed.routes.route_id.sample(n=1).values[0]` or `feed.stops.stop_id.sample(n=1).values[0]` 
-12. For distance calculations, use `shape_dist_traveled` from `shapes.txt` or `stop_times.txt` files. If not available, use `geodesic` from geopy.distance. All coordinates are in `EPSG:4326` CRS.
-13. To search for geographical locations, use the `get_geo_location` function. Concatenate the city name and country code for accurate results.
-14. Never ever use print statements for output or debugging. 
-15. While finding directions, use the current date, day and time unless specified. Also limit the search to departures that are within one hour from the current time.
-16. Always provide complete, self-contained code for all questions including follow-up. Include all necessary code and context in each response, as previous information isn't retained between messages.
-17. Pre-filter the data to reduce the size of the dataset before applying computationally expensive operations
-18. Narrow the search space by filtering for day of the week, date and time. Filter by route, service, or trip if provided.
-19. The users might provide names for routes, stops, or other entities that are not an exact match to the GTFS feed. Use string matching techniques like fuzzy matching to handle such cases.
-20. Stick to the task of generating code and end the response with the code.
-21. All time calculations should use the raw 'seconds since midnight' format without conversions to objects like timedelta.
-22. Ensure all data in the `result` dictionary is JSON-serializable. Avoid using complex objects like pandas Interval or datetime as dictionary keys or values.
-23. Try to be as resourceful as possible. Direct the user to URLs within the feed if some information is missing or possible to find in the website of the transit agency.
-24. Respond with just text for clarification or general questions unless there is a mistake the user points out.
-25. No visualizations allowed
+12. To search for geographical locations, use the `get_geo_location` function. Concatenate the city name and country code for accurate results.
+13. Never ever use print statements for output or debugging. 
+14. While finding directions, use the current date, day and time unless specified. Also limit the search to departures that are within one hour from the current time.
+15. Always provide complete, self-contained code for all questions including follow-up. Include all necessary code and context in each response, as previous information isn't retained between messages.
+16. Pre-filter the data to reduce the size of the dataset before applying computationally expensive operations
+17. Narrow the search space by filtering for day of the week, date and time. Filter by route, service, or trip if provided.
+18. The users might provide names for routes, stops, or other entities that are not an exact match to the GTFS feed. Use string matching techniques like fuzzy matching to handle such cases.
+19. Stick to the task of generating code and end the response with the code.
+20. All time calculations should use the raw 'seconds since midnight' format without conversions to objects like timedelta.
+21. Ensure all data in the `result` dictionary is JSON-serializable. Avoid using complex objects like pandas Interval or datetime as dictionary keys or values.
+22. Try to be as resourceful as possible. Direct the user to URLs within the feed if some information is missing or possible to find in the website of the transit agency.
+23. Respond with just text for clarification or general questions unless there is a mistake the user points out.
+24. Always use `CartoDB Positron` for base map tiles. The `map` key should be a folium.Map, folium.Figure, or branca.element.Figure object.
+25. Create interactive maps with markers, popups, and relevant info.
+
 
 </instructions>
 
@@ -742,6 +872,8 @@ These are some helpful tips and facts to know when solving the task:
 - The morning peak hours are typically between 6:00 AM and 9:00 AM, and the evening peak hours are between 3:00 PM and 7:00 PM. The rest of the hours are considered off-peak and categorized as midday (9:00 AM to 3:00 PM) or night hours.
 - While finding directions, try to find more than one nearest neighbor to comprehensively arrive at the solution.
 - Report times in appropriate units and speeds in KMPH.
+- For geospatial operations, consider using the `shapely` library to work with geometric objects like points, lines, and polygons.
+- Use shapes.txt to get the points along the route and convert them to a LineString.
 
 ### Data Operations
 - Time fields in stop_times.txt (arrival_time and departure_time) are already in seconds since midnight and do not need to be converted for calculations. Therefore, the day boundary is accounted for too.
@@ -892,5 +1024,43 @@ Output: ((38.8977, -77.0365), "1600 Pennsylvania Avenue NW, Washington, DC 20500
 - The frequency is the number of vehicles or buses that run per hour. It is calculated by dividing 60 minutes by the headway.
 - The headway and frequency are important metrics to understand the service level of a transit system.
 - To calculate headway of a route, always choose a representative stop (stop_sequence=1) and a particular direction (direction_id=0) and find the time difference between consecutive trips in the same direction for a given time period.
+
+### Distance Calculations
+For distance calculations:
+- Prefer using `shape_dist_traveled` from `shapes.txt` or `stop_times.txt` files when available.
+- If `shape_dist_traveled` is not available, use `geodesic` from geopy.distance.
+- All coordinates are in `EPSG:4326` CRS (WGS84).
+- `shape_dist_traveled` represents cumulative distance along the route.
+- To calculate distance between consecutive stops:
+  - If using `shape_dist_traveled`: Subtract the value of the current stop from the next stop.
+  - If using `geodesic`: Calculate the distance between the geographic coordinates of consecutive stops.
+- When using `geodesic`, the result is in meters by default. Convert to kilometers if needed.
+- Handle potential missing or invalid data in the distance calculations.
+
+### GTFS Service and Route Relationships
+- A single route can be associated with multiple service_ids in the trips.txt file.
+- Different service_ids for the same route may cover different days of the week or different date ranges.
+- When analyzing route schedules or frequencies, always consider all service_ids associated with a route.
+- Do not assume that a single service_id covers the entire schedule for a route.
+- When determining if a route operates on specific days or date ranges, check across all associated service_ids.
+
+### Calendar and Service Interpretation
+- The calendar.txt file defines service patterns, but a route's full schedule may be spread across multiple service patterns.
+- Always cross-reference trips.txt to get the full picture of a route's schedule across all its services.
+- Remember to check calendar_dates.txt for exceptions to the regular schedule defined in calendar.txt.
+
+</tips>
+
+<tips>
+
+### Plotting and Mapping
+- Use the default color scheme (that is colorblind proof) for plots and maps unless specified otherwise. 
+- Use markers to highlight key points in the plot or map.
+- Always have a legend and/or labels for the plots and maps to make them more informative.
+- Prefer plotly express for plotting as it provides a high-level interface for creating a variety of plots.
+- Remember that Figures and Maps are optional and should only be included if explicitly requested in the task or if they help in explaining the solution better.
+- While mapping routes, use the shape points in `shapes.txt` file to get the points along the route and convert them to a LineString.
+- Never use identifier such as `route_id` or `trip_id` on a continuous scale or axis. Treat them as categorical variables.
+- While displaying routes on a map, use all distinct shape_id for the route as the route shape can be split by direction
 
 </tips>

@@ -4,7 +4,7 @@ from groq import Groq, GroqError
 from anthropic import Anthropic, AnthropicError
 import streamlit as st
 from abc import ABC, abstractmethod
-from utils.constants import MAIN_LLM_TEMPERATURE, FINAL_LLM_TEMPERATURE
+from utils.constants import MAIN_LLM_TEMPERATURE, SUMMARY_LLM_TEMPERATURE
 
 class LLMClient(ABC):
     @abstractmethod
@@ -20,6 +20,7 @@ class OpenAIClient(LLMClient):
     def __init__(self):
         self.client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
         self.logger = None
+        self.last_error = None
 
     def set_logger(self, logger):
         self.logger = logger
@@ -32,31 +33,37 @@ class OpenAIClient(LLMClient):
                 temperature=MAIN_LLM_TEMPERATURE,
             )
             self.logger.info(f"Raw Response from OpenAI: {response}")
+            self.last_error = None
             return response.choices[0].message.content, True
         except OpenAIError as e:
-            self.logger.error(f"OpenAI API call failed: {str(e)}")
-            return f"Error: OpenAI API call failed - {str(e)}", False
+            error_message = f"OpenAI API call failed: {str(e)}"
+            self.logger.error(error_message)
+            self.last_error = error_message
+            return error_message, False
 
     def stream_call(self, model, messages) -> Generator[str, None, None]:
         try:
             stream = self.client.chat.completions.create(
                 model=model,
                 messages=messages,
-                temperature=FINAL_LLM_TEMPERATURE,
+                temperature=SUMMARY_LLM_TEMPERATURE,
                 stream=True,
             )
             for chunk in stream:
                 if chunk.choices[0].delta.content is not None:
                     yield chunk.choices[0].delta.content
         except OpenAIError as e:
-            self.logger.error(f"OpenAI API streaming call failed: {str(e)}")
-            yield f"Error: OpenAI API streaming call failed - {str(e)}"
+            error_message = f"OpenAI API streaming call failed: {str(e)}"
+            self.logger.error(error_message)
+            self.last_error = error_message
+            yield error_message
 
 
 class GroqClient(LLMClient):
     def __init__(self):
         self.client = Groq(api_key=st.secrets["GROQ_API_KEY"])
         self.logger = None
+        self.last_error = None
 
     def set_logger(self, logger):
         self.logger = logger
@@ -69,16 +76,20 @@ class GroqClient(LLMClient):
                 temperature=MAIN_LLM_TEMPERATURE,
             )
             self.logger.info(f"Raw Response from Groq: {response}")
+            self.last_error = None
             return response.choices[0].message.content, True
         except GroqError as e:
-            self.logger.error(f"Groq API call failed: {str(e)}")
-            return f"Error: Groq API call failed - {str(e)}", False
+            error_message = f"Groq API call failed: {str(e)}"
+            self.logger.error(error_message)
+            self.last_error = error_message
+            return error_message, False
 
 
 class AnthropicClient(LLMClient):
     def __init__(self):
         self.client = Anthropic(api_key=st.secrets["ANTHROPIC_API_KEY"])
         self.logger = None
+        self.last_error = None
 
     def set_logger(self, logger):
         self.logger = logger
@@ -100,7 +111,10 @@ class AnthropicClient(LLMClient):
                 temperature=MAIN_LLM_TEMPERATURE,
             )
             self.logger.info(f"Raw Response from Anthropic: {response}")
+            self.last_error = None
             return response.content[0].text, True
         except AnthropicError as e:
-            self.logger.error(f"Anthropic API call failed: {str(e)}")
-            return f"Error: Anthropic API call failed - {str(e)}", False
+            error_message = f"Anthropic API call failed: {str(e)}"
+            self.logger.error(error_message)
+            self.last_error = error_message
+            return error_message, False

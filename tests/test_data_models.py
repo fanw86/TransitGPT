@@ -25,13 +25,13 @@ def test_chat_history_entry():
     entry = ChatHistoryEntry(
         role="assistant",
         final_response="Final response",
-        code_response="Code response",
+        main_response="Code response",
         code_output="Code output",
         eval_success=True
     )
     assert entry.role == "assistant"
     assert entry.final_response == "Final response"
-    assert entry.code_response == "Code response"
+    assert entry.main_response == "Code response"
     assert entry.code_output == "Code output"
     assert entry.eval_success is True
     assert entry.error_message is None

@@ -2,12 +2,12 @@ import streamlit as st
 from datetime import datetime
 from rich.traceback import install as install_rich_traceback
 from prompts.all_prompts import (
-    FINAL_LLM_SYSTEM_PROMPT,
-    FINAL_LLM_USER_PROMPT,
+    SUMMARY_LLM_SYSTEM_PROMPT,
+    SUMMARY_LLM_USER_PROMPT,
     BASE_USER_PROMPT,
     RETRY_PROMPT,
 )
-from utils.constants import LOG_FILE, FINAL_LLM
+from utils.constants import LOG_FILE, SUMMARY_LLM
 from typing import List, Dict, Any, Tuple
 from utils.helper import summarize_large_output
 from gtfs_agent.llm_client import OpenAIClient, GroqClient, AnthropicClient
@@ -26,9 +26,10 @@ class LLMAgent:
         self,
         file_mapping,
         model: str,
+        allow_viz: bool = False,
         max_retry=3,
-        max_chars=12000,
-        max_rows=50,
+        max_chars=2000,
+        max_rows=20,
     ):
         self.evaluator = GTFS_Eval(file_mapping)
         self.model = model
@@ -59,15 +60,16 @@ class LLMAgent:
         self.result = None
         self.last_response = None
         self.chat_history = []
+        self.allow_viz = allow_viz
         self.load_system_prompt()
 
     def load_system_prompt(self):
         ## Load system prompt
         self.system_prompt = self.evaluator.get_system_prompt(
-            self.GTFS, self.distance_unit
+            self.GTFS, self.distance_unit, self.allow_viz
         )
         self.logger.info(
-            f"Loaded system prompt for GTFS: {self.GTFS} with distance unit: {self.distance_unit}"
+            f"Loaded system prompt for GTFS: {self.GTFS} with distance unit: {self.distance_unit} and visualization: {self.allow_viz}"
         )
 
     @staticmethod
@@ -115,24 +117,13 @@ class LLMAgent:
             self.chat_history.append(interaction)
 
     @task(name="Call LLM")
-    def call_llm(self, query):
+    def call_llm(self, user_input: str) -> Tuple[str, bool, str]:
         model = self.model
-        self.logger.info(f"User Query: {query}. Calling {model}...")
-        few_shot_examples = generate_dynamic_few_shot(query, n=3)
-        user_prompt = BASE_USER_PROMPT.format(
-            user_query=query, examples=few_shot_examples
-        )
-        messages = self.create_messages(self.system_prompt, user_prompt, model)
-        self.logger.info(f"Calling LLM with following messages:\n {messages}")
+        self.logger.info(f"Calling LLM with model: {model}")
+        messages = self.create_messages(self.system_prompt, user_input, model)
         client = self.clients[self.get_client_key(model)]
+        self.logger.info(f"Messages sent to {model}: {messages}\n\n System Prompt: {self.system_prompt}")
         response, call_success = client.call(model, messages, self.system_prompt)
-
-        if not call_success:
-            self.logger.error(f"LLM call failed: {response}")
-        else:
-            self.last_response = response
-            self.logger.info(f"Response from LLM: {response}")
-
         return response, call_success
 
     @task(name="Execute Code")
@@ -232,33 +223,29 @@ class LLMAgent:
         self.logger.info(f"LLM Response: {response}")
         return response, call_success
 
-    @task(name="Final LLM Call")
-    def call_final_llm(self, stream_placeholder):
-        system_prompt = FINAL_LLM_SYSTEM_PROMPT
+    @task(name="Summary LLM Call")
+    def call_summary_llm(self, stream_placeholder):
+        system_prompt = SUMMARY_LLM_SYSTEM_PROMPT
         last_interaction = self.chat_history[-1] if self.chat_history else None
 
         if not last_interaction:
-            self.logger.warning("No interactions in chat history for final LLM call")
+            self.logger.warning("No interactions in chat history for summary LLM call")
             return "No previous interaction available."
         # Additional check to ensure that large dataframes are not passed to the LLM
         summarized_evaluation = summarize_large_output(
             last_interaction.evaluation_result, self.max_rows, self.max_chars
         )
-        # executable_pattern = r"```python\n(.*?)```"
-        # code_response = re.findall(
-        #     executable_pattern, last_interaction.assistant_response, re.DOTALL
-        # )
-        user_prompt = FINAL_LLM_USER_PROMPT.format(
+        user_prompt = SUMMARY_LLM_USER_PROMPT.format(
             question=last_interaction.user_prompt,
-            response=last_interaction.assistant_response,  # ATTENTION: Passing whole response instead of code response
+            response=last_interaction.assistant_response,
             evaluation=summarized_evaluation,
             success=last_interaction.code_success,
             error=last_interaction.error_message,
         )
-        # Hardcoded model for final LLM call
-        model = FINAL_LLM
+        # Hardcoded model for summary LLM call
+        model = SUMMARY_LLM
         messages = self.create_messages(system_prompt, user_prompt, model)
-        self.logger.info(f"Final LLM message sent to {model} : {messages}")
+        self.logger.info(f"Summary LLM message sent to {model} : {messages}")
         full_response = ""
         client = self.clients["gpt"]
         # Stream the response
@@ -266,7 +253,7 @@ class LLMAgent:
             full_response += chunk
             stream_placeholder.markdown(full_response + "▌")
 
-        self.logger.info("Final response from LLM:\n %s", full_response)
+        self.logger.info("Summary response from LLM:\n %s", full_response)
         return full_response
 
     @task(name="Evaluate Code")
@@ -291,36 +278,42 @@ class LLMAgent:
         for client in self.clients.values():
             client.set_logger(self.logger)
 
-    def update_agent(self, GTFS, model, distance_unit):
+    def update_agent(self, GTFS, model, distance_unit, allow_viz):
         self.reset()
         self.evaluator.reset()
         self.GTFS = GTFS
         self.model = model
         self.distance_unit = distance_unit
+        self.allow_viz = allow_viz
         self.logger.info(
-            f"Updating LLMAgent with model: {model}, GTFS: {GTFS} and distance unit: {distance_unit}"
+            f"Updating LLMAgent with model: {model}, GTFS: {GTFS}, distance unit: {distance_unit}, and allow_viz: {allow_viz}"
         )
         self.load_system_prompt()
 
     @workflow(name="LLM Agent Workflow")
     def run_workflow(self, user_input: str, retry_code: bool = False):
         llm_response, call_success = self.call_llm(user_input)
+            
         if not call_success:
-            return None, False, "LLM call failed", False, llm_response, None
-
+            self.logger.error(f"LLM call failed: {llm_response}")
+            # If call is not successful, LLM response is the error message
+            return None, False, llm_response, True, None, None, None
+        
+        self.logger.info(f"LLM call success: {llm_response}")
         result, success, error, only_text, llm_response = self.evaluate_code(
             user_input, llm_response, retry_code=retry_code
         )
         
         # New step: Validate evaluation results
-        validation_response = self.validate_evaluation(user_input, llm_response, result, success, error, only_text)
+        # validation_response = self.validate_evaluation(user_input, llm_response, result, success, error, only_text)
+        validation_response = None
         
-        if success or only_text:
-            final_response = self.call_final_llm(st.empty())
+        if success and not only_text:
+            summary_response = self.call_summary_llm(st.empty())
         else:
-            final_response = None
+            summary_response = None
 
-        return result, success, error, only_text, llm_response, final_response, validation_response
+        return result, success, error, only_text, llm_response, summary_response, validation_response
 
     @task(name="Validate Evaluation")
     def validate_evaluation(self, user_input: str, llm_response: str, result: Any, success: bool, error: str, only_text: bool):
@@ -344,7 +337,7 @@ class LLMAgent:
         
         messages = self.create_messages(self.system_prompt, validation_prompt, self.model)
         client = self.clients["gpt"]
-        validation_response, _ = client.call(FINAL_LLM, messages, self.system_prompt)
+        validation_response, _ = client.call(SUMMARY_LLM, messages, self.system_prompt)
         
         self.logger.info(f"Validation response from LLM: {validation_response}")
         return validation_response
