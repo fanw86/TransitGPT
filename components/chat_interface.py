@@ -1,6 +1,7 @@
 import re
 import json
 import streamlit as st
+import pandas as pd
 import matplotlib.pyplot as plt
 from utils.feedback import FeedbackAgent
 from streamlit_folium import folium_static
@@ -63,6 +64,20 @@ def safe_fig_display(fig):
             f"Expected a Matplotlib or Plotly Figure object, but received a different type. Received object of type: {type(fig)}"
         )
 
+@st.cache_data
+def safe_dataframe_display(df):
+    if isinstance(df, pd.DataFrame):
+        try:
+            st.dataframe(df, use_container_width=True)
+        except Exception as e:
+            st.error(f"Error displaying DataFrame: {str(e)}")
+            st.write("DataFrame data (non-rendered):")
+            st.json(df.to_dict())
+    else:
+        st.error(
+            f"Expected a Pandas DataFrame object, but received a different type. Received object of type: {type(df)}"
+        )
+    
 
 def apply_color_codes(text):
     def color_replacer(match):
@@ -89,11 +104,14 @@ def display_code_output(message, only_text=False):
         st.write(code_output)
 
 
-def display_fig_map(code_output):
+def display_fig_map_dataframe(code_output):
     if "plot" in code_output and code_output["plot"] is not None:
         safe_fig_display(code_output["plot"])
     if "map" in code_output and code_output["map"] is not None:
         safe_folium_display(code_output["map"])
+    if "dataframe" in code_output and code_output["dataframe"] is not None:
+        safe_dataframe_display(code_output["dataframe"])
+
 
 
 def display_figure(fig):
@@ -178,7 +196,7 @@ def display_llm_response(fb_agent, uuid, message, i):
             else:
                 st.markdown(colored_response, unsafe_allow_html=True)
     if isinstance(message["code_output"], dict):
-        display_fig_map(message["code_output"])
+        display_fig_map_dataframe(message["code_output"])
 
 
 def display_chat_history(fb_agent: FeedbackAgent, uuid: str):

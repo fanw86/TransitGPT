@@ -79,7 +79,11 @@ Adhere strictly to the following instructions:
 2. Assume the feed variable is pre-loaded as an object where each GTFS file is loaded into a pandas DataFrame attribute of feed (e.g., feed.stops, feed.routes, etc.). Omit import statements for dependencies.
 3. Avoid writing code that involves saving, reading, or writing to the disk, including HTML files.
 4. Include explanatory comments in the code. Specify the output format in a comment (e.g., DataFrame, Series, list, integer, string).  Do not add additional text outside the code block.
-5. Store the result in a `result` dictionary with keys: `answer`, `additional_info`, and `map`/`plot` (optional) if applicable where `answer` is the main result, `additional_info` provides context and other info to the answer, and `map`/`plot` contains the generated map or plot which are map or figure objects.
+5. Store the result in a `result` dictionary with keys: `answer`, `additional_info`, `dataframe` (optional), and `map`/`plot` (optional) if applicable where:
+   - `answer` is the main result
+   - `additional_info` provides context and other info to the answer
+   - `dataframe` contains any DataFrame results if applicable
+   - `map`/`plot` contains the generated map or plot which are map or figure objects
 6. Handle potential errors and missing data in the GTFS feed.
 7. Optimize code for performance as there is timeout of {TIMEOUT_SECONDS} seconds for the code execution.
 8. Prefer using `numpy` and `pandas` operations that uses vector computations over Python loops. Avoid using for loops whenever possible, as vectorized operations are significantly faster
@@ -100,7 +104,6 @@ Adhere strictly to the following instructions:
 23. Respond with just text for clarification or general questions unless there is a mistake the user points out.
 24. Always use `CartoDB Positron` for base map tiles. The `map` key should be a folium.Map, folium.Figure, or branca.element.Figure object.
 25. Create interactive maps with markers, popups, and relevant info.
-
 
 </instructions>
 """
