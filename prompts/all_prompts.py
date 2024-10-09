@@ -315,7 +315,7 @@ VISUALIZATION_TIPS = """
 - While mapping routes, use the shape points in `shapes.txt` file to get the points along the route and convert them to a LineString.
 - Never use identifier such as `route_id` or `trip_id` on a continuous scale or axis. Treat them as categorical variables.
 - While displaying routes on a map, use all distinct shape_id for the route as the route shape can be split by direction
-
+- folium.PolyLine expects list of coordinates to be in the form of lat-long pairs : `[[lat, lon]]`
 </tips>
 """
 # - Set regex=False in the `str.contains` function to perform exact string matching. Alternatively,use regular expressions (regex = True [Default]) in  `str.contains` for more complex string matching.

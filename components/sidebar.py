@@ -39,7 +39,7 @@ def clear_chat_history():
     load_session_state()
 
 
-def update_visualization_setting():
+def update_agent_settings():
     if "agent" in st.session_state:
         st.session_state.agent.update_agent(
             st.session_state.agent.GTFS,
@@ -65,7 +65,7 @@ def setup_sidebar():
         LLMs,
         key="model",
         help="Pick your LLM! In our experiments Claude seems to be the best!",
-        on_change=load_agent_evaluator,
+        on_change=update_agent_settings,
     )
 
     GTFS_feed_list = list(file_mapping.keys())
@@ -82,7 +82,7 @@ def setup_sidebar():
         value=True,
         key="allow_viz",
         help="LLM will generate visualization along with code.",
-        on_change=update_visualization_setting,
+        on_change=update_agent_settings,
     )
     
     st.sidebar.toggle(

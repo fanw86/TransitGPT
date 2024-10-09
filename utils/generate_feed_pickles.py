@@ -36,6 +36,7 @@ def pickle_gtfs_loaders(file_mapping, output_directory, mapping_file_path):
         os.makedirs(output_directory)
 
     for agency_name, agency_data in file_mapping.items():
+        print("<====Processing", agency_name, "====>")
         try:
             # if distance_unit is not`m` or `km` set it to `m`
             if agency_data["distance_unit"] not in ["m", "km"]:

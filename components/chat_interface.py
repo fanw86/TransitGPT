@@ -26,7 +26,7 @@ def is_json_serializable(obj):
         return False
 
 @st.cache_data
-def safe_folium_display(_folium_map):
+def safe_folium_display(_folium_map, uuid):
     if isinstance(_folium_map, Map):
         try:
             folium_static(_folium_map, height=400)
@@ -104,11 +104,11 @@ def display_code_output(message, only_text=False):
         st.write(code_output)
 
 
-def display_fig_map_dataframe(code_output):
+def display_fig_map_dataframe(code_output, uuid):
     if "plot" in code_output and code_output["plot"] is not None:
         safe_fig_display(code_output["plot"])
     if "map" in code_output and code_output["map"] is not None:
-        safe_folium_display(code_output["map"])
+        safe_folium_display(code_output["map"], uuid)
     if "dataframe" in code_output and code_output["dataframe"] is not None:
         safe_dataframe_display(code_output["dataframe"])
 
@@ -196,7 +196,7 @@ def display_llm_response(fb_agent, uuid, message, i):
             else:
                 st.markdown(colored_response, unsafe_allow_html=True)
     if isinstance(message["code_output"], dict):
-        display_fig_map_dataframe(message["code_output"])
+        display_fig_map_dataframe(message["code_output"], uuid)
 
 
 def display_chat_history(fb_agent: FeedbackAgent, uuid: str):
