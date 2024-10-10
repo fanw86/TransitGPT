@@ -25,7 +25,7 @@ def is_json_serializable(obj):
     except (TypeError, OverflowError):
         return False
 
-@st.cache_data
+@st.cache_data(show_spinner="Displaying Map")
 def safe_folium_display(_folium_map, uuid):
     if isinstance(_folium_map, Map):
         try:
@@ -45,7 +45,7 @@ def safe_folium_display(_folium_map, uuid):
             f"Expected a Folium Map object, but received a different type. Received object of type: {type(_folium_map)}"
         )
 
-@st.cache_data
+@st.cache_data(show_spinner="Displaying Figure")
 def safe_fig_display(fig):
     if isinstance(fig, plt.Figure):
         try:
@@ -64,11 +64,11 @@ def safe_fig_display(fig):
             f"Expected a Matplotlib or Plotly Figure object, but received a different type. Received object of type: {type(fig)}"
         )
 
-@st.cache_data
+@st.cache_data(show_spinner="Displaying Dataframe")
 def safe_dataframe_display(df):
     if isinstance(df, pd.DataFrame):
         try:
-            st.dataframe(df, use_container_width=True)
+            st.dataframe(df.reset_index(drop=True), use_container_width=True, hide_index=True)
         except Exception as e:
             st.error(f"Error displaying DataFrame: {str(e)}")
             st.write("DataFrame data (non-rendered):")
@@ -159,7 +159,9 @@ def display_llm_response(fb_agent, uuid, message, i):
             else:
                 error_message = message['error_message']
                 if "TimeoutError" in error_message:
-                    st.warning(f"Code execution timed out. Timeout limit is {TIMEOUT_SECONDS//60} minutes.", icon="⏰")
+                    st.warning(
+                        f"⏰Code execution timed out. Current timeout is {TIMEOUT_SECONDS//60} minutes.",
+                    )
                     return  # Skip displaying the final message
                 with st.expander("❌ :red[Error Message]", expanded=False):
                     st.error(f"\n {error_message}")

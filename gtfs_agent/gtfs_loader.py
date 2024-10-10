@@ -5,8 +5,9 @@ import zipfile
 import datetime
 import traceback
 from typing import Optional, Any
-from functools import lru_cache
+from functools import lru_cache, partial
 from utils.helper import list_files_in_zip
+from geopy.distance import geodesic
 
 DATE_FORMAT = "%Y%m%d"
 DATE_FORMAT_ALT = "%Y-%m-%d"
@@ -48,10 +49,71 @@ class GTFSLoader:
         return feed
 
     def _append_distances(self, feed):
-        if "shape_dist_traveled" not in feed.stop_times.columns or feed.stop_times.shape_dist_traveled.isna().any():
-            feed = feed.append_dist_to_stop_times()
         if "shape_dist_traveled" not in feed.shapes.columns or feed.shapes.shape_dist_traveled.isna().any():
-            feed = feed.append_dist_to_shapes()
+            feed = self._calculate_shape_distances(feed)
+        # if "shape_dist_traveled" not in feed.stop_times.columns or feed.stop_times.shape_dist_traveled.isna().any():
+        #     feed = self._calculate_stop_distances(feed)
+        return feed
+
+    def _calculate_shape_distances(self, feed):
+        print("Calculating shape distances")
+        
+        results = []
+        for _, group in feed.shapes.groupby('shape_id'):
+            result = self._calculate_single_shape(group, self.distance_unit)
+            results.append(result)
+        
+        # Combine the results
+        feed.shapes = pd.concat(results)
+        
+        return feed
+
+    def _calculate_single_shape(self, group, distance_unit):
+        cumulative_distance = 0
+        previous_point = None
+        
+        for idx, row in group.iterrows():
+            current_point = (row['shape_pt_lat'], row['shape_pt_lon'])
+            
+            if previous_point is not None:
+                distance = geodesic(previous_point, current_point).meters
+                if distance_unit == 'km':
+                    distance /= 1000
+                elif distance_unit == 'miles':
+                    distance *= 0.000621371
+                cumulative_distance += distance
+            
+            group.at[idx, 'shape_dist_traveled'] = cumulative_distance
+            previous_point = current_point
+        
+        return group
+
+    def _calculate_stop_distances(self, feed):
+        print("Calculating stop distances")
+        stops = feed.stops.set_index('stop_id')
+        
+        for trip_id, group in feed.stop_times.groupby('trip_id'):
+            cumulative_distance = 0
+            previous_stop = None
+            
+            for idx, row in group.iterrows():
+                current_stop = stops.loc[row['stop_id']]
+                
+                if previous_stop is not None:
+                    distance = geodesic(
+                        (previous_stop.stop_lat, previous_stop.stop_lon),
+                        (current_stop.stop_lat, current_stop.stop_lon)
+                    ).meters
+                    if self.distance_unit == 'km':
+                        distance /= 1000
+                    elif self.distance_unit == 'miles':
+                        distance *= 0.000621371
+                    
+                    cumulative_distance += distance
+                
+                feed.stop_times.at[idx, 'shape_dist_traveled'] = cumulative_distance
+                previous_stop = current_stop
+        
         return feed
 
     def _parse_times_and_dates(self, feed):

@@ -155,7 +155,7 @@ class LLMAgent:
                 success, error = self._check_map_renderability(result['map'])
 
             if success or only_text or "TimeoutError" in error:
-                return result, success, "\n".join(errors), only_text, llm_response
+                return result, success, "\n".join(errors) if len(errors) > 0 else error, only_text, llm_response
 
             errors.append(f"Attempt {attempt}: {error}")
             self._log_retry_attempt(attempt, error)

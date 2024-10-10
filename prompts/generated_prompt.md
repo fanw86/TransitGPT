@@ -32,10 +32,604 @@ Common data types:
 
 These are the datatypes for all files within the current GTFS:
 
+### agency.txt
+
+<data-type>
+
+- `agency_id`: string
+- `agency_name`: string
+- `agency_url`: string
+- `agency_timezone`: string
+- `agency_lang`: string
+- `agency_phone`: string
+- `agency_fare_url`: string
+- `agency_email`: string
+
+</data-type>
+
+### calendar.txt
+
+<data-type>
+
+- `service_id`: string
+- `monday`: integer
+- `tuesday`: integer
+- `wednesday`: integer
+- `thursday`: integer
+- `friday`: integer
+- `saturday`: integer
+- `sunday`: integer
+- `start_date`: date (datetime.date)
+- `end_date`: date (datetime.date)
+
+</data-type>
+
+### calendar_dates.txt
+
+<data-type>
+
+- `service_id`: string
+- `exception_type`: integer
+
+</data-type>
+
+### fare_attributes.txt
+
+<data-type>
+
+- `fare_id`: string
+- `price`: float
+- `currency_type`: string
+- `payment_method`: integer
+- `transfers`: integer
+
+</data-type>
+
+### fare_rules.txt
+
+<data-type>
+
+- `fare_id`: string
+- `route_id`: string
+
+</data-type>
+
+### feed_info.txt
+
+<data-type>
+
+- `feed_publisher_name`: string
+- `feed_publisher_url`: string
+- `feed_lang`: string
+- `feed_start_date`: date (datetime.date)
+- `feed_end_date`: date (datetime.date)
+- `feed_version`: string
+
+</data-type>
+
+### routes.txt
+
+<data-type>
+
+- `route_id`: string
+- `route_short_name`: string
+- `route_long_name`: string
+- `route_desc`: string
+- `route_url`: string
+- `route_color`: string
+- `route_text_color`: string
+- `route_type`: integer
+
+</data-type>
+
+### shapes.txt
+
+<data-type>
+
+- `shape_id`: string
+- `shape_pt_lat`: float
+- `shape_pt_lon`: float
+- `shape_pt_sequence`: integer
+- `shape_dist_traveled`: float (`Meters`)
+
+</data-type>
+
+### stop_times.txt
+
+<data-type>
+
+- `trip_id`: string
+- `arrival_time`: time (seconds since midnight)
+- `departure_time`: time (seconds since midnight)
+- `stop_id`: string
+- `stop_sequence`: integer
+- `timepoint`: integer
+
+</data-type>
+
+### stops.txt
+
+<data-type>
+
+- `stop_id`: string
+- `stop_code`: string
+- `stop_name`: string
+- `stop_desc`: string
+- `stop_lat`: float
+- `stop_lon`: float
+- `stop_url`: string
+- `location_type`: integer
+- `parent_station`: string
+- `stop_timezone`: string
+- `wheelchair_boarding`: integer
+
+</data-type>
+
+### trips.txt
+
+<data-type>
+
+- `trip_id`: string
+- `route_id`: string
+- `service_id`: string
+- `trip_headsign`: string
+- `trip_short_name`: string
+- `direction_id`: integer
+- `shape_id`: string
+- `wheelchair_accessible`: integer
+- `bikes_allowed`: integer
+- `block_id`: string
+
+</data-type>
+
 
 
 ## Sample from the feed: 
  The following is a sample from the feed, showcasing the first five lines from each file:
+
+### agency.txt (feed.agency)
+<feed-sample>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>agency_id</th>
+      <th>agency_name</th>
+      <th>agency_url</th>
+      <th>agency_timezone</th>
+      <th>agency_lang</th>
+      <th>agency_phone</th>
+      <th>agency_fare_url</th>
+      <th>agency_email</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>4030</td>
+      <td>Regional Transit System</td>
+      <td>http://www.go-rts.com/</td>
+      <td>America/New_York</td>
+      <td>en</td>
+      <td>(352) 334-2600</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+</feed-sample>
+
+### calendar.txt (feed.calendar)
+<feed-sample>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>service_id</th>
+      <th>monday</th>
+      <th>tuesday</th>
+      <th>wednesday</th>
+      <th>thursday</th>
+      <th>friday</th>
+      <th>saturday</th>
+      <th>sunday</th>
+      <th>start_date</th>
+      <th>end_date</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>SHS</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>2025-05-05</td>
+      <td>2025-08-17</td>
+    </tr>
+    <tr>
+      <td>HS</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>2024-08-19</td>
+      <td>2025-05-04</td>
+    </tr>
+    <tr>
+      <td>SWB</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>2025-05-05</td>
+      <td>2025-08-17</td>
+    </tr>
+  </tbody>
+</table>
+</feed-sample>
+
+### calendar_dates.txt (feed.calendar_dates)
+<feed-sample>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>service_id</th>
+      <th>date</th>
+      <th>exception_type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>SHS</td>
+      <td>2025-05-26</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>SHS</td>
+      <td>2025-06-19</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>SHS</td>
+      <td>2025-07-04</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</feed-sample>
+
+### fare_attributes.txt (feed.fare_attributes)
+<feed-sample>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>fare_id</th>
+      <th>price</th>
+      <th>currency_type</th>
+      <th>payment_method</th>
+      <th>transfers</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>1.5</td>
+      <td>USD</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</feed-sample>
+
+### fare_rules.txt (feed.fare_rules)
+<feed-sample>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>fare_id</th>
+      <th>route_id</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>5</td>
+    </tr>
+  </tbody>
+</table>
+</feed-sample>
+
+### feed_info.txt (feed.feed_info)
+<feed-sample>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>feed_publisher_name</th>
+      <th>feed_publisher_url</th>
+      <th>feed_lang</th>
+      <th>feed_start_date</th>
+      <th>feed_end_date</th>
+      <th>feed_version</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Regional Transit System</td>
+      <td>http://www.go-rts.com/</td>
+      <td>en</td>
+      <td>2024-08-19</td>
+      <td>2025-08-17</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+</feed-sample>
+
+### routes.txt (feed.routes)
+<feed-sample>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>route_id</th>
+      <th>route_short_name</th>
+      <th>route_long_name</th>
+      <th>route_desc</th>
+      <th>route_url</th>
+      <th>route_color</th>
+      <th>route_text_color</th>
+      <th>route_type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>126</td>
+      <td>126</td>
+      <td>UF East/West Circulator (Lakeside To Sorority Row)</td>
+      <td>NaN</td>
+      <td>http://go-rts.com/route126-sorority-to-lakeside/</td>
+      <td>7CC6F3</td>
+      <td>NaN</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>23</td>
+      <td>23</td>
+      <td>Oaks Mall To Santa Fe College</td>
+      <td>NaN</td>
+      <td>http://go-rts.com/route023-oaks-mall-to-santa-fe-via-ft-clarke-blvd/</td>
+      <td>B49F33</td>
+      <td>NaN</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>28</td>
+      <td>28</td>
+      <td>The Hub To Butler Plaza TS</td>
+      <td>NaN</td>
+      <td>http://www.go-rts.com/schedule.php</td>
+      <td>9CC77D</td>
+      <td>NaN</td>
+      <td>3</td>
+    </tr>
+  </tbody>
+</table>
+</feed-sample>
+
+### shapes.txt (feed.shapes)
+<feed-sample>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>shape_id</th>
+      <th>shape_pt_lat</th>
+      <th>shape_pt_lon</th>
+      <th>shape_pt_sequence</th>
+      <th>shape_dist_traveled</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>10I</td>
+      <td>29.67953</td>
+      <td>-82.43187</td>
+      <td>0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <td>10I</td>
+      <td>29.67953</td>
+      <td>-82.43194</td>
+      <td>1</td>
+      <td>6.775635</td>
+    </tr>
+    <tr>
+      <td>10I</td>
+      <td>29.67953</td>
+      <td>-82.43199</td>
+      <td>2</td>
+      <td>11.615374</td>
+    </tr>
+  </tbody>
+</table>
+</feed-sample>
+
+### stop_times.txt (feed.stop_times)
+<feed-sample>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>trip_id</th>
+      <th>arrival_time</th>
+      <th>departure_time</th>
+      <th>stop_id</th>
+      <th>stop_sequence</th>
+      <th>timepoint</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>8001002</td>
+      <td>28800.0</td>
+      <td>28800.0</td>
+      <td>1493</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>8001002</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>1349</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>8001002</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>1548</td>
+      <td>2</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</feed-sample>
+
+### stops.txt (feed.stops)
+<feed-sample>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>stop_id</th>
+      <th>stop_code</th>
+      <th>stop_name</th>
+      <th>stop_desc</th>
+      <th>stop_lat</th>
+      <th>stop_lon</th>
+      <th>stop_url</th>
+      <th>location_type</th>
+      <th>parent_station</th>
+      <th>stop_timezone</th>
+      <th>wheelchair_boarding</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1493</td>
+      <td>1493</td>
+      <td>Butler Plaza Transfer Station</td>
+      <td>Westbound SW 30th Place @ Farside SW 42nd Street</td>
+      <td>29.625154</td>
+      <td>-82.387890</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>1349</td>
+      <td>1349</td>
+      <td>Hilton Garden Inn</td>
+      <td>Eastbound SW 33rd PL @ Farside SW 42nd ST</td>
+      <td>29.623016</td>
+      <td>-82.385719</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>1548</td>
+      <td>1548</td>
+      <td>Sam's Club</td>
+      <td>Eastbound SW 33rd PL @ Nearside SW 37th Blvd</td>
+      <td>29.622999</td>
+      <td>-82.383453</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+</feed-sample>
+
+### trips.txt (feed.trips)
+<feed-sample>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>trip_id</th>
+      <th>route_id</th>
+      <th>service_id</th>
+      <th>trip_headsign</th>
+      <th>trip_short_name</th>
+      <th>direction_id</th>
+      <th>shape_id</th>
+      <th>wheelchair_accessible</th>
+      <th>bikes_allowed</th>
+      <th>block_id</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>8001002</td>
+      <td>1</td>
+      <td>SHS</td>
+      <td>To Downtown Station</td>
+      <td>NaN</td>
+      <td>1</td>
+      <td>1I</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>80011</td>
+    </tr>
+    <tr>
+      <td>8001004</td>
+      <td>1</td>
+      <td>SHS</td>
+      <td>\tTo Downtown Station</td>
+      <td>\t</td>
+      <td>1</td>
+      <td>1I</td>
+      <td>\t</td>
+      <td>\t</td>
+      <td>80011</td>
+    </tr>
+    <tr>
+      <td>8001006</td>
+      <td>1</td>
+      <td>SHS</td>
+      <td>\tTo Downtown Station</td>
+      <td>\t</td>
+      <td>1</td>
+      <td>1I</td>
+      <td>\t</td>
+      <td>\t</td>
+      <td>80011</td>
+    </tr>
+  </tbody>
+</table>
+</feed-sample>
 
 
 ## Task Instructions
@@ -105,7 +699,8 @@ These are some helpful tips and facts to know when solving the task:
 #### Route Matching
 - Search across multiple fields: `route_id`, `route_short_name`, and `route_long_name`.
 - For each search, determine whether to return all matches or only the closest match based on the use case.
-- Use the `find_route` function to find the route_id
+- Use the `find_route` function to find the route_id using `.route_id` attribute.
+- Always use the `route_id` attribute to find the route_id.
 <function>
 <function_name>find_route</function_name>
 <function_description>Find a route by searching through route IDs, short names, and long names using fuzzy matching.</function_description>
@@ -273,9 +868,10 @@ For distance calculations:
 - Use markers to highlight key points in the plot or map.
 - Always have a legend and/or labels for the plots and maps to make them more informative.
 - Prefer plotly express for plotting as it provides a high-level interface for creating a variety of plots.
-- Remember that Figures and Maps are optional and should only be included if explicitly requested in the task or if they help in explaining the solution better.
+- Remember that Dataframes, Figures and Maps are optional and should only be included if explicitly requested in the task or if they help in explaining the solution better.
 - While mapping routes, use the shape points in `shapes.txt` file to get the points along the route and convert them to a LineString.
 - Never use identifier such as `route_id` or `trip_id` on a continuous scale or axis. Treat them as categorical variables.
 - While displaying routes on a map, use all distinct shape_id for the route as the route shape can be split by direction
 - folium.PolyLine expects list of coordinates to be in the form of lat-long pairs : `[[lat, lon]]`
+- Display routes with their respective `route_color` if available
 </tips>

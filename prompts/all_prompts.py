@@ -141,7 +141,8 @@ These are some helpful tips and facts to know when solving the task:
 #### Route Matching
 - Search across multiple fields: `route_id`, `route_short_name`, and `route_long_name`.
 - For each search, determine whether to return all matches or only the closest match based on the use case.
-- Use the `find_route` function to find the route_id
+- Use the `find_route` function to find the route_id using `.route_id` attribute.
+- Always use the `route_id` attribute to find the route_id.
 <function>
 <function_name>find_route</function_name>
 <function_description>Find a route by searching through route IDs, short names, and long names using fuzzy matching.</function_description>
@@ -311,11 +312,12 @@ VISUALIZATION_TIPS = """
 - Use markers to highlight key points in the plot or map.
 - Always have a legend and/or labels for the plots and maps to make them more informative.
 - Prefer plotly express for plotting as it provides a high-level interface for creating a variety of plots.
-- Remember that Figures and Maps are optional and should only be included if explicitly requested in the task or if they help in explaining the solution better.
+- Remember that Dataframes, Figures and Maps are optional and should only be included if explicitly requested in the task or if they help in explaining the solution better.
 - While mapping routes, use the shape points in `shapes.txt` file to get the points along the route and convert them to a LineString.
 - Never use identifier such as `route_id` or `trip_id` on a continuous scale or axis. Treat them as categorical variables.
 - While displaying routes on a map, use all distinct shape_id for the route as the route shape can be split by direction
 - folium.PolyLine expects list of coordinates to be in the form of lat-long pairs : `[[lat, lon]]`
+- Display routes with their respective `route_color` if available
 </tips>
 """
 # - Set regex=False in the `str.contains` function to perform exact string matching. Alternatively,use regular expressions (regex = True [Default]) in  `str.contains` for more complex string matching.

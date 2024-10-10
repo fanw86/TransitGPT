@@ -24,6 +24,11 @@
     "distance_unit": "m",
     "pickle_loc": "gtfs_data/feed_pickles/MBTA_gtfs_loader.pkl"
   },
+  "Go-RTS": {
+    "file_loc": "gtfs_data/Gainesville-Gainesville Regional Transit System-FL/gtfs.zip",
+    "distance_unit": "m",
+    "pickle_loc": "gtfs_data/feed_pickles/Go-RTS_gtfs_loader.pkl"
+  },
   "TheBus": {
     "file_loc": "gtfs_data/Honolulu-TheBus-HI/gtfs.zip",
     "distance_unit": "m",
@@ -42,8 +47,7 @@
   "AC Transit": {
     "file_loc": "gtfs_data/Oakland-Alameda-Contra Costa Transit District (AC Transit)-CA/gtfs.zip",
     "distance_unit": "m",
-    "pickle_loc": "gtfs_data/feed_pickles/AC Transit_gtfs_loader.pkl",
-    "error": "[Errno 22] Invalid argument: 'C:\\\\Users\\\\sd37\\\\Box\\\\GTFS-Self_Instruct\\\\gtfs2code\\\\gtfs_data\\\\feed_pickles\\\\AC Transit_gtfs_loader.pkl'"
+    "pickle_loc": "gtfs_data/feed_pickles/AC Transit_gtfs_loader.pkl"
   },
   "samTrans": {
     "file_loc": "gtfs_data/San Mateo-San Mateo County Transit District (samTrans)-CA/gtfs.zip",

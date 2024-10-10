@@ -62,7 +62,7 @@ class GTFS_Eval:
         if self.gtfs != GTFS:
             current_loader = getattr(self, f"loader_{GTFS.lower()}")
             # Load all tables for the selected GTFS feed
-            current_loader.load_all_tables()
+            # current_loader.load_all_tables()
             self.gtfs = GTFS
             print(f"Loaded feed {self.gtfs}")
         return current_loader
