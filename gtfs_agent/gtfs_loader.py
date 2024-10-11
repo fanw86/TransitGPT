@@ -8,9 +8,77 @@ from typing import Optional, Any
 from functools import lru_cache, partial
 from utils.helper import list_files_in_zip
 from geopy.distance import geodesic
+from shapely.geometry import Point, LineString
+from scipy.spatial import cKDTree
+import geopandas as gpd
 
 DATE_FORMAT = "%Y%m%d"
 DATE_FORMAT_ALT = "%Y-%m-%d"
+
+@lru_cache(maxsize=None)
+def process_stop_sequence(stops, shape_coords, k_neighbors=3):
+    geo_const = 6371000 * np.pi / 180
+    tree = cKDTree(data=shape_coords)
+    
+    if len(stops) <= 1:
+        return None
+
+    neighbors = k_neighbors
+    while True:
+        np_dist, np_inds = tree.query(stops, workers=-1, k=neighbors)
+        np_dist = np_dist * geo_const
+        prev_point = min(np_inds[0])
+        points = [prev_point]
+        
+        for i, nps in enumerate(np_inds[1:]):
+            condition = (nps > prev_point) & (nps < max(np_inds[i + 1]))
+            points_valid = nps[condition]
+            if len(points_valid) > 0:
+                points_score = (np.power(points_valid - prev_point, 3)) * np.power(
+                    np_dist[i + 1, condition], 1
+                )
+                prev_point = nps[condition][np.argmin(points_score)]
+                points.append(prev_point)
+            else:
+                if neighbors < len(stops):
+                    neighbors = min(neighbors + 2, len(stops))
+                    break
+                else:
+                    return None
+        
+        if len(points) == len(stops):
+            return points
+
+def nearest_points(stop_df: pd.DataFrame, shape_points: pd.DataFrame, k_neighbors: int = 3) -> pd.DataFrame:
+    stop_df = stop_df.copy()
+    stop_df["snap_start_id"] = -1
+    
+    shape_coords = np.array([point.coords[0] for point in shape_points]).reshape(-1, 2)
+    
+    failed_trips = []
+    total_trips = 0
+    defective_trips = 0
+
+    for name, group in stop_df.groupby("trip_id"):
+        total_trips += 1
+        stops = tuple(x.coords[0] for x in group["geometry"])
+        
+        points = process_stop_sequence(stops, tuple(map(tuple, shape_coords)), k_neighbors)
+        
+        if points is None:
+            failed_trips.append(name)
+            defective_trips += 1
+            print(f"Excluding Trip: {name} due to processing failure")
+        else:
+            stop_df.loc[stop_df.trip_id == name, "snap_start_id"] = points
+
+    if defective_trips > 0:
+        percent_defective = (defective_trips / total_trips) * 100
+        print(f"Total defective trips: {defective_trips}")
+        print(f"Percentage defective trips: {percent_defective:.2f}%")
+
+    stop_df = stop_df[~stop_df.trip_id.isin(failed_trips)].reset_index(drop=True)
+    return stop_df
 
 class GTFSLoader:
     def __init__(self, gtfs, gtfs_path: str, distance_unit: str = "km"):
@@ -51,8 +119,8 @@ class GTFSLoader:
     def _append_distances(self, feed):
         if "shape_dist_traveled" not in feed.shapes.columns or feed.shapes.shape_dist_traveled.isna().any():
             feed = self._calculate_shape_distances(feed)
-        # if "shape_dist_traveled" not in feed.stop_times.columns or feed.stop_times.shape_dist_traveled.isna().any():
-        #     feed = self._calculate_stop_distances(feed)
+        if "shape_dist_traveled" not in feed.stop_times.columns or feed.stop_times.shape_dist_traveled.isna().any():
+            feed = self._calculate_stop_distances(feed)
         return feed
 
     def _calculate_shape_distances(self, feed):
@@ -90,29 +158,30 @@ class GTFSLoader:
 
     def _calculate_stop_distances(self, feed):
         print("Calculating stop distances")
-        stops = feed.stops.set_index('stop_id')
+        stops = feed.stops
+        shapes = feed.shapes.sort_values(['shape_id', 'shape_pt_sequence'])
+        stops['geometry'] = stops.apply(lambda row: Point(row['stop_lon'], row['stop_lat']), axis=1)
+        # Create a GeoDataFrame with stop locations
+        stops_gdf = feed.stop_times.merge(stops[["stop_id", "geometry"]], on='stop_id')
+        stops_gdf = stops_gdf.merge(feed.trips[["trip_id", "shape_id"]], on="trip_id")
+        # Group by shape_id and apply nearest_points function
+        grouped = stops_gdf.groupby('shape_id')
+        results = []
+        for shape_id, group in grouped:
+            shape_id = shape_id.strip()
+            shape_points = shapes[shapes.shape_id == shape_id]
+            shape_geometry = shape_points.apply(lambda x: Point(x['shape_pt_lon'], x['shape_pt_lat']), axis=1)
+            result = nearest_points(group, shape_geometry)
+            result['shape_dist_traveled'] = shape_points.iloc[result['snap_start_id']]['shape_dist_traveled'].values
+            results.append(result)
         
-        for trip_id, group in feed.stop_times.groupby('trip_id'):
-            cumulative_distance = 0
-            previous_stop = None
-            
-            for idx, row in group.iterrows():
-                current_stop = stops.loc[row['stop_id']]
-                
-                if previous_stop is not None:
-                    distance = geodesic(
-                        (previous_stop.stop_lat, previous_stop.stop_lon),
-                        (current_stop.stop_lat, current_stop.stop_lon)
-                    ).meters
-                    if self.distance_unit == 'km':
-                        distance /= 1000
-                    elif self.distance_unit == 'miles':
-                        distance *= 0.000621371
-                    
-                    cumulative_distance += distance
-                
-                feed.stop_times.at[idx, 'shape_dist_traveled'] = cumulative_distance
-                previous_stop = current_stop
+        # Combine results
+        stop_gdf = pd.concat(results)
+        
+        # Update feed.stop_times with calculated shape_dist_traveled
+        feed.stop_times = feed.stop_times.merge(stop_gdf[['trip_id', 'stop_sequence', 'shape_dist_traveled']], 
+                                                on=['trip_id', 'stop_sequence'], 
+                                                how='left')
         
         return feed
 
