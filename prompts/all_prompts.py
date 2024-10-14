@@ -114,17 +114,25 @@ TASK_TIPS = """
 These are some helpful tips and facts to know when solving the task:
 <tips>
 
+
+### Task Tips
 - The `result` variable should be in a format that can be understood by a human and non-empty
 - Use the provided GTFS knowledge and data types to understand the structure of the GTFS feed.
 - Validate the data and handle missing or inconsistent data appropriately.
 - All files listed in the sample are present in the feed. If you are unsure if a file is present in the feed, use hasattr(). For example, `hasattr(feed, 'stops')` will return True if the feed has a `stops` attribute.
 - Note that some fields are optional and may not be present in all feeds. Even though some fields are present in the DataFrame, they may be empty or contain missing values. If you notice the sample data has missing values for all rows, then assume the field is not present in the feed.
 - The stop sequence starts from `1` and increases by 1 for each subsequent stop on a trip. It resets to 1 for each new trip.
-- The morning peak hours are typically between 6:00 AM and 9:00 AM, and the evening peak hours are between 3:00 PM and 7:00 PM. The rest of the hours are considered off-peak and categorized as midday (9:00 AM to 3:00 PM) or night hours.
 - While finding directions, try to find more than one nearest neighbor to comprehensively arrive at the solution.
 - Report times in appropriate units and speeds in KMPH.
 - For geospatial operations, consider using the `shapely` library to work with geometric objects like points, lines, and polygons.
 - Use shapes.txt to get the points along the route and convert them to a LineString.
+
+### Terminology
+- **Segment or Route Segment**: A segment or route segment is section of the route between two consecutive stops on the same trip.
+- **Headway**: The headway is the time between consecutive vehicles or buses. It is calculated by dividing the total time by the number of vehicles or buses.
+- **Frequency**: The frequency is the number of vehicles or buses that run per hour. It is calculated by dividing 60 minutes by the headway.
+- **Peak Hours**: The morning peak hours are typically between 6:00 AM and 9:00 AM, and the evening peak hours are between 3:00 PM and 7:00 PM.
+- **Off-peak Hours**: The rest of the hours are considered off-peak and categorized as midday (9:00 AM to 3:00 PM) or night hours.
 
 ### Data Operations
 - Time fields in stop_times.txt (arrival_time and departure_time) are already in seconds since midnight and do not need to be converted for calculations. Therefore, the day boundary is accounted for too.
@@ -272,7 +280,6 @@ Output: ((38.8977, -77.0365), "1600 Pennsylvania Avenue NW, Washington, DC 20500
 </helper-functions>
 
 ### Headway/Frequency Calculations
-- The headway is the time between consecutive vehicles or buses. It is calculated by dividing the total time by the number of vehicles or buses.
 - The frequency is the number of vehicles or buses that run per hour. It is calculated by dividing 60 minutes by the headway.
 - The headway and frequency are important metrics to understand the service level of a transit system.
 - To calculate headway of a route, always choose a representative stop (stop_sequence=1) and a particular direction (direction_id=0) and find the time difference between consecutive trips in the same direction for a given time period.
@@ -396,7 +403,10 @@ RETRY_PROMPT = """While executing the code, I encountered the following error:
 {error}
 </error>
 
-Please account for this error and adjust your code accordingly."""
+Please account for this error and adjust your code accordingly.
+Remember to follow the task instructions and use the provided code snippets and GTFS knowledge to answer the user query.
+Change the code to fix the error and try again.
+"""
 ## Think if we need to add examples here
 
 GTFS_TASK_MODERATION = """You are a content moderation expert tasked with categorizing user-generated text based on the following guidelines:

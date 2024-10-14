@@ -47,6 +47,10 @@ def update_agent_settings():
             st.session_state.agent.distance_unit,
             st.session_state.allow_viz
         )
+    st.toast(
+        f"Using Model: {st.session_state.model} with Visualization: {st.session_state.allow_viz}",
+        icon="🚌",
+    )
 
 
 def setup_sidebar():

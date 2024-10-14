@@ -409,62 +409,52 @@ example_10:
     question: Map all routes that operate post midnight
     answer: |
         ```python
-        # Step 1: Find trips that operate post midnight
-        post_midnight_trips = feed.stop_times[feed.stop_times['departure_time'] > 86400]['trip_id'].unique()
-
-        # Step 2: Get unique routes for these trips
-        post_midnight_routes = feed.trips[feed.trips['trip_id'].isin(post_midnight_trips)]['route_id'].unique()
-
-        # Step 3: Get shapes for these routes
-        shapes_to_plot = feed.trips[feed.trips['route_id'].isin(post_midnight_routes)]['shape_id'].unique()
-
-        # Create a map centered on the mean coordinates of all shapes
-        all_shape_points = feed.shapes[feed.shapes['shape_id'].isin(shapes_to_plot)]
-        center_lat = all_shape_points['shape_pt_lat'].mean()
-        center_lon = all_shape_points['shape_pt_lon'].mean()
-
-        m = folium.Map(location=[center_lat, center_lon], zoom_start=11, tiles='CartoDB positron')
-
-        # Create a color palette for routes
-        color_palette = px.colors.qualitative.Plotly
-
-        # Create a feature group for the legend
-        feature_group = folium.FeatureGroup(name="Post-midnight Routes")
-        m.add_child(feature_group)
-
-        # Plot each shape
-        for i, shape_id in enumerate(shapes_to_plot):
-            shape_points = feed.shapes[feed.shapes['shape_id'] == shape_id].sort_values('shape_pt_sequence')
-            
-            # Get route information
-            trip_id = feed.trips[feed.trips['shape_id'] == shape_id]['trip_id'].iloc[0]
-            route_id = feed.trips[feed.trips['trip_id'] == trip_id]['route_id'].iloc[0]
-            route_name = feed.routes[feed.routes['route_id'] == route_id]['route_long_name'].iloc[0]
-
-            # Create a LineString from the shape points
-            line = LineString(zip(shape_points['shape_pt_lon'], shape_points['shape_pt_lat']))
-
-            # Convert to GeoDataFrame
-            gdf = gpd.GeoDataFrame(geometry=[line], crs="EPSG:4326")
-
-            # Add to map
-            color = color_palette[i % len(color_palette)]
-            
-            folium.GeoJson(
-                gdf,
-                style_function=lambda x, color=color: {'color': color, 'weight': 3},
-                tooltip=f"Route: {route_name}"
-            ).add_to(feature_group)
-
-        # Add layer control to toggle the legend
-        folium.LayerControl().add_to(m)
-
-        # Store the result
+        # Function to convert shape points to a LineString
+        def shape_to_linestring(shape_df):
+            return LineString(shape_df[['shape_pt_lon', 'shape_pt_lat']].values)
+        
+        # Identify routes operating after midnight
+        late_night_trips = feed.stop_times[feed.stop_times['departure_time'] > 86400]
+        late_night_routes = feed.trips[feed.trips['trip_id'].isin(late_night_trips['trip_id'])]['route_id'].unique()
+        
+        # Get unique shapes for these routes
+        late_night_shapes = feed.trips[feed.trips['route_id'].isin(late_night_routes)]['shape_id'].unique()
+        
+        # Create a map centered on the mean coordinates of all stops
+        center_lat = feed.stops['stop_lat'].mean()
+        center_lon = feed.stops['stop_lon'].mean()
+        m = folium.Map(location=[center_lat, center_lon], zoom_start=12, tiles='CartoDB positron')
+        
+        # Plot each route
+        for shape_id in late_night_shapes:
+            shape_points = feed.shapes[feed.shapes['shape_id'] == shape_id]
+            if not shape_points.empty:
+                linestring = shape_to_linestring(shape_points)
+                route_id = feed.trips[feed.trips['shape_id'] == shape_id]['route_id'].iloc[0]
+                route_color = feed.routes[feed.routes['route_id'] == route_id]['route_color'].iloc[0]
+                color = f"#{route_color}" if pd.notna(route_color) else 'blue'
+        
+                folium.PolyLine(
+                    locations=list(zip(linestring.coords.xy[1], linestring.coords.xy[0])),
+                    color=color,
+                    weight=2,
+                    opacity=0.8,
+                    popup=f"Route: {route_id}"
+                ).add_to(m)
+        
+        # Add a legend
+        legend_html = '''
+        <div style="position: fixed; bottom: 50px; left: 50px; width: 220px; height: 60px; 
+            border:2px solid grey; z-index:9999; font-size:14px; background-color:white;
+            ">&nbsp; <b>Legend</b> <br>
+            &nbsp; Lines: Routes operating after midnight
+        </div>
+        '''
+        m.get_root().html.add_child(folium.Element(legend_html))
+        
         result = {
-            "answer": f"Found {len(post_midnight_routes)} routes that operate post midnight.",
-            "additional_info": f"These routes have trips that depart after 24:00:00 (86400 seconds since midnight). "
-                            f"The map shows the shapes of these routes, each in a different color. "
-                            f"Hover over a route to see its name, and use the layer control to toggle visibility.",
+            "answer": f"Map of {len(late_night_routes)} routes operating after midnight",
+            "additional_info": "The map shows all routes that have trips departing after midnight (00:00). Each route is represented by a colored line on the map.",
             "map": m
         }
         ```

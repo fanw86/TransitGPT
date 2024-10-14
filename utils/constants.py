@@ -14,7 +14,7 @@ LOG_FILE = "logs/llm_agent.log"
 # Few shot examples
 FEW_SHOT_EXAMPLES_FILE = "data/few_shot.yaml"
 FEW_SHOT_EXAMPLES_FILE_VIZ = "data/few_shot_viz.yaml"
-FEW_SHOT_EXAMPLE_LIMIT = 2
+FEW_SHOT_EXAMPLE_LIMIT = 3
 
 ## LLM HYPERPARAMETERS
 # Define the maximum number of messages to keep in the chat history

@@ -122,7 +122,7 @@ class LLMAgent:
         self.logger.info(f"Calling LLM with model: {model}")
         messages = self.create_messages(self.system_prompt, user_input, model)
         client = self.clients[self.get_client_key(model)]
-        self.logger.info(f"Messages sent to {model}: {messages}\n\n System Prompt: {self.system_prompt}")
+        self.logger.info(f"Messages sent to {model}: {messages}\n")
         response, call_success = client.call(model, messages, self.system_prompt)
         return response, call_success
 
@@ -134,40 +134,39 @@ class LLMAgent:
         success = output["eval_success"]
         error = output["error_message"]
         only_text = output["only_text"]
-        self.update_chat_history(
-            user_input,
-            llm_response,
-            result,
-            success,
-            error,
-            only_text
-        )
         return result, success, error, only_text
 
     @task(name="Evaluate with Retry")
-    def evaluate_with_retry(self, user_input: str, llm_response: str) -> Tuple[Any, bool, str, bool, str]:
+    def evaluate_with_retry(self, user_input: str, llm_response: str, retry_code: bool) -> Tuple[Any, bool, str, bool, str]:
         errors = []
-
-        for attempt in range(1, self.max_retry + 1):
+        attempts_allowed = self.max_retry if retry_code else 1
+        for attempt in range(1, attempts_allowed + 1):
             result, success, error, only_text = self.execute(user_input, llm_response)
             
             if isinstance(result, dict) and 'map' in result:
                 success, error = self._check_map_renderability(result['map'])
 
             if success or only_text or "TimeoutError" in error:
-                return result, success, "\n".join(errors) if len(errors) > 0 else error, only_text, llm_response
+                error_message = "\n".join(errors) if len(errors) > 0 else error
+                self.update_chat_history(
+                    user_input, llm_response, result, success, error_message, only_text
+                )
+                return result, success, error_message, only_text, llm_response
 
             errors.append(f"Attempt {attempt}: {error}")
             self._log_retry_attempt(attempt, error)
 
-            if attempt < self.max_retry:
+            if attempt <= attempts_allowed:
                 llm_response, call_success = self.call_llm_retry(error)
                 if not call_success:
                     errors.append(f"Attempt {attempt + 1}: LLM call failed")
                     break
 
         error_message = self._format_error_message(attempt, errors)
-        return None, False, error_message, False, llm_response
+        self.update_chat_history(
+            user_input, llm_response, result, success, error_message, only_text
+        )
+        return None, False, error_message, only_text, llm_response
 
     def _check_map_renderability(self, map_obj):
         try:
@@ -259,11 +258,7 @@ class LLMAgent:
     @task(name="Evaluate Code")
     def evaluate_code(self, user_input, llm_response, retry_code):
         with st.status("Evaluating code..."):
-            if retry_code:
-                return self.evaluate_with_retry(user_input, llm_response)
-            else:
-                result, success, error, only_text = self.execute(user_input, llm_response)
-                return result, success, error, only_text, llm_response
+            return self.evaluate_with_retry(user_input, llm_response, retry_code)
 
     def reset(self):
         self.last_response = None
@@ -279,12 +274,20 @@ class LLMAgent:
             client.set_logger(self.logger)
 
     def update_agent(self, GTFS, model, distance_unit, allow_viz):
-        self.reset()
-        self.evaluator.reset()
-        self.GTFS = GTFS
-        self.model = model
-        self.distance_unit = distance_unit
-        self.allow_viz = allow_viz
+        # Reset the agent if the GTFS feed changes
+        if self.GTFS != GTFS:
+            self.reset()
+            self.evaluator.reset()
+            self.GTFS = GTFS
+            self.model = model
+            self.distance_unit = distance_unit
+            self.allow_viz = allow_viz
+        else:
+            # Update these attributes even if GTFS hasn't changed
+            self.model = model
+            self.distance_unit = distance_unit
+            self.allow_viz = allow_viz
+        
         self.logger.info(
             f"Updating LLMAgent with model: {model}, GTFS: {GTFS}, distance unit: {distance_unit}, and allow_viz: {allow_viz}"
         )
