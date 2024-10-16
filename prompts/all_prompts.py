@@ -274,7 +274,7 @@ Output: DataFrame containing columns ['stop_id', 'stop_name', 'stop_lat', 'stop_
 - None: Placeholder for future use or additional information</return>
 <example>
 Input: get_geo_location("1600 Pennsylvania Avenue NW, Washington, DC 20500")
-Output: ((38.8977, -77.0365), "1600 Pennsylvania Avenue NW, Washington, DC 20500, USA", None)
+Output: ((38.8977, -77.0365), "1600 Pennsylvania Avenue NW, Washington, DC 20500, USA")
 </example>
 </function>
 </helper-functions>
