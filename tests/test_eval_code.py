@@ -5,26 +5,24 @@ import pytest
 # Add the parent directory to the sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from evaluator.eval_code import GTFS_Eval, load_zipped_pickle
+from evaluator.eval_code import GTFS_Eval
+
 
 @pytest.fixture
 def gtfs_evaluator():
     mock_file_mapping = {
-        "CUMTD": {
-            "pickle_loc": "tests/test_pickle_feed/CUMTD_gtfs_loader.pkl"
-        }
+        "CUMTD": {"pickle_loc": "tests/test_pickle_feed/CUMTD_gtfs_loader.pkl"}
     }
     evaluator = GTFS_Eval(mock_file_mapping)
     evaluator.get_system_prompt("CUMTD")
     return evaluator
 
+
 def test_gtfs_eval_evaluate_timeout(gtfs_evaluator):
     mock_file_mapping = {
-        "CUMTD": {
-            "pickle_loc": "tests/test_pickle_feed/CUMTD_gtfs_loader.pkl"
-        }
+        "CUMTD": {"pickle_loc": "tests/test_pickle_feed/CUMTD_gtfs_loader.pkl"}
     }
-        
+
     evaluator = GTFS_Eval(mock_file_mapping)
     evaluator.get_system_prompt("CUMTD")
     long_running_code = """
@@ -37,9 +35,9 @@ print(result)
 """
     result = evaluator.evaluate(long_running_code, timeout_seconds=1)
     print(result)
-    assert result["eval_success"] == False
+    assert result["eval_success"] is False
     assert "TimeoutError" in result["error_message"]
-    
+
     long_for_loop = """
 ```python
 import time
@@ -49,9 +47,9 @@ for i in range(100):
 """
     result = evaluator.evaluate(long_for_loop, timeout_seconds=1)
     print(result)
-    assert result["eval_success"] == False
+    assert result["eval_success"] is False
     assert "TimeoutError" in result["error_message"]
-    
+
     long_dataframe_operation = """
 ```python
 import time
@@ -63,8 +61,9 @@ result = df['A'].apply(lambda x: math.sqrt(x))
 """
     result = evaluator.evaluate(long_dataframe_operation, timeout_seconds=1)
     print(result)
-    assert result["eval_success"] == False
+    assert result["eval_success"] is False
     assert "TimeoutError" in result["error_message"]
+
 
 def test_import_error(gtfs_evaluator):
     code_with_import_error = """
@@ -74,8 +73,9 @@ print("This should not be reached")
 ```
 """
     result = gtfs_evaluator.evaluate(code_with_import_error)
-    assert result["eval_success"] == False
+    assert result["eval_success"] is False
     assert "ModuleNotFoundError" in result["error_message"]
+
 
 def test_index_error(gtfs_evaluator):
     code_with_index_error = """
@@ -85,8 +85,9 @@ print(my_list[10])
 ```
 """
     result = gtfs_evaluator.evaluate(code_with_index_error)
-    assert result["eval_success"] == False
+    assert result["eval_success"] is False
     assert "IndexError" in result["error_message"]
+
 
 def test_key_error(gtfs_evaluator):
     code_with_key_error = """
@@ -96,8 +97,9 @@ print(my_dict["c"])
 ```
 """
     result = gtfs_evaluator.evaluate(code_with_key_error)
-    assert result["eval_success"] == False
+    assert result["eval_success"] is False
     assert "KeyError" in result["error_message"]
+
 
 def test_name_error(gtfs_evaluator):
     code_with_name_error = """
@@ -106,5 +108,5 @@ print(fuzzywuzzy.process.extractOne("hello", ["hello", "world"]))
 ```
 """
     result = gtfs_evaluator.evaluate(code_with_name_error)
-    assert result["eval_success"] == False
+    assert result["eval_success"] is False
     assert "NameError" in result["error_message"]

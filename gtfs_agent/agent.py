@@ -1,10 +1,7 @@
 import streamlit as st
-from datetime import datetime
-from rich.traceback import install as install_rich_traceback
 from prompts.all_prompts import (
     SUMMARY_LLM_SYSTEM_PROMPT,
     SUMMARY_LLM_USER_PROMPT,
-    BASE_USER_PROMPT,
     RETRY_PROMPT,
 )
 from utils.constants import LOG_FILE, SUMMARY_LLM
@@ -13,13 +10,13 @@ from utils.helper import summarize_large_output
 from gtfs_agent.llm_client import OpenAIClient, GroqClient, AnthropicClient
 from utils.data_models import ChatInteraction
 from evaluator.eval_code import GTFS_Eval
-from prompts.generate_prompt import generate_dynamic_few_shot
 from streamlit_folium import folium_static
 from traceloop.sdk import Traceloop
 from traceloop.sdk.decorators import workflow, task
 from utils.logger import setup_logger, reset_logger
 
 Traceloop.init(disable_batch=True, api_key=st.secrets["TRACELOOP_API_KEY"])
+
 
 class LLMAgent:
     def __init__(
@@ -61,12 +58,12 @@ class LLMAgent:
         self.last_response = None
         self.chat_history = []
         self.allow_viz = allow_viz
-        self.load_system_prompt()
+        self.load_system_prompt(self.GTFS, self.distance_unit, self.allow_viz)
 
-    def load_system_prompt(self):
+    def load_system_prompt(self, GTFS, distance_unit, allow_viz):
         ## Load system prompt
         self.system_prompt = self.evaluator.get_system_prompt(
-            self.GTFS, self.distance_unit, self.allow_viz
+            GTFS, distance_unit, allow_viz
         )
         self.logger.info(
             f"Loaded system prompt for GTFS: {self.GTFS} with distance unit: {self.distance_unit} and visualization: {self.allow_viz}"
@@ -103,7 +100,15 @@ class LLMAgent:
             messages.insert(0, {"role": "system", "content": system_prompt})
         return messages
 
-    def update_chat_history(self, user_prompt: str, response: str, result: Any = None, success: bool = None, error: str = None, only_text: bool = None) -> None:
+    def update_chat_history(
+        self,
+        user_prompt: str,
+        response: str,
+        result: Any = None,
+        success: bool = None,
+        error: str = None,
+        only_text: bool = None,
+    ) -> None:
         if user_prompt.strip() or response.strip():
             interaction = ChatInteraction(
                 system_prompt=self.system_prompt,
@@ -137,14 +142,16 @@ class LLMAgent:
         return result, success, error, only_text
 
     @task(name="Evaluate with Retry")
-    def evaluate_with_retry(self, user_input: str, llm_response: str, retry_code: bool) -> Tuple[Any, bool, str, bool, str]:
+    def evaluate_with_retry(
+        self, user_input: str, llm_response: str, retry_code: bool
+    ) -> Tuple[Any, bool, str, bool, str]:
         errors = []
         attempts_allowed = self.max_retry if retry_code else 1
         for attempt in range(1, attempts_allowed + 1):
             result, success, error, only_text = self.execute(user_input, llm_response)
-            
-            if isinstance(result, dict) and 'map' in result:
-                success, error = self._check_map_renderability(result['map'])
+
+            if isinstance(result, dict) and "map" in result:
+                success, error = self._check_map_renderability(result["map"])
 
             if success or only_text or "TimeoutError" in error:
                 error_message = "\n".join(errors) if len(errors) > 0 else error
@@ -195,8 +202,8 @@ class LLMAgent:
                 messages.append({"role": "user", "content": interaction.user_prompt})
             if interaction.assistant_response.strip():
                 messages.append(
-                       {"role": "assistant", "content": interaction.assistant_response}
-            )
+                    {"role": "assistant", "content": interaction.assistant_response}
+                )
 
         # Add the error message as part of the last assistant's response
         if messages and messages[-1]["role"] == "assistant":
@@ -279,47 +286,58 @@ class LLMAgent:
             self.reset()
             self.evaluator.reset()
             self.GTFS = GTFS
-            self.model = model
-            self.distance_unit = distance_unit
-            self.allow_viz = allow_viz
-        else:
-            # Update these attributes even if GTFS hasn't changed
-            self.model = model
-            self.distance_unit = distance_unit
-            self.allow_viz = allow_viz
-        
+        self.model = model
+        self.distance_unit = distance_unit
+        self.allow_viz = allow_viz
+
         self.logger.info(
             f"Updating LLMAgent with model: {model}, GTFS: {GTFS}, distance unit: {distance_unit}, and allow_viz: {allow_viz}"
         )
-        self.load_system_prompt()
+        self.load_system_prompt(GTFS, distance_unit, allow_viz)
 
     @workflow(name="LLM Agent Workflow")
     def run_workflow(self, user_input: str, retry_code: bool = False):
         llm_response, call_success = self.call_llm(user_input)
-            
+
         if not call_success:
             self.logger.error(f"LLM call failed: {llm_response}")
             # If call is not successful, LLM response is the error message
             return None, False, llm_response, True, None, None, None
-        
+
         self.logger.info(f"LLM call success: {llm_response}")
         result, success, error, only_text, llm_response = self.evaluate_code(
             user_input, llm_response, retry_code=retry_code
         )
-        
+
         # New step: Validate evaluation results
         # validation_response = self.validate_evaluation(user_input, llm_response, result, success, error, only_text)
         validation_response = None
-        
+
         if success and not only_text:
             summary_response = self.call_summary_llm(st.empty())
         else:
             summary_response = None
 
-        return result, success, error, only_text, llm_response, summary_response, validation_response
+        return (
+            result,
+            success,
+            error,
+            only_text,
+            llm_response,
+            summary_response,
+            validation_response,
+        )
 
     @task(name="Validate Evaluation")
-    def validate_evaluation(self, user_input: str, llm_response: str, result: Any, success: bool, error: str, only_text: bool):
+    def validate_evaluation(
+        self,
+        user_input: str,
+        llm_response: str,
+        result: Any,
+        success: bool,
+        error: str,
+        only_text: bool,
+    ):
         validation_prompt = f"""
         User Input: {user_input}
         
@@ -337,10 +355,12 @@ class LLMAgent:
         
         Return (True, None) if everything is correct, (False, "Reason for failure") if something is incorrect.
         """
-        
-        messages = self.create_messages(self.system_prompt, validation_prompt, self.model)
+
+        messages = self.create_messages(
+            self.system_prompt, validation_prompt, self.model
+        )
         client = self.clients["gpt"]
         validation_response, _ = client.call(SUMMARY_LLM, messages, self.system_prompt)
-        
+
         self.logger.info(f"Validation response from LLM: {validation_response}")
         return validation_response

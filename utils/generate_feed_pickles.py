@@ -63,7 +63,9 @@ def pickle_gtfs_loaders(file_mapping, output_directory, mapping_file_path):
             print(f"Pickled and stored {agency_name} at {filepath}")
 
             # Add relative pickle location to file_mapping
-            agency_data["pickle_loc"] = os.path.relpath(filepath, start=parent_dir).replace('\\', '/')
+            agency_data["pickle_loc"] = os.path.relpath(
+                filepath, start=parent_dir
+            ).replace("\\", "/")
 
         except Exception as e:
             print(f"Error processing {agency_name}: {str(e)}")

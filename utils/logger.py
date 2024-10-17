@@ -6,6 +6,7 @@ from rich.logging import RichHandler
 from rich.console import Console
 from rich.traceback import install as install_rich_traceback
 
+
 def setup_logger(log_file):
     # Install rich traceback handler
     install_rich_traceback()
@@ -31,7 +32,9 @@ def setup_logger(log_file):
     new_log_file = f"{os.path.splitext(log_file)[0]}_{timestamp}.log"
 
     # Create RichHandler for console output
-    rich_handler = RichHandler(console=console, rich_tracebacks=True, tracebacks_show_locals=True)
+    rich_handler = RichHandler(
+        console=console, rich_tracebacks=True, tracebacks_show_locals=True
+    )
     rich_handler.setLevel(logging.DEBUG)
 
     # Create a RotatingFileHandler for file output
@@ -43,7 +46,9 @@ def setup_logger(log_file):
     # Use the same formatter for both handlers
     rich_formatter = logging.Formatter("%(message)s")
     rich_handler.setFormatter(rich_formatter)
-    file_formatter = logging.Formatter("%(asctime)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+    file_formatter = logging.Formatter(
+        "%(asctime)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+    )
     file_handler.setFormatter(file_formatter)
 
     # Add the new handlers to the logger
@@ -53,6 +58,7 @@ def setup_logger(log_file):
     logger.info(f"New log file created: {new_log_file}")
 
     return logger
+
 
 def reset_logger(logger, log_file):
     # Remove all handlers from the logger

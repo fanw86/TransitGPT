@@ -241,8 +241,10 @@ def main():
                 st.write(
                     f"Task: {additional_data.get('task', 'N/A')} | Success: {additional_data.get('success', 'N/A')} | Error: {additional_data.get('error', 'N/A')} | Only Text: {additional_data.get('only_text', 'N/A')}"
                 )
-                st.json(selected_row[['feed', 'question', 'task']].to_dict(), expanded=True)
-                st.write(f"LLM Response:")
+                st.json(
+                    selected_row[["feed", "question", "task"]].to_dict(), expanded=True
+                )
+                st.write("LLM Response:")
                 main_response = (
                     additional_data.get("llm_response", "N/A")
                     .split("```python")[1]
@@ -301,9 +303,13 @@ def main():
                 key=f"grade_select_{selected_index}",
                 label_visibility="collapsed",
             )
-            
-            current_comment = df.at[selected_index, "comment"] if "comment" in df.columns else ""
-            comment = st.text_area("Add a comment", value=current_comment, key=f"comment_{selected_index}")
+
+            current_comment = (
+                df.at[selected_index, "comment"] if "comment" in df.columns else ""
+            )
+            comment = st.text_area(
+                "Add a comment", value=current_comment, key=f"comment_{selected_index}"
+            )
 
         # Auto-update grade and comment when selection changes
         if selected_grade != current_grade or comment != current_comment:
@@ -311,11 +317,13 @@ def main():
                 selected_benchmark,
                 selected_index,
                 selected_grade if selected_grade != "" else None,
-                comment if comment != "" else None
+                comment if comment != "" else None,
             )
 
             if grade_or_comment_changed:
-                df.at[selected_index, "grade"] = selected_grade if selected_grade != "" else None
+                df.at[selected_index, "grade"] = (
+                    selected_grade if selected_grade != "" else None
+                )
                 df.at[selected_index, "comment"] = comment if comment != "" else None
 
                 # Update the session state
@@ -409,8 +417,8 @@ def main():
 
         # Count tasks without comments for specific grades
         tasks_needing_comments = df[
-            (df["grade"].isin(["Incorrect", "Partially Correct", "Flag for Review"])) &
-            (df["comment"].isnull() | (df["comment"] == ""))
+            (df["grade"].isin(["Incorrect", "Partially Correct", "Flag for Review"]))
+            & (df["comment"].isnull() | (df["comment"] == ""))
         ].shape[0]
         st.sidebar.metric("Tasks Needing Comments", tasks_needing_comments)
 
@@ -439,7 +447,13 @@ def main():
         with st.container():
             col1, col2, col3 = st.columns(3)
             with col1:
-                button("⬅️", "Ctrl+ArrowLeft", previous_task, hint=True, help="Previous Task")
+                button(
+                    "⬅️",
+                    "Ctrl+ArrowLeft",
+                    previous_task,
+                    hint=True,
+                    help="Previous Task",
+                )
             with col2:
                 button("➡️", "Ctrl+ArrowRight", next_task, hint=True, help="Next Task")
             with col3:
@@ -452,7 +466,11 @@ def main():
                 )
 
         add_keyboard_shortcuts(
-            {"Ctrl+ArrowRight": next_task, "Ctrl+ArrowLeft": previous_task, "Ctrl+ArrowUp": next_ungraded_task}
+            {
+                "Ctrl+ArrowRight": next_task,
+                "Ctrl+ArrowLeft": previous_task,
+                "Ctrl+ArrowUp": next_ungraded_task,
+            }
         )
 
 

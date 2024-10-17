@@ -10,6 +10,7 @@ import plotly.graph_objects as go
 from folium import Map
 from utils.constants import TIMEOUT_SECONDS
 
+
 @st.dialog("Maximum number of messages reached!")
 def clear_chat():
     st.write("The chat history will be cleared.")
@@ -24,6 +25,7 @@ def is_json_serializable(obj):
         return True
     except (TypeError, OverflowError):
         return False
+
 
 @st.cache_data(show_spinner="Displaying Map")
 def safe_folium_display(_folium_map, uuid):
@@ -45,6 +47,7 @@ def safe_folium_display(_folium_map, uuid):
             f"Expected a Folium Map object, but received a different type. Received object of type: {type(_folium_map)}"
         )
 
+
 @st.cache_data(show_spinner="Displaying Figure")
 def safe_fig_display(fig):
     if isinstance(fig, plt.Figure):
@@ -64,11 +67,14 @@ def safe_fig_display(fig):
             f"Expected a Matplotlib or Plotly Figure object, but received a different type. Received object of type: {type(fig)}"
         )
 
+
 @st.cache_data(show_spinner="Displaying Dataframe")
 def safe_dataframe_display(df):
     if isinstance(df, pd.DataFrame):
         try:
-            st.dataframe(df.reset_index(drop=True), use_container_width=True, hide_index=True)
+            st.dataframe(
+                df.reset_index(drop=True), use_container_width=True, hide_index=True
+            )
         except Exception as e:
             st.error(f"Error displaying DataFrame: {str(e)}")
             st.write("DataFrame data (non-rendered):")
@@ -77,7 +83,7 @@ def safe_dataframe_display(df):
         st.error(
             f"Expected a Pandas DataFrame object, but received a different type. Received object of type: {type(df)}"
         )
-    
+
 
 def apply_color_codes(text):
     def color_replacer(match):
@@ -111,7 +117,6 @@ def display_fig_map_dataframe(code_output, uuid):
         safe_folium_display(code_output["map"], uuid)
     if "dataframe" in code_output and code_output["dataframe"] is not None:
         safe_dataframe_display(code_output["dataframe"])
-
 
 
 def display_figure(fig):
@@ -157,7 +162,7 @@ def display_llm_response(fb_agent, uuid, message, i):
             if message.get("eval_success", False):
                 display_code_output(message)
             else:
-                error_message = message['error_message']
+                error_message = message["error_message"]
                 if "TimeoutError" in error_message:
                     st.warning(
                         f"⏰Code execution timed out. Current timeout is {TIMEOUT_SECONDS//60} minutes.",
@@ -166,21 +171,29 @@ def display_llm_response(fb_agent, uuid, message, i):
                 with st.expander("❌ :red[Error Message]", expanded=False):
                     st.error(f"\n {error_message}")
                 if not st.session_state.get("retry_code", False):
-                    st.error("Please edit your prompt or toggle `🔘Allow Retry`.", icon="⚠")
+                    st.error(
+                        "Please edit your prompt or toggle `🔘Allow Retry`.", icon="⚠"
+                    )
                 else:
-                    st.error("Code execution Failed! Please try again with a different prompt.", icon="⚠")
-                return # Skip displaying the final message
+                    st.error(
+                        "Code execution Failed! Please try again with a different prompt.",
+                        icon="⚠",
+                    )
+                return  # Skip displaying the final message
         else:
             if only_text and "main_response" in message:
                 st.write(message["main_response"])
             else:
                 if "error_message" in message:
-                    st.error(f"Call Failed! Error: {message['error_message']}", icon="⚠")
+                    st.error(
+                        f"Call Failed! Error: {message['error_message']}", icon="⚠"
+                    )
                 else:
-                    st.error("Call Failed! Please try again with a different LLM.", icon="⚠")
-            
+                    st.error(
+                        "Call Failed! Please try again with a different LLM.", icon="⚠"
+                    )
 
-    message_id = f"{uuid}_{i}"  
+    message_id = f"{uuid}_{i}"
     st.session_state.current_message_id = message_id
 
     if only_text or message["summary_response"] != message["main_response"]:

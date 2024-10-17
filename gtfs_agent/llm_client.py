@@ -6,6 +6,7 @@ import streamlit as st
 from abc import ABC, abstractmethod
 from utils.constants import MAIN_LLM_TEMPERATURE, SUMMARY_LLM_TEMPERATURE
 
+
 class LLMClient(ABC):
     @abstractmethod
     def call(self, model, messages, system_prompt=None) -> Tuple[str, bool]:

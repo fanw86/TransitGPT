@@ -2,7 +2,7 @@ import json
 import streamlit as st
 
 # Set timeout to 5 minutes
-TIMEOUT_SECONDS = 5 * 60 
+TIMEOUT_SECONDS = 5 * 60
 
 # File to store sample questions
 QUESTIONS_FILE = "data/sample_questions.json"
@@ -10,6 +10,9 @@ QUESTION_LIMIT = 3
 
 # File to store Logs
 LOG_FILE = "logs/llm_agent.log"
+
+# Prompt Output Location
+PROMPT_OUTPUT_LOC = "prompts/generated_prompt.md"
 
 # Few shot examples
 FEW_SHOT_EXAMPLES_FILE = "data/few_shot.yaml"

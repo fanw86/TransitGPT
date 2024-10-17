@@ -15,4 +15,3 @@ messageFormat = "%(asctime)s %(message)s"
 
 [global]
 showWarningOnDirectExecution = false
-dataFrameSerialization = "legacy"

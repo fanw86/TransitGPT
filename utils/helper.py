@@ -125,11 +125,10 @@ def summarize_large_output(
         return f"List with {len(output)} items: {str(output)}"
     elif isinstance(output, dict):
         truncated_dict = dict(list(output.items())[:max_rows])
-        truncated_dict = {k:str(v)[:max_chars] for k,v  in truncated_dict.items()}
+        truncated_dict = {k: str(v)[:max_chars] for k, v in truncated_dict.items()}
         return f"Dict with {len(output)} keys. First {max_rows} items: {truncated_dict}... [truncated]"
     else:
         return truncate_text(str(output), max_chars)
-
 
 
 def plotly_fig_to_base64(fig):

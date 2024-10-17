@@ -46,6 +46,7 @@ def get_geo_location(geo_address):
         else:
             return None, None
 
+
 def fuzzy_match(string: str, pattern: str, threshold: int = 80) -> bool:
     """
     Perform a fuzzy string match using partial ratio comparison.

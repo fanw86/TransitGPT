@@ -12,9 +12,15 @@ from prompts.all_prompts import (
 from prompts.gtfs_file_field_type import GTFS_FILE_FIELD_TYPE_MAPPING
 from gtfs_agent.gtfs_loader import GTFSLoader
 from functools import lru_cache
-from utils.constants import FEW_SHOT_EXAMPLES_FILE, FEW_SHOT_EXAMPLES_FILE_VIZ, FEW_SHOT_EXAMPLE_LIMIT
+from utils.constants import (
+    FEW_SHOT_EXAMPLES_FILE,
+    FEW_SHOT_EXAMPLES_FILE_VIZ,
+    FEW_SHOT_EXAMPLE_LIMIT,
+    PROMPT_OUTPUT_LOC,
+)
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from rich import print as rprint
 
 
 @lru_cache(maxsize=None)
@@ -44,7 +50,9 @@ def select_relevant_examples(query, examples, n=FEW_SHOT_EXAMPLE_LIMIT, threshol
 
 
 def generate_dynamic_few_shot(query, allow_viz, n=3):
-    examples = load_yaml_examples(FEW_SHOT_EXAMPLES_FILE_VIZ if allow_viz else FEW_SHOT_EXAMPLES_FILE)
+    examples = load_yaml_examples(
+        FEW_SHOT_EXAMPLES_FILE_VIZ if allow_viz else FEW_SHOT_EXAMPLES_FILE
+    )
     relevant_examples = select_relevant_examples(query, examples, n)
     examples = ["<examples>"]
     for ex in relevant_examples:
@@ -116,8 +124,8 @@ def generate_system_prompt(loader: GTFSLoader, allow_viz: bool = False) -> str:
     FILE_INFO, GTFS_FEED_DATATYPES = generate_fileinfo_dtypes(
         feed, file_list, distance_unit
     )
-    print(
-        f"Prompt generated for {GTFS} with distance units {distance_unit}: {time.ctime()}"
+    rprint(
+        f"[bold green]Prompt generated[/bold green] for [cyan]{GTFS}[/cyan] with distance units [yellow]{distance_unit}[/yellow]: [magenta]{time.ctime()}[/magenta] and Viz: [blue]{allow_viz}[/blue]"
     )
 
     # Choose the appropriate task instruction based on allow_viz
@@ -136,6 +144,6 @@ def generate_system_prompt(loader: GTFSLoader, allow_viz: bool = False) -> str:
     if allow_viz:
         final_prompt += VISUALIZATION_TIPS
 
-    with open("prompts/generated_prompt.md", "w", encoding="utf-8") as f:
+    with open(PROMPT_OUTPUT_LOC, "w", encoding="utf-8") as f:
         f.write(final_prompt)
     return final_prompt

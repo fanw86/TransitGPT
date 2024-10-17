@@ -1,6 +1,5 @@
 import sys
 import os
-import pytest
 
 # Add the parent directory to the sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -8,11 +7,12 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils.data_models import ChatInteraction, ChatHistoryEntry, FeedbackEntry
 from datetime import datetime
 
+
 def test_chat_interaction():
     interaction = ChatInteraction(
         system_prompt="System prompt",
         user_prompt="User prompt",
-        assistant_response="Assistant response"
+        assistant_response="Assistant response",
     )
     assert interaction.system_prompt == "System prompt"
     assert interaction.user_prompt == "User prompt"
@@ -21,13 +21,14 @@ def test_chat_interaction():
     assert interaction.code_success is None
     assert interaction.error_message is None
 
+
 def test_chat_history_entry():
     entry = ChatHistoryEntry(
         role="assistant",
         final_response="Final response",
         main_response="Code response",
         code_output="Code output",
-        eval_success=True
+        eval_success=True,
     )
     assert entry.role == "assistant"
     assert entry.final_response == "Final response"
@@ -38,6 +39,7 @@ def test_chat_history_entry():
     assert entry.only_text is False
     assert entry.is_cancelled is False
 
+
 def test_feedback_entry():
     entry = FeedbackEntry(
         question="Test question",
@@ -45,7 +47,7 @@ def test_feedback_entry():
         code_eval_success=True,
         GTFS="Test GTFS",
         llm_model="gpt-4",
-        user_rating=5
+        user_rating=5,
     )
     assert isinstance(entry.timestamp, datetime)
     assert entry.question == "Test question"
@@ -58,5 +60,6 @@ def test_feedback_entry():
     assert entry.code_eval_result is None
     assert entry.figure is None
     assert entry.final_response is None
+
 
 # Add more tests for edge cases and validation

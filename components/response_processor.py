@@ -8,9 +8,15 @@ def process_user_input(user_input: str):
     agent = st.session_state.agent
     with st.chat_message("assistant", avatar="🚍"):
         with st.spinner("Processing your request..."):
-            result, success, error_message, only_text, llm_response, summary_response, validation_response= (
-                agent.run_workflow(user_input, st.session_state.retry_code)
-            )
+            (
+                result,
+                success,
+                error_message,
+                only_text,
+                llm_response,
+                summary_response,
+                validation_response,
+            ) = agent.run_workflow(user_input, st.session_state.retry_code)
 
         if not success and not only_text:
             st.error(f"Error: {error_message}")

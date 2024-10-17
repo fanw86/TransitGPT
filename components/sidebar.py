@@ -28,7 +28,9 @@ def load_agent_evaluator():
             agent = st.session_state["agent"]
             agent.update_agent(GTFS, model, distance_unit, allow_viz)
         st.session_state["call_count"] += 1
-        status.update(label=f"Loaded GTFS feed: {GTFS} ({distance_unit})", state="complete")
+        status.update(
+            label=f"Loaded GTFS feed: {GTFS} ({distance_unit})", state="complete"
+        )
     # Loaded GTFS feed
     st.toast(f"Loaded GTFS feed: {GTFS} ({distance_unit})", icon="🚌")
 
@@ -45,7 +47,7 @@ def update_agent_settings():
             st.session_state.agent.GTFS,
             st.session_state.agent.model,
             st.session_state.agent.distance_unit,
-            st.session_state.allow_viz
+            st.session_state.allow_viz,
         )
     st.toast(
         f"Using Model: {st.session_state.model} with Visualization: {st.session_state.allow_viz}",
@@ -88,7 +90,7 @@ def setup_sidebar():
         help="LLM will generate visualization along with code.",
         on_change=update_agent_settings,
     )
-    
+
     st.sidebar.toggle(
         "Allow Retry",
         value=True,
