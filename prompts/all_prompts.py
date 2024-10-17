@@ -308,6 +308,11 @@ For distance calculations:
 - Always cross-reference trips.txt to get the full picture of a route's schedule across all its services.
 - Remember to check calendar_dates.txt for exceptions to the regular schedule defined in calendar.txt.
 
+### Navigation and Directions
+- While finding directions, try to find more than one nearest neighbor to comprehensively arrive at the solution.
+- In case you do not find a match, report the stops that you have tried to find directions from and to.
+- If the user asks for directions, provide the directions and the distance in kilometers.
+
 </tips>
 """
 
