@@ -69,7 +69,7 @@ class GTFS_Eval:
             # Load all tables for the selected GTFS feed
             # current_loader.load_all_tables()
             self.gtfs = GTFS
-            print(f"Loaded feed {self.gtfs}")
+            # print(f"Loaded feed {self.gtfs}")
         return current_loader
 
     def get_system_prompt(self, GTFS, distance_unit, allow_viz):

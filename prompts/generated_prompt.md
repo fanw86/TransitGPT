@@ -15,7 +15,7 @@
 
 <distance-unit>
 
-- The distance units for this GTFS feed are in `Kilometers`. Therefore, fields such as `shape_dist_traveled` will be reported in `Kilometers`.
+- The distance units for this GTFS feed are in `Meters`. Therefore, fields such as `shape_dist_traveled` will be reported in `Meters`.
 
 </distance-unit>
 
@@ -38,10 +38,10 @@ These are the datatypes for all files within the current GTFS:
 
 - `agency_id`: string
 - `agency_name`: string
-- `agency_phone`: string
 - `agency_url`: string
 - `agency_timezone`: string
 - `agency_lang`: string
+- `agency_phone`: string
 - `agency_fare_url`: string
 
 </data-type>
@@ -50,7 +50,6 @@ These are the datatypes for all files within the current GTFS:
 
 <data-type>
 
-- `service_id`: string
 - `monday`: integer
 - `tuesday`: integer
 - `wednesday`: integer
@@ -60,6 +59,7 @@ These are the datatypes for all files within the current GTFS:
 - `sunday`: integer
 - `start_date`: date (datetime.date)
 - `end_date`: date (datetime.date)
+- `service_id`: string
 
 </data-type>
 
@@ -72,30 +72,15 @@ These are the datatypes for all files within the current GTFS:
 
 </data-type>
 
-### feed_info.txt
-
-<data-type>
-
-- `feed_publisher_name`: string
-- `feed_publisher_url`: string
-- `feed_lang`: string
-- `feed_version`: string
-- `feed_start_date`: date (datetime.date)
-- `feed_end_date`: date (datetime.date)
-- `feed_contact_url`: string
-
-</data-type>
-
 ### routes.txt
 
 <data-type>
 
-- `route_id`: string
-- `agency_id`: string
-- `route_short_name`: string
 - `route_long_name`: string
-- `route_desc`: string
+- `route_short_name`: string
+- `agency_id`: string
 - `route_type`: integer
+- `route_id`: string
 - `route_url`: string
 - `route_color`: string
 - `route_text_color`: string
@@ -110,7 +95,7 @@ These are the datatypes for all files within the current GTFS:
 - `shape_pt_lat`: float
 - `shape_pt_lon`: float
 - `shape_pt_sequence`: integer
-- `shape_dist_traveled`: float (`Kilometers`)
+- `shape_dist_traveled`: float (`Meters`)
 
 </data-type>
 
@@ -125,9 +110,7 @@ These are the datatypes for all files within the current GTFS:
 - `stop_sequence`: integer
 - `stop_headsign`: string
 - `pickup_type`: integer
-- `drop_off_type`: integer
-- `shape_dist_traveled`: float (`Kilometers`)
-- `timepoint`: integer
+- `shape_dist_traveled`: float (`Meters`)
 
 </data-type>
 
@@ -135,15 +118,25 @@ These are the datatypes for all files within the current GTFS:
 
 <data-type>
 
-- `stop_id`: string
-- `stop_code`: string
 - `stop_name`: string
+- `parent_station`: string
+- `stop_code`: string
+- `stop_id`: string
 - `stop_desc`: string
 - `stop_lat`: float
 - `stop_lon`: float
-- `zone_id`: string
-- `stop_url`: string
+- `location_type`: integer
 - `wheelchair_boarding`: integer
+
+</data-type>
+
+### transfers.txt
+
+<data-type>
+
+- `from_stop_id`: string
+- `to_stop_id`: string
+- `transfer_type`: integer
 
 </data-type>
 
@@ -153,11 +146,11 @@ These are the datatypes for all files within the current GTFS:
 
 - `route_id`: string
 - `service_id`: string
-- `trip_id`: string
-- `trip_headsign`: string
 - `direction_id`: integer
 - `block_id`: string
 - `shape_id`: string
+- `trip_id`: string
+- `wheelchair_accessible`: integer
 
 </data-type>
 
@@ -173,56 +166,22 @@ These are the datatypes for all files within the current GTFS:
     <tr style="text-align: right;">
       <th>agency_id</th>
       <th>agency_name</th>
-      <th>agency_phone</th>
       <th>agency_url</th>
       <th>agency_timezone</th>
       <th>agency_lang</th>
+      <th>agency_phone</th>
       <th>agency_fare_url</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>DART</td>
-      <td>DALLAS AREA RAPID TRANSIT</td>
-      <td>214-979-1111</td>
-      <td>https://www.dart.org</td>
+      <td>1</td>
+      <td>Chicago Transit Authority</td>
+      <td>http://transitchicago.com</td>
       <td>America/Chicago</td>
       <td>en</td>
-      <td>https://www.dart.org/fare/general-fares-and-overview/fares</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### blocks.txt (feed.blocks)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>SERVICE_ID</th>
-      <th>BLOCK_ID</th>
-      <th>PULLOUTTIME</th>
-      <th>PULLINTIME</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>2</td>
-      <td>101</td>
-      <td>12120</td>
-      <td>83040</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>102</td>
-      <td>13440</td>
-      <td>71160</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>103</td>
-      <td>13920</td>
-      <td>91080</td>
+      <td>1-888-YOURCTA</td>
+      <td>http://www.transitchicago.com/travel_information/fares/default.aspx</td>
     </tr>
   </tbody>
 </table>
@@ -233,7 +192,6 @@ These are the datatypes for all files within the current GTFS:
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
-      <th>service_id</th>
       <th>monday</th>
       <th>tuesday</th>
       <th>wednesday</th>
@@ -243,35 +201,35 @@ These are the datatypes for all files within the current GTFS:
       <th>sunday</th>
       <th>start_date</th>
       <th>end_date</th>
+      <th>service_id</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>2</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
       <td>0</td>
       <td>0</td>
-      <td>2024-10-05</td>
-      <td>2024-10-20</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>2024-08-16</td>
+      <td>2024-08-24</td>
+      <td>q</td>
     </tr>
     <tr>
-      <td>3</td>
+      <td>0</td>
       <td>0</td>
       <td>0</td>
       <td>0</td>
       <td>0</td>
       <td>0</td>
       <td>1</td>
-      <td>0</td>
-      <td>2024-10-05</td>
-      <td>2024-10-20</td>
+      <td>2024-08-16</td>
+      <td>2024-09-02</td>
+      <td>w</td>
     </tr>
     <tr>
-      <td>4</td>
       <td>0</td>
       <td>0</td>
       <td>0</td>
@@ -279,8 +237,9 @@ These are the datatypes for all files within the current GTFS:
       <td>0</td>
       <td>0</td>
       <td>1</td>
-      <td>2024-10-05</td>
-      <td>2024-10-20</td>
+      <td>2024-08-18</td>
+      <td>2024-10-27</td>
+      <td>9</td>
     </tr>
   </tbody>
 </table>
@@ -292,171 +251,25 @@ These are the datatypes for all files within the current GTFS:
   <thead>
     <tr style="text-align: right;">
       <th>service_id</th>
-      <th>date</th>
       <th>exception_type</th>
+      <th>date</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>19</td>
-      <td>2024-10-05</td>
+      <td>3</td>
+      <td>2</td>
+      <td>2024-09-02</td>
+    </tr>
+    <tr>
+      <td>9</td>
       <td>1</td>
+      <td>2024-09-02</td>
     </tr>
     <tr>
-      <td>10</td>
-      <td>2024-10-12</td>
+      <td>a</td>
       <td>1</td>
-    </tr>
-    <tr>
-      <td>19</td>
-      <td>2024-10-19</td>
-      <td>1</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### facilities.txt (feed.facilities)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>facility_id</th>
-      <th>facility_code</th>
-      <th>facility_name</th>
-      <th>facility_desc</th>
-      <th>facility_lat</th>
-      <th>facility_lon</th>
-      <th>facility_type</th>
-      <th>facility_url</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>22729</td>
-      <td>22729</td>
-      <td>CEDARS STATION</td>
-      <td>NaN</td>
-      <td>32.768574</td>
-      <td>-96.793253</td>
-      <td>1</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <td>25435</td>
-      <td>25435</td>
-      <td>CBD WEST TC</td>
-      <td>NaN</td>
-      <td>32.781606</td>
-      <td>-96.804081</td>
-      <td>1</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <td>29270</td>
-      <td>29270</td>
-      <td>BUSH TURNPIKE STATION</td>
-      <td>NaN</td>
-      <td>33.003313</td>
-      <td>-96.702518</td>
-      <td>1</td>
-      <td>NaN</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### feed_info.txt (feed.feed_info)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>feed_publisher_name</th>
-      <th>feed_publisher_url</th>
-      <th>feed_lang</th>
-      <th>feed_version</th>
-      <th>feed_start_date</th>
-      <th>feed_end_date</th>
-      <th>feed_contact_url</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>DALLAS AREA RAPID TRANSIT</td>
-      <td>https://www.dart.org</td>
-      <td>en</td>
-      <td>V561-193-194-20241005</td>
-      <td>2024-10-05</td>
-      <td>2024-10-20</td>
-      <td>https://www.dart.org/contact-us</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### nodes.txt (feed.nodes)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>ROUTE_NAME_SHORT</th>
-      <th>DIRECTION_ID</th>
-      <th>NODE</th>
-      <th>STOP_ID</th>
-      <th>NODENAME</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>001</td>
-      <td>0</td>
-      <td>MAPLWCLF</td>
-      <td>14447</td>
-      <td>MAPLE &amp; WYCLIFF</td>
-    </tr>
-    <tr>
-      <td>001</td>
-      <td>0</td>
-      <td>SAMOBEXA</td>
-      <td>15842</td>
-      <td>SAMOA &amp; BEXAR</td>
-    </tr>
-    <tr>
-      <td>001</td>
-      <td>0</td>
-      <td>MALCMLKX</td>
-      <td>15879</td>
-      <td>MALCOM X &amp; M.L KING</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### route_direction.txt (feed.route_direction)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>ARTICLE</th>
-      <th>DIRNUM</th>
-      <th>DIRECTIONNAME</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>001</td>
-      <td>0</td>
-      <td>SOUTHBOUND</td>
-    </tr>
-    <tr>
-      <td>001</td>
-      <td>1</td>
-      <td>NORTHBOUND</td>
-    </tr>
-    <tr>
-      <td>003</td>
-      <td>0</td>
-      <td>INBOUND</td>
+      <td>2024-09-02</td>
     </tr>
   </tbody>
 </table>
@@ -467,12 +280,11 @@ These are the datatypes for all files within the current GTFS:
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
-      <th>route_id</th>
-      <th>agency_id</th>
-      <th>route_short_name</th>
       <th>route_long_name</th>
-      <th>route_desc</th>
+      <th>route_short_name</th>
+      <th>agency_id</th>
       <th>route_type</th>
+      <th>route_id</th>
       <th>route_url</th>
       <th>route_color</th>
       <th>route_text_color</th>
@@ -480,36 +292,33 @@ These are the datatypes for all files within the current GTFS:
   </thead>
   <tbody>
     <tr>
-      <td>25697</td>
-      <td>DART</td>
-      <td>001</td>
-      <td>MALCOLM X/MAPLE</td>
-      <td>NaN</td>
+      <td>111th/King Drive</td>
+      <td>111</td>
+      <td>1</td>
       <td>3</td>
-      <td>https://www.dart.org/guide/transit-and-use/bus-routes/bus-route-detail/001</td>
-      <td>FFCC00</td>
+      <td>1u</td>
+      <td>http://www.transitchicago.com/bus/111/</td>
+      <td>565A5C</td>
       <td>FFFFFF</td>
     </tr>
     <tr>
-      <td>25698</td>
-      <td>DART</td>
-      <td>003</td>
-      <td>ROSS</td>
-      <td>NaN</td>
+      <td>16th/18th</td>
+      <td>18</td>
+      <td>1</td>
       <td>3</td>
-      <td>https://www.dart.org/guide/transit-and-use/bus-routes/bus-route-detail/003</td>
-      <td>FFCC00</td>
+      <td>2z</td>
+      <td>http://www.transitchicago.com/bus/18/</td>
+      <td>565A5C</td>
       <td>FFFFFF</td>
     </tr>
     <tr>
-      <td>25699</td>
-      <td>DART</td>
-      <td>005</td>
-      <td>LOVE FIELD SHUTTLE</td>
-      <td>NaN</td>
+      <td>31st</td>
+      <td>31</td>
+      <td>1</td>
       <td>3</td>
-      <td>https://www.dart.org/guide/transit-and-use/bus-routes/bus-route-detail/005</td>
-      <td>FFCC00</td>
+      <td>l</td>
+      <td>http://www.transitchicago.com/bus/31/</td>
+      <td>565A5C</td>
       <td>FFFFFF</td>
     </tr>
   </tbody>
@@ -530,25 +339,25 @@ These are the datatypes for all files within the current GTFS:
   </thead>
   <tbody>
     <tr>
-      <td>143210</td>
-      <td>32.812460</td>
-      <td>-96.833249</td>
       <td>1</td>
-      <td>0.0000</td>
+      <td>41.705097</td>
+      <td>-87.65675</td>
+      <td>0</td>
+      <td>0</td>
     </tr>
     <tr>
-      <td>143210</td>
-      <td>32.812569</td>
-      <td>-96.833310</td>
+      <td>1</td>
+      <td>41.705050</td>
+      <td>-87.65667</td>
+      <td>1</td>
+      <td>47</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>41.705000</td>
+      <td>-87.65668</td>
       <td>2</td>
-      <td>0.0134</td>
-    </tr>
-    <tr>
-      <td>143210</td>
-      <td>32.812669</td>
-      <td>-96.833409</td>
-      <td>3</td>
-      <td>0.0279</td>
+      <td>66</td>
     </tr>
   </tbody>
 </table>
@@ -566,47 +375,39 @@ These are the datatypes for all files within the current GTFS:
       <th>stop_sequence</th>
       <th>stop_headsign</th>
       <th>pickup_type</th>
-      <th>drop_off_type</th>
       <th>shape_dist_traveled</th>
-      <th>timepoint</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>8107589</td>
-      <td>16560.0</td>
-      <td>16560.0</td>
-      <td>33286</td>
+      <td>109x</td>
+      <td>59400.0</td>
+      <td>59400.0</td>
+      <td>65l</td>
       <td>1</td>
+      <td>Forest Park</td>
       <td>NaN</td>
       <td>0</td>
-      <td>0</td>
-      <td>0.0000</td>
-      <td>1</td>
     </tr>
     <tr>
-      <td>8107589</td>
-      <td>16664.0</td>
-      <td>16664.0</td>
-      <td>13396</td>
+      <td>109x</td>
+      <td>59730.0</td>
+      <td>59730.0</td>
+      <td>6k7</td>
       <td>2</td>
+      <td>Forest Park</td>
       <td>NaN</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0.5865</td>
-      <td>0</td>
+      <td>14158</td>
     </tr>
     <tr>
-      <td>8107589</td>
-      <td>16706.0</td>
-      <td>16706.0</td>
-      <td>22649</td>
+      <td>109x</td>
+      <td>59850.0</td>
+      <td>59850.0</td>
+      <td>7qk</td>
       <td>3</td>
+      <td>Forest Park</td>
       <td>NaN</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0.8252</td>
-      <td>0</td>
+      <td>19973</td>
     </tr>
   </tbody>
 </table>
@@ -617,50 +418,80 @@ These are the datatypes for all files within the current GTFS:
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
-      <th>stop_id</th>
-      <th>stop_code</th>
       <th>stop_name</th>
+      <th>parent_station</th>
+      <th>stop_code</th>
+      <th>stop_id</th>
       <th>stop_desc</th>
       <th>stop_lat</th>
       <th>stop_lon</th>
-      <th>zone_id</th>
-      <th>stop_url</th>
+      <th>location_type</th>
       <th>wheelchair_boarding</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>12901</td>
-      <td>12901</td>
-      <td>FOREST @ SHEPHERD - E - NS</td>
-      <td>FOREST @ SHEPHERD -Eastbound -Near Side (before the intersection)</td>
-      <td>32.909084</td>
-      <td>-96.750428</td>
+      <td>1000 E 103rd Street</td>
       <td>NaN</td>
-      <td>NaN</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <td>12908</td>
-      <td>12908</td>
-      <td>WALNUT HILL @ RAMBLER - W - MB</td>
-      <td>WALNUT HILL @ RAMBLER -Westbound -Mid Block (not near the intersection)</td>
-      <td>32.883429</td>
-      <td>-96.760942</td>
-      <td>NaN</td>
+      <td>12279</td>
+      <td>ig</td>
+      <td>1000 E 103rd Street, Westbound, Northside of the Street</td>
+      <td>41.707620</td>
+      <td>-87.59913</td>
       <td>NaN</td>
       <td>1</td>
     </tr>
     <tr>
-      <td>12909</td>
-      <td>12909</td>
-      <td>WALNUT HILL @ GREENVILLE - E - MB</td>
-      <td>WALNUT HILL @ GREENVILLE -Eastbound -Mid Block (not near the intersection)</td>
-      <td>32.883151</td>
-      <td>-96.760168</td>
+      <td>1001 E 103rd Street</td>
       <td>NaN</td>
+      <td>12225</td>
+      <td>88f</td>
+      <td>1001 E 103rd Street, Eastbound, Southside of the Street</td>
+      <td>41.707493</td>
+      <td>-87.59895</td>
       <td>NaN</td>
-      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>100th Street &amp; Bensley</td>
+      <td>NaN</td>
+      <td>5247</td>
+      <td>1ul</td>
+      <td>100th Street &amp; Bensley, Eastbound, Southeast Corner</td>
+      <td>41.713493</td>
+      <td>-87.56316</td>
+      <td>NaN</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</feed-sample>
+
+### transfers.txt (feed.transfers)
+<feed-sample>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>from_stop_id</th>
+      <th>to_stop_id</th>
+      <th>transfer_type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>127</td>
+      <td>127</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>127</td>
+      <td>3ll</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>127</td>
+      <td>7p7</td>
+      <td>NaN</td>
     </tr>
   </tbody>
 </table>
@@ -673,40 +504,40 @@ These are the datatypes for all files within the current GTFS:
     <tr style="text-align: right;">
       <th>route_id</th>
       <th>service_id</th>
-      <th>trip_id</th>
-      <th>trip_headsign</th>
       <th>direction_id</th>
       <th>block_id</th>
       <th>shape_id</th>
+      <th>trip_id</th>
+      <th>wheelchair_accessible</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>25697</td>
-      <td>2</td>
-      <td>8107832</td>
-      <td>1 BEXAR</td>
+      <td>1</td>
+      <td>8</td>
       <td>0</td>
-      <td>102</td>
-      <td>143210</td>
+      <td>666000002169</td>
+      <td>13q</td>
+      <td>13ft</td>
+      <td>1</td>
     </tr>
     <tr>
-      <td>25697</td>
-      <td>2</td>
-      <td>8107833</td>
-      <td>1 BEXAR</td>
+      <td>1</td>
+      <td>8</td>
       <td>0</td>
-      <td>101</td>
-      <td>143210</td>
+      <td>666000002169</td>
+      <td>13q</td>
+      <td>14ru</td>
+      <td>1</td>
     </tr>
     <tr>
-      <td>25697</td>
-      <td>2</td>
-      <td>8107834</td>
-      <td>1 BEXAR</td>
+      <td>1</td>
+      <td>8</td>
       <td>0</td>
-      <td>103</td>
-      <td>143210</td>
+      <td>666000002169</td>
+      <td>13q</td>
+      <td>17h6</td>
+      <td>1</td>
     </tr>
   </tbody>
 </table>

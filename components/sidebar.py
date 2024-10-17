@@ -1,5 +1,6 @@
 import time
 import streamlit as st
+from rich import print as rprint
 from gtfs_agent.agent import LLMAgent
 from utils.constants import file_mapping, LLMs, disclaimer_text, copyright_text
 from components.state import reset_session_state, load_session_state
@@ -14,8 +15,8 @@ def load_agent_evaluator():
     # Clear chat history on change of model or GTFS feed
     if len(st.session_state.chat_history) > 0:
         clear_chat_history()
-    print("<<<==================Initializing Chat App=====================>>>")
-    print(f"Call count: {st.session_state['call_count']}, time: {time.ctime()}")
+    rprint("[bold yellow]<<<==================Initializing Chat App=====================>>>[/bold yellow]")
+    rprint(f"[blue]Call count:[/blue] {st.session_state['call_count']}, [blue]time:[/blue] {time.ctime()}")
     GTFS = st.session_state["GTFS"]
     with st.status(f"Loading `{GTFS}` GTFS Feed and setting up LLM Agent...") as status:
         model = st.session_state["model"]
@@ -45,7 +46,7 @@ def update_agent_settings():
     if "agent" in st.session_state:
         st.session_state.agent.update_agent(
             st.session_state.agent.GTFS,
-            st.session_state.agent.model,
+            st.session_state.model,
             st.session_state.agent.distance_unit,
             st.session_state.allow_viz,
         )

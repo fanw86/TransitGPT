@@ -33,7 +33,8 @@ class LLMAgent:
         # Initialize with first entry of file_mapping
         self.GTFS = list(file_mapping.keys())[0]
         self.distance_unit = file_mapping[self.GTFS]["distance_unit"]
-
+        self.allow_viz = allow_viz
+        
         # Set Hyperparameters
         self.max_retry = max_retry
         self.max_chars = max_chars
@@ -42,7 +43,7 @@ class LLMAgent:
         ## Initialize the logger and clients
         self.logger = setup_logger(LOG_FILE)
         self.logger.info(
-            f"\nInitializing LLMAgent with model: {model}, GTFS: {self.GTFS} and distance unit: {self.distance_unit}"
+            f"Updating LLMAgent with model: [red]{self.model}[/red], GTFS: [red]{self.GTFS}[/red], distance unit: [red]{self.distance_unit}[/red], and allow_viz: [green]{self.allow_viz}[/green]"
         )
         self.clients = {
             "gpt": OpenAIClient(),
@@ -291,7 +292,7 @@ class LLMAgent:
         self.allow_viz = allow_viz
 
         self.logger.info(
-            f"Updating LLMAgent with model: {model}, GTFS: {GTFS}, distance unit: {distance_unit}, and allow_viz: {allow_viz}"
+            f"Updating LLMAgent with model: [red]{model}[/red], GTFS: [red]{GTFS}[/red], distance unit: [red]{distance_unit}[/red], and allow_viz: [red]{allow_viz}[/red]"
         )
         self.load_system_prompt(GTFS, distance_unit, allow_viz)
 

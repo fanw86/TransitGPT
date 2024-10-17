@@ -5,6 +5,7 @@ from logging.handlers import RotatingFileHandler
 from rich.logging import RichHandler
 from rich.console import Console
 from rich.traceback import install as install_rich_traceback
+from rich.text import Text
 
 
 def setup_logger(log_file):
@@ -33,9 +34,14 @@ def setup_logger(log_file):
 
     # Create RichHandler for console output
     rich_handler = RichHandler(
-        console=console, rich_tracebacks=True, tracebacks_show_locals=True
+        console=console, rich_tracebacks=True, tracebacks_show_locals=True,
+        markup=True  # Enable markup parsing
     )
     rich_handler.setLevel(logging.DEBUG)
+
+    # Use the custom formatter for RichHandler
+    rich_formatter = RichColorFormatter("%(message)s")
+    rich_handler.setFormatter(rich_formatter)
 
     # Create a RotatingFileHandler for file output
     file_handler = RotatingFileHandler(
@@ -75,3 +81,9 @@ def reset_logger(logger, log_file):
     new_logger.info("Logger reset and reinitialized")
 
     return new_logger
+
+
+class RichColorFormatter(logging.Formatter):
+    def format(self, record):
+        message = super().format(record)
+        return Text.from_markup(message)
