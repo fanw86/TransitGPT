@@ -96,8 +96,6 @@ class LLMAgent:
                 )
         if user_prompt.strip():
             messages.append({"role": "user", "content": user_prompt})
-        if not model.startswith("claude"):
-            messages.insert(0, {"role": "system", "content": system_prompt})
         return messages
 
     def update_chat_history(

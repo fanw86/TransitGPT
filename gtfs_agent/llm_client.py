@@ -27,6 +27,7 @@ class OpenAIClient(LLMClient):
         self.logger = logger
 
     def call(self, model, messages, system_prompt=None) -> Tuple[str, bool]:
+        messages.insert(0, {"role": "system", "content": system_prompt})
         try:
             response = self.client.chat.completions.create(
                 model=model,
@@ -70,6 +71,7 @@ class GroqClient(LLMClient):
         self.logger = logger
 
     def call(self, model, messages, system_prompt=None) -> Tuple[str, bool]:
+        messages.insert(0, {"role": "system", "content": system_prompt})
         try:
             response = self.client.chat.completions.create(
                 model=model,
