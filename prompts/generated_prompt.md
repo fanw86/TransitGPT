@@ -42,15 +42,8 @@ These are the datatypes for all files within the current GTFS:
 - `agency_timezone`: string
 - `agency_lang`: string
 - `agency_phone`: string
-
-</data-type>
-
-### areas.txt
-
-<data-type>
-
-- `area_id`: string
-- `area_name`: string
+- `agency_fare_url`: string
+- `agency_email`: string
 
 </data-type>
 
@@ -80,53 +73,28 @@ These are the datatypes for all files within the current GTFS:
 
 </data-type>
 
-### fare_leg_rules.txt
+### fare_attributes.txt
 
 <data-type>
 
-- `leg_group_id`: string
-- `network_id`: string
-- `from_area_id`: string
-- `to_area_id`: string
-- `fare_product_id`: string
-- `from_timeframe_group_id`: string
-- `to_timeframe_group_id`: string
+- `fare_id`: string
+- `price`: float
+- `currency_type`: string
+- `payment_method`: integer
+- `transfers`: integer
+- `transfer_duration`: integer
 
 </data-type>
 
-### fare_media.txt
+### fare_rules.txt
 
 <data-type>
 
-- `fare_media_id`: string
-- `fare_media_name`: string
-- `fare_media_type`: integer
-
-</data-type>
-
-### fare_products.txt
-
-<data-type>
-
-- `fare_product_id`: string
-- `fare_product_name`: string
-- `fare_media_id`: string
-- `amount`: float
-- `currency`: string
-
-</data-type>
-
-### fare_transfer_rules.txt
-
-<data-type>
-
-- `from_leg_group_id`: string
-- `to_leg_group_id`: string
-- `transfer_count`: integer
-- `duration_limit`: integer
-- `duration_limit_type`: string
-- `fare_transfer_type`: string
-- `fare_product_id`: string
+- `fare_id`: string
+- `route_id`: string
+- `origin_id`: string
+- `destination_id`: string
+- `contains_id`: string
 
 </data-type>
 
@@ -137,37 +105,12 @@ These are the datatypes for all files within the current GTFS:
 - `feed_publisher_name`: string
 - `feed_publisher_url`: string
 - `feed_lang`: string
+- `default_lang`: string
 - `feed_start_date`: date (datetime.date)
 - `feed_end_date`: date (datetime.date)
 - `feed_version`: string
 - `feed_contact_email`: string
-
-</data-type>
-
-### levels.txt
-
-<data-type>
-
-- `level_id`: string
-- `level_index`: float
-- `level_name`: string
-
-</data-type>
-
-### pathways.txt
-
-<data-type>
-
-- `pathway_id`: string
-- `from_stop_id`: string
-- `to_stop_id`: string
-- `pathway_mode`: integer
-- `is_bidirectional`: integer
-- `length`: float
-- `traversal_time`: integer
-- `stair_count`: integer
-- `max_slope`: float
-- `signposted_as`: string
+- `feed_contact_url`: string
 
 </data-type>
 
@@ -199,15 +142,6 @@ These are the datatypes for all files within the current GTFS:
 
 </data-type>
 
-### stop_areas.txt
-
-<data-type>
-
-- `stop_id`: string
-- `area_id`: string
-
-</data-type>
-
 ### stop_times.txt
 
 <data-type>
@@ -221,40 +155,7 @@ These are the datatypes for all files within the current GTFS:
 - `pickup_type`: integer
 - `drop_off_type`: integer
 - `timepoint`: integer
-- `continuous_pickup`: integer
-- `continuous_drop_off`: integer
 - `shape_dist_traveled`: float (`Meters`)
-
-</data-type>
-
-### stops.txt
-
-<data-type>
-
-- `stop_id`: string
-- `stop_code`: string
-- `stop_name`: string
-- `stop_desc`: string
-- `platform_code`: string
-- `stop_lat`: float
-- `stop_lon`: float
-- `zone_id`: string
-- `stop_url`: string
-- `level_id`: string
-- `location_type`: integer
-- `parent_station`: string
-- `wheelchair_boarding`: integer
-
-</data-type>
-
-### timeframes.txt
-
-<data-type>
-
-- `timeframe_group_id`: string
-- `start_time`: time (seconds since midnight)
-- `end_time`: time (seconds since midnight)
-- `service_id`: string
 
 </data-type>
 
@@ -316,46 +217,14 @@ These are the datatypes for all files within the current GTFS:
   </thead>
   <tbody>
     <tr>
-      <td>3</td>
-      <td>Cape Cod Regional Transit Authority</td>
-      <td>http://www.capecodrta.org/</td>
-      <td>America/New_York</td>
-      <td>EN</td>
-      <td>800-352-7155</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>MBTA</td>
-      <td>http://www.mbta.com</td>
-      <td>America/New_York</td>
-      <td>EN</td>
-      <td>617-222-3200</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### areas.txt (feed.areas)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>area_id</th>
-      <th>area_name</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>area_bl</td>
-      <td>Blue Line</td>
-    </tr>
-    <tr>
-      <td>area_bl_airport</td>
-      <td>Blue Line - Airport Station</td>
-    </tr>
-    <tr>
-      <td>area_cf_zone_buzzards</td>
-      <td>CapeFLYER - Wareham/Buzzards Bay/Bourne</td>
+      <td>CUMTD</td>
+      <td>Champaign Urbana Mass Transit District</td>
+      <td>https://www.mtd.org/</td>
+      <td>America/Chicago</td>
+      <td>en</td>
+      <td>217-384-8188</td>
+      <td>NaN</td>
+      <td>mtdweb@mtd.org</td>
     </tr>
   </tbody>
 </table>
@@ -380,90 +249,104 @@ These are the datatypes for all files within the current GTFS:
   </thead>
   <tbody>
     <tr>
-      <td>BUS42024-hbg44rd1-Weekday-02</td>
-      <td>1</td>
+      <td>L1_SU</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
       <td>0</td>
       <td>0</td>
       <td>0</td>
       <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>2024-08-30</td>
-      <td>2024-12-06</td>
+      <td>2024-08-11</td>
+      <td>2024-12-21</td>
     </tr>
     <tr>
-      <td>BUS42024-hbg44wk1-Weekday-02</td>
-      <td>0</td>
+      <td>B3_NOSCH_MF</td>
       <td>1</td>
       <td>1</td>
       <td>1</td>
+      <td>1</td>
+      <td>1</td>
       <td>0</td>
       <td>0</td>
-      <td>0</td>
-      <td>2024-08-28</td>
-      <td>2024-12-12</td>
+      <td>2024-08-11</td>
+      <td>2024-12-21</td>
     </tr>
     <tr>
-      <td>BUS42024-hbs44sf1-Weekday-02</td>
+      <td>GR4_SU</td>
       <td>0</td>
       <td>0</td>
       <td>0</td>
       <td>0</td>
       <td>0</td>
       <td>0</td>
-      <td>0</td>
-      <td>2024-11-29</td>
-      <td>2024-11-29</td>
+      <td>1</td>
+      <td>2024-08-11</td>
+      <td>2024-12-21</td>
     </tr>
   </tbody>
 </table>
 </feed-sample>
 
-### calendar_attributes.txt (feed.calendar_attributes)
+### calendar_dates.txt (feed.calendar_dates)
 <feed-sample>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
       <th>service_id</th>
-      <th>service_description</th>
-      <th>service_schedule_name</th>
-      <th>service_schedule_type</th>
-      <th>service_schedule_typicality</th>
-      <th>rating_start_date</th>
-      <th>rating_end_date</th>
-      <th>rating_description</th>
+      <th>date</th>
+      <th>exception_type</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>BUS42024-hbg44rd1-Weekday-02</td>
-      <td>Weekday schedule</td>
-      <td>Weekday</td>
-      <td>Weekday</td>
+      <td>L1_SU</td>
+      <td>2024-08-11</td>
       <td>1</td>
-      <td>20240825</td>
-      <td>NaN</td>
-      <td>Fall</td>
     </tr>
     <tr>
-      <td>BUS42024-hbg44wk1-Weekday-02</td>
-      <td>Weekday schedule</td>
-      <td>Weekday</td>
-      <td>Weekday</td>
+      <td>L1_SU</td>
+      <td>2024-08-18</td>
       <td>1</td>
-      <td>20240825</td>
-      <td>NaN</td>
-      <td>Fall</td>
     </tr>
     <tr>
-      <td>BUS42024-hbs44sf1-Weekday-02</td>
-      <td>Weekday schedule (no school)</td>
-      <td>Weekday (no school)</td>
-      <td>Weekday</td>
+      <td>L1_SU</td>
+      <td>2024-08-25</td>
       <td>1</td>
-      <td>20240825</td>
-      <td>NaN</td>
-      <td>Fall</td>
+    </tr>
+  </tbody>
+</table>
+</feed-sample>
+
+### fare_attributes.txt (feed.fare_attributes)
+<feed-sample>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>fare_id</th>
+      <th>price</th>
+      <th>currency_type</th>
+      <th>payment_method</th>
+      <th>transfers</th>
+      <th>transfer_duration</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>FULL</td>
+      <td>1.0</td>
+      <td>USD</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>ISTOP</td>
+      <td>0.0</td>
+      <td>USD</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
     </tr>
   </tbody>
 </table>
@@ -483,380 +366,25 @@ These are the datatypes for all files within the current GTFS:
   </thead>
   <tbody>
     <tr>
-      <td>RTL42024-hms44016-Saturday-01</td>
-      <td>2024-08-31</td>
-      <td>1</td>
+      <td>FULL</td>
       <td>NaN</td>
-    </tr>
-    <tr>
-      <td>Spring/SummerSaturday</td>
-      <td>2024-08-31</td>
-      <td>1</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <td>RTL42024-hms44017-Sunday-01</td>
-      <td>2024-09-01</td>
-      <td>1</td>
-      <td>NaN</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### checkpoints.txt (feed.checkpoints)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>checkpoint_id</th>
-      <th>checkpoint_name</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>1010m</td>
-      <td>1010 Massachusetts Avenue @ Magazine Street</td>
-    </tr>
-    <tr>
-      <td>400cp</td>
-      <td>400 West Cummings Park</td>
-    </tr>
-    <tr>
-      <td>abase</td>
-      <td>Air Base</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### directions.txt (feed.directions)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>route_id</th>
-      <th>direction_id</th>
-      <th>direction</th>
-      <th>direction_destination</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>1</td>
-      <td>0</td>
-      <td>Outbound</td>
-      <td>Harvard Square</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>1</td>
-      <td>Inbound</td>
-      <td>Nubian Station</td>
-    </tr>
-    <tr>
-      <td>10</td>
-      <td>0</td>
-      <td>Outbound</td>
-      <td>City Point</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### facilities.txt (feed.facilities)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>facility_id</th>
-      <th>facility_code</th>
-      <th>facility_class</th>
-      <th>facility_type</th>
-      <th>stop_id</th>
-      <th>facility_short_name</th>
-      <th>facility_long_name</th>
-      <th>facility_desc</th>
-      <th>facility_lat</th>
-      <th>facility_lon</th>
-      <th>wheelchair_facility</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>102</td>
-      <td>102.0</td>
-      <td>1</td>
-      <td>escalator</td>
-      <td>place-ogmnl</td>
-      <td>Washington Street to unpaid lobby</td>
-      <td>Oak Grove Escalator 102 (Washington Street to unpaid lobby)</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>2</td>
-    </tr>
-    <tr>
-      <td>103</td>
-      <td>103.0</td>
-      <td>1</td>
-      <td>escalator</td>
-      <td>place-ogmnl</td>
-      <td>Orange Line platform to paid lobby</td>
-      <td>Oak Grove Escalator 103 (Orange Line platform to paid lobby)</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>2</td>
-    </tr>
-    <tr>
-      <td>104</td>
-      <td>104.0</td>
-      <td>1</td>
-      <td>escalator</td>
-      <td>place-ogmnl</td>
-      <td>Parking, busway to unpaid lobby</td>
-      <td>Oak Grove Escalator 104 (Parking, busway to unpaid lobby)</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>2</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### facilities_properties.txt (feed.facilities_properties)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>facility_id</th>
-      <th>property_id</th>
-      <th>value</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>102</td>
-      <td>direction</td>
-      <td>up</td>
-    </tr>
-    <tr>
-      <td>102</td>
-      <td>excludes-stop</td>
-      <td>9328</td>
-    </tr>
-    <tr>
-      <td>102</td>
-      <td>excludes-stop</td>
-      <td>door-ogmnl-banks</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### facilities_properties_definitions.txt (feed.facilities_properties_definitions)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>property_id</th>
-      <th>definition</th>
-      <th>possible_values</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>address</td>
-      <td>Facility address</td>
-      <td>Text</td>
-    </tr>
-    <tr>
-      <td>alternate-service-text</td>
-      <td>Intended for internal use only; gives information on alternate service if facility is out of service</td>
-      <td>Text</td>
-    </tr>
-    <tr>
-      <td>attended</td>
-      <td>Indicates that the facility is regularly staffed</td>
-      <td>1 for true, 2 for false, or 0 for no information</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### fare_leg_rules.txt (feed.fare_leg_rules)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>leg_group_id</th>
-      <th>network_id</th>
-      <th>from_area_id</th>
-      <th>to_area_id</th>
-      <th>fare_product_id</th>
-      <th>from_timeframe_group_id</th>
-      <th>to_timeframe_group_id</th>
-      <th>transfer_only</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>leg_airport_rapid_transit_quick_subway</td>
-      <td>rapid_transit</td>
-      <td>area_bl_airport</td>
-      <td>NaN</td>
-      <td>prod_rapid_transit_quick_subway</td>
-      <td>timeframe_regular</td>
+      <td>f</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>leg_cape_buzzards_hyannis_cash</td>
-      <td>cape_flyer</td>
-      <td>area_cf_zone_buzzards</td>
-      <td>area_cf_zone_hyannis</td>
-      <td>prod_cape_buzzards_hyannis_fare</td>
-      <td>NaN</td>
+      <td>FULL</td>
+      <td>1_YELLOW_ALT</td>
+      <td>i</td>
       <td>NaN</td>
       <td>NaN</td>
     </tr>
     <tr>
-      <td>leg_cape_buzzards_hyannis_cash</td>
-      <td>cape_flyer</td>
-      <td>area_cf_zone_hyannis</td>
-      <td>area_cf_zone_buzzards</td>
-      <td>prod_cape_buzzards_hyannis_fare</td>
+      <td>FULL</td>
+      <td>10W_GOLD_ALT</td>
+      <td>i</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### fare_media.txt (feed.fare_media)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>fare_media_id</th>
-      <th>fare_media_name</th>
-      <th>fare_media_type</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>cash</td>
-      <td>Cash</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>credit_debit</td>
-      <td>Credit/debit card</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>charlieticket</td>
-      <td>CharlieTicket</td>
-      <td>1</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### fare_products.txt (feed.fare_products)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>fare_product_id</th>
-      <th>fare_product_name</th>
-      <th>fare_media_id</th>
-      <th>amount</th>
-      <th>currency</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>prod_boat_zone_1</td>
-      <td>Ferry Zone 1 one-way fare</td>
-      <td>cash</td>
-      <td>6.5</td>
-      <td>USD</td>
-    </tr>
-    <tr>
-      <td>prod_boat_zone_1</td>
-      <td>Ferry Zone 1 one-way fare</td>
-      <td>credit_debit</td>
-      <td>6.5</td>
-      <td>USD</td>
-    </tr>
-    <tr>
-      <td>prod_boat_zone_1</td>
-      <td>Ferry Zone 1 one-way fare</td>
-      <td>mticket</td>
-      <td>6.5</td>
-      <td>USD</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### fare_transfer_rules.txt (feed.fare_transfer_rules)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>from_leg_group_id</th>
-      <th>to_leg_group_id</th>
-      <th>transfer_count</th>
-      <th>duration_limit</th>
-      <th>duration_limit_type</th>
-      <th>fare_transfer_type</th>
-      <th>fare_product_id</th>
-      <th>filter_fare_product_id</th>
-      <th>fare_media_behavior</th>
-      <th>fare_product_behavior</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>leg_airport_rapid_transit_quick_subway</td>
-      <td>leg_local_bus_quick_subway</td>
-      <td>NaN</td>
-      <td>7200.0</td>
-      <td>1.0</td>
-      <td>0</td>
-      <td>NaN</td>
-      <td>prod_rapid_transit_quick_subway</td>
-      <td>0</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <td>leg_airport_rapid_transit_quick_subway</td>
-      <td>leg_rapid_transit_quick_subway</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>0</td>
-      <td>NaN</td>
-      <td>prod_rapid_transit_quick_subway</td>
-      <td>0</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <td>leg_mattapan_rapid_transit_quick_subway</td>
-      <td>leg_local_bus_quick_subway</td>
-      <td>NaN</td>
-      <td>7200.0</td>
-      <td>1.0</td>
-      <td>0</td>
-      <td>NaN</td>
-      <td>prod_rapid_transit_quick_subway</td>
-      <td>0</td>
-      <td>1</td>
     </tr>
   </tbody>
 </table>
@@ -880,304 +408,21 @@ These are the datatypes for all files within the current GTFS:
   </thead>
   <tbody>
     <tr>
-      <td>MBTA</td>
-      <td>http://www.mbta.com</td>
-      <td>EN</td>
-      <td>2024-08-28</td>
-      <td>2024-12-14</td>
-      <td>Fall 2024, 2024-09-04T19:08:53+00:00, version D</td>
-      <td>developer@mbta.com</td>
-      <td>mbta-ma-us</td>
+      <td>Champaign-Urbana Mass Transit District</td>
+      <td>https://mtd.org/</td>
+      <td>en</td>
+      <td>en</td>
+      <td>2024-08-11</td>
+      <td>2024-12-21</td>
+      <td>GTFS Feed 11/08/2024 – 21/12/2024 (Generated: 10/08/2024 11:21:45)</td>
+      <td>mtdweb@mtd.org</td>
+      <td>https://mtd.org/inside/contact/</td>
     </tr>
   </tbody>
 </table>
 </feed-sample>
 
-### levels.txt (feed.levels)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>level_id</th>
-      <th>level_index</th>
-      <th>level_name</th>
-      <th>level_elevation</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>level_-4_alewife_platform</td>
-      <td>-4.0</td>
-      <td>Alewife platform</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <td>level_-3_red_platform</td>
-      <td>-3.0</td>
-      <td>Red Line platforms</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <td>level_-3_southbound_platform</td>
-      <td>-3.0</td>
-      <td>Ashmont/Braintree platform</td>
-      <td>NaN</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### lines.txt (feed.lines)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>line_id</th>
-      <th>line_short_name</th>
-      <th>line_long_name</th>
-      <th>line_desc</th>
-      <th>line_url</th>
-      <th>line_color</th>
-      <th>line_text_color</th>
-      <th>line_sort_order</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>line-Red</td>
-      <td>NaN</td>
-      <td>Red Line</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>DA291C</td>
-      <td>FFFFFF</td>
-      <td>10010</td>
-    </tr>
-    <tr>
-      <td>line-Mattapan</td>
-      <td>NaN</td>
-      <td>Mattapan Trolley</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>DA291C</td>
-      <td>FFFFFF</td>
-      <td>10011</td>
-    </tr>
-    <tr>
-      <td>line-Orange</td>
-      <td>NaN</td>
-      <td>Orange Line</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>ED8B00</td>
-      <td>FFFFFF</td>
-      <td>10020</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### linked_datasets.txt (feed.linked_datasets)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>url</th>
-      <th>trip_updates</th>
-      <th>vehicle_positions</th>
-      <th>service_alerts</th>
-      <th>authentication_type</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>https://cdn.mbta.com/realtime/TripUpdates.pb</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>https://cdn.mbta.com/realtime/VehiclePositions.pb</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>https://cdn.mbta.com/realtime/Alerts.pb</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### multi_route_trips.txt (feed.multi_route_trips)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>added_route_id</th>
-      <th>trip_id</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>32</td>
-      <td>65049981</td>
-    </tr>
-    <tr>
-      <td>33</td>
-      <td>65049981</td>
-    </tr>
-    <tr>
-      <td>32</td>
-      <td>65050111</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### pathways.txt (feed.pathways)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>pathway_id</th>
-      <th>from_stop_id</th>
-      <th>to_stop_id</th>
-      <th>facility_id</th>
-      <th>pathway_mode</th>
-      <th>is_bidirectional</th>
-      <th>length</th>
-      <th>wheelchair_length</th>
-      <th>traversal_time</th>
-      <th>wheelchair_traversal_time</th>
-      <th>stair_count</th>
-      <th>max_slope</th>
-      <th>pathway_name</th>
-      <th>pathway_code</th>
-      <th>signposted_as</th>
-      <th>instructions</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>WML-0081-000</td>
-      <td>door-WML-0081-harvard</td>
-      <td>node-WML-0081-harvardstairs-bottom</td>
-      <td>NaN</td>
-      <td>2</td>
-      <td>0</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>-34.0</td>
-      <td>NaN</td>
-      <td>Newtonville - Harvard St to Bottom of stairs for Harvard St</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <td>WML-0081-001</td>
-      <td>node-WML-0081-harvardstairs-bottom</td>
-      <td>door-WML-0081-harvard</td>
-      <td>NaN</td>
-      <td>2</td>
-      <td>0</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>34.0</td>
-      <td>NaN</td>
-      <td>Bottom of stairs for Harvard St to Newtonville - Harvard St</td>
-      <td>NaN</td>
-      <td>Newtonville - Harvard St</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <td>WML-0081-002</td>
-      <td>node-WML-0081-harvardstairs-bottom</td>
-      <td>WML-0081-02</td>
-      <td>NaN</td>
-      <td>1</td>
-      <td>0</td>
-      <td>262.7376</td>
-      <td>262.7376</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>Bottom of stairs for Harvard St to Commuter Rail (Track 2 (All Trains))</td>
-      <td>NaN</td>
-      <td>Commuter Rail - Track 2 (All Trains)</td>
-      <td>NaN</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### route_patterns.txt (feed.route_patterns)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>route_pattern_id</th>
-      <th>route_id</th>
-      <th>direction_id</th>
-      <th>route_pattern_name</th>
-      <th>route_pattern_time_desc</th>
-      <th>route_pattern_typicality</th>
-      <th>route_pattern_sort_order</th>
-      <th>representative_trip_id</th>
-      <th>canonical_route_pattern</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Red-3-0</td>
-      <td>Red</td>
-      <td>0</td>
-      <td>Alewife - Braintree</td>
-      <td>NaN</td>
-      <td>1</td>
-      <td>100100040</td>
-      <td>canonical-Red-C1-0</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <td>Red-1-0</td>
-      <td>Red</td>
-      <td>0</td>
-      <td>Alewife - Ashmont</td>
-      <td>NaN</td>
-      <td>1</td>
-      <td>100100041</td>
-      <td>canonical-Red-C2-0</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <td>Red-3-1</td>
-      <td>Red</td>
-      <td>1</td>
-      <td>Braintree - Alewife</td>
-      <td>NaN</td>
-      <td>1</td>
-      <td>100101040</td>
-      <td>canonical-Red-C1-1</td>
-      <td>1</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### levels.txt (feed.levels)
+### routes.txt (feed.routes)
 <feed-sample>
 <table border="1" class="dataframe">
   <thead>
@@ -1191,61 +436,41 @@ These are the datatypes for all files within the current GTFS:
       <th>route_url</th>
       <th>route_color</th>
       <th>route_text_color</th>
-      <th>route_sort_order</th>
-      <th>route_fare_class</th>
-      <th>line_id</th>
-      <th>listed_route</th>
-      <th>network_id</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>Red</td>
-      <td>1</td>
-      <td>n/a-Red</td>
-      <td>Red Line</td>
-      <td>Rapid Transit</td>
-      <td>1</td>
-      <td>https://www.mbta.com/schedules/Red</td>
-      <td>DA291C</td>
-      <td>FFFFFF</td>
-      <td>10010</td>
-      <td>Rapid Transit</td>
-      <td>line-Red</td>
+      <td>TEAL_SUNDAY</td>
+      <td>CUMTD</td>
+      <td>120-TEAL_SUNDAY</td>
+      <td>Teal Sunday</td>
       <td>NaN</td>
-      <td>rapid_transit</td>
+      <td>3</td>
+      <td>https://mtd.org/maps-and-schedules/to-schedule/561875bc4cd84124b67031474c033949/</td>
+      <td>006991</td>
+      <td>ffffff</td>
     </tr>
     <tr>
-      <td>Mattapan</td>
-      <td>1</td>
-      <td>n/a-Mattapan</td>
-      <td>Mattapan Trolley</td>
-      <td>Rapid Transit</td>
-      <td>0</td>
-      <td>https://www.mbta.com/schedules/Mattapan</td>
-      <td>DA291C</td>
-      <td>FFFFFF</td>
-      <td>10011</td>
-      <td>Rapid Transit</td>
-      <td>line-Mattapan</td>
+      <td>RUBY_SUNDAY</td>
+      <td>CUMTD</td>
+      <td>110-RUBY_SUNDAY</td>
+      <td>Ruby Sunday</td>
       <td>NaN</td>
-      <td>m_rapid_transit</td>
+      <td>3</td>
+      <td>https://mtd.org/maps-and-schedules/to-schedule/178f799322dd4b9982ec00cfb5a33fa0/</td>
+      <td>eb008b</td>
+      <td>000000</td>
     </tr>
     <tr>
-      <td>Orange</td>
-      <td>1</td>
-      <td>n/a-Orange</td>
-      <td>Orange Line</td>
-      <td>Rapid Transit</td>
-      <td>1</td>
-      <td>https://www.mbta.com/schedules/Orange</td>
-      <td>ED8B00</td>
-      <td>FFFFFF</td>
-      <td>10020</td>
-      <td>Rapid Transit</td>
-      <td>line-Orange</td>
+      <td>ILLINI_LIMITED_SATURDAY</td>
+      <td>CUMTD</td>
+      <td>220-ILLINI_LIMITED_SATURDAY</td>
+      <td>Illini Limited Saturday</td>
       <td>NaN</td>
-      <td>rapid_transit</td>
+      <td>3</td>
+      <td>https://mtd.org/maps-and-schedules/to-schedule/d5a1a2df7dce48e1b9d525f831e4d213/</td>
+      <td>5a1d5a</td>
+      <td>ffffff</td>
     </tr>
   </tbody>
 </table>
@@ -1272,44 +497,18 @@ These are the datatypes for all files within the current GTFS:
       <td>0.000000</td>
     </tr>
     <tr>
-      <td>010128</td>
-      <td>42.329788</td>
-      <td>-71.083268</td>
-      <td>10002</td>
-      <td>50.553559</td>
+      <td>[@124.0.102302343@]1</td>
+      <td>40.115915</td>
+      <td>-88.240893</td>
+      <td>2</td>
+      <td>5.059104</td>
     </tr>
     <tr>
-      <td>010128</td>
-      <td>42.330089</td>
-      <td>-71.083198</td>
-      <td>10003</td>
-      <td>84.482684</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### stop_areas.txt (feed.stop_areas)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>stop_id</th>
-      <th>area_id</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>117</td>
-      <td>area_route_426_downtown</td>
-    </tr>
-    <tr>
-      <td>117</td>
-      <td>area_route_450_downtown</td>
-    </tr>
-    <tr>
-      <td>14460</td>
-      <td>area_route_450_outside_downtown</td>
+      <td>[@124.0.102302343@]1</td>
+      <td>40.115502</td>
+      <td>-88.241050</td>
+      <td>3</td>
+      <td>52.901162</td>
     </tr>
   </tbody>
 </table>
@@ -1329,177 +528,45 @@ These are the datatypes for all files within the current GTFS:
       <th>pickup_type</th>
       <th>drop_off_type</th>
       <th>timepoint</th>
-      <th>checkpoint_id</th>
-      <th>continuous_pickup</th>
-      <th>continuous_drop_off</th>
       <th>shape_dist_traveled</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>63646280</td>
-      <td>21600.0</td>
-      <td>21600.0</td>
-      <td>70094</td>
-      <td>50</td>
+      <td>[@12.0.42224456@][3][1246897112109]/0__SV4_NOSCH_UIF</td>
+      <td>69960.0</td>
+      <td>69960.0</td>
+      <td>PAR:2</td>
+      <td>0</td>
       <td>NaN</td>
       <td>0</td>
-      <td>1</td>
-      <td>0.0</td>
-      <td>asmnl</td>
-      <td>NaN</td>
-      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
       <td>0.000000</td>
     </tr>
     <tr>
-      <td>63646280</td>
-      <td>21660.0</td>
-      <td>21660.0</td>
-      <td>70092</td>
-      <td>60</td>
+      <td>[@12.0.42224456@][3][1246897112109]/0__SV4_NOSCH_UIF</td>
+      <td>70020.0</td>
+      <td>70020.0</td>
+      <td>PAMD:2</td>
+      <td>1</td>
       <td>NaN</td>
       <td>0</td>
       <td>0</td>
-      <td>0.0</td>
-      <td>smmnl</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>1006.423109</td>
+      <td>0</td>
+      <td>332.110320</td>
     </tr>
     <tr>
-      <td>63646280</td>
-      <td>21780.0</td>
-      <td>21780.0</td>
-      <td>70090</td>
-      <td>70</td>
+      <td>[@12.0.42224456@][3][1246897112109]/0__SV4_NOSCH_UIF</td>
+      <td>70065.0</td>
+      <td>70065.0</td>
+      <td>PSL:2</td>
+      <td>2</td>
       <td>NaN</td>
       <td>0</td>
       <td>0</td>
-      <td>0.0</td>
-      <td>fldcr</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>1990.658390</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### stops.txt (feed.stops)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>stop_id</th>
-      <th>stop_code</th>
-      <th>stop_name</th>
-      <th>stop_desc</th>
-      <th>platform_code</th>
-      <th>platform_name</th>
-      <th>stop_lat</th>
-      <th>stop_lon</th>
-      <th>zone_id</th>
-      <th>stop_address</th>
-      <th>stop_url</th>
-      <th>level_id</th>
-      <th>location_type</th>
-      <th>parent_station</th>
-      <th>wheelchair_boarding</th>
-      <th>municipality</th>
-      <th>on_street</th>
-      <th>at_street</th>
-      <th>vehicle_type</th>
-      <th>geometry</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>1</td>
-      <td>1</td>
-      <td>Washington St opp Ruggles St</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>42.330957</td>
-      <td>-71.082754</td>
-      <td>ExpressBus-Downtown</td>
-      <td>NaN</td>
-      <td>https://www.mbta.com/stops/1</td>
-      <td>NaN</td>
       <td>0</td>
-      <td>NaN</td>
-      <td>1</td>
-      <td>Boston</td>
-      <td>Washington Street</td>
-      <td>Ruggles Street</td>
-      <td>3.0</td>
-      <td>POINT (-71.082754 42.330957)</td>
-    </tr>
-    <tr>
-      <td>10</td>
-      <td>10</td>
-      <td>Theo Glynn Way @ Newmarket Sq</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>42.330555</td>
-      <td>-71.068787</td>
-      <td>LocalBus</td>
-      <td>NaN</td>
-      <td>https://www.mbta.com/stops/10</td>
-      <td>NaN</td>
-      <td>0</td>
-      <td>NaN</td>
-      <td>1</td>
-      <td>Boston</td>
-      <td>Theodore Glynn Way</td>
-      <td>Newmarket Square</td>
-      <td>3.0</td>
-      <td>POINT (-71.068787 42.330555)</td>
-    </tr>
-    <tr>
-      <td>10000</td>
-      <td>10000</td>
-      <td>Tremont St opp Temple Pl</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>42.355692</td>
-      <td>-71.062911</td>
-      <td>LocalBus</td>
-      <td>NaN</td>
-      <td>https://www.mbta.com/stops/10000</td>
-      <td>NaN</td>
-      <td>0</td>
-      <td>NaN</td>
-      <td>1</td>
-      <td>Boston</td>
-      <td>Tremont Street</td>
-      <td>Temple Place</td>
-      <td>3.0</td>
-      <td>POINT (-71.062911 42.355692)</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### timeframes.txt (feed.timeframes)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>timeframe_group_id</th>
-      <th>start_time</th>
-      <th>end_time</th>
-      <th>service_id</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>timeframe_regular</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>fare_regular</td>
+      <td>651.918921</td>
     </tr>
   </tbody>
 </table>
@@ -1523,6 +590,7 @@ These are the datatypes for all files within the current GTFS:
       <th>stop_timezone</th>
       <th>wheelchair_boarding</th>
       <th>platform_code</th>
+      <th>geometry</th>
     </tr>
   </thead>
   <tbody>
@@ -1540,10 +608,7 @@ These are the datatypes for all files within the current GTFS:
       <td>America/Chicago</td>
       <td>0</td>
       <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>64072650</td>
-      <td>64072611</td>
+      <td>POINT (-88.18067333 40.11451167)</td>
     </tr>
     <tr>
       <td>150DALE:3</td>
@@ -1559,10 +624,7 @@ These are the datatypes for all files within the current GTFS:
       <td>America/Chicago</td>
       <td>0</td>
       <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>64072650</td>
-      <td>64166292</td>
+      <td>POINT (-88.18084833 40.11450333)</td>
     </tr>
     <tr>
       <td>150DOD:5</td>
@@ -1578,10 +640,7 @@ These are the datatypes for all files within the current GTFS:
       <td>America/Chicago</td>
       <td>0</td>
       <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>64072650</td>
-      <td>64166660</td>
+      <td>POINT (-88.173105 40.11415833)</td>
     </tr>
   </tbody>
 </table>
@@ -1610,100 +669,32 @@ These are the datatypes for all files within the current GTFS:
       <td>[@7.0.41101146@][4][1237930167062]/24__GN8_MF</td>
       <td>Parkland College</td>
       <td>1</td>
-      <td>FallSaturday</td>
-      <td>64387615</td>
-      <td>Harvard</td>
-      <td>NaN</td>
+      <td>GN8_MF</td>
+      <td>5W_HOPPER_81</td>
       <td>0</td>
-      <td>C01-5</td>
-      <td>010128</td>
-      <td>1</td>
-      <td>NaN</td>
-      <td>1-_-0</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <td>1</td>
-      <td>FallSaturday</td>
-      <td>64387617</td>
-      <td>Harvard</td>
-      <td>NaN</td>
       <td>0</td>
-      <td>C01-9</td>
-      <td>010128</td>
-      <td>1</td>
-      <td>NaN</td>
-      <td>1-_-0</td>
-      <td>1</td>
     </tr>
     <tr>
-      <td>1</td>
-      <td>FallSaturday</td>
-      <td>64387618</td>
-      <td>Harvard</td>
-      <td>NaN</td>
+      <td>SILVER_LIMITED_SUNDAY</td>
+      <td>SV1_NONUI_SU</td>
+      <td>[@124.0.92241454@][1484326515007]/37__SV1_NONUI_SU</td>
+      <td>Lincoln Square</td>
       <td>0</td>
-      <td>C01-1</td>
-      <td>010128</td>
-      <td>1</td>
-      <td>NaN</td>
-      <td>1-_-0</td>
-      <td>1</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### trips_properties.txt (feed.trips_properties)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>trip_id</th>
-      <th>trip_property_id</th>
-      <th>value</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>63646322</td>
-      <td>note</td>
-      <td>Waits at some downtown stations for connections</td>
+      <td>SV1_NONUI_SU</td>
+      <td>[@124.0.92241454@]4</td>
+      <td>0</td>
+      <td>0</td>
     </tr>
     <tr>
-      <td>63646322</td>
-      <td>trip_type</td>
-      <td>wait</td>
-    </tr>
-    <tr>
-      <td>63646424</td>
-      <td>note</td>
-      <td>Waits at some downtown stations for connections</td>
-    </tr>
-  </tbody>
-</table>
-</feed-sample>
-
-### trips_properties_definitions.txt (feed.trips_properties_definitions)
-<feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>trip_property_id</th>
-      <th>definition</th>
-      <th>possible_values</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>note</td>
-      <td>Extra details about the trip</td>
-      <td>Text</td>
-    </tr>
-    <tr>
-      <td>trip_type</td>
-      <td>Type of trip</td>
-      <td>'supplemental' for irregular trips that only run on certain days, such as school days; 'wait' for trips that hold at one or more stops for a scheduled connection</td>
+      <td>ORANGE</td>
+      <td>O4_RUBY_MF_(V001)</td>
+      <td>[@6.0.54216924@][1723045917795]/107__O4_RUBY_MF_(V001)</td>
+      <td>Butzow &amp; Lierman</td>
+      <td>0</td>
+      <td>O4_RUBY_MF_(V001)</td>
+      <td>[@6.0.54216924@]7</td>
+      <td>0</td>
+      <td>0</td>
     </tr>
   </tbody>
 </table>
@@ -1714,14 +705,18 @@ These are the datatypes for all files within the current GTFS:
 Adhere strictly to the following instructions:
 <instructions>
 
-1. Use Python with numpy (np), pandas (pd), shapely, geopandas (gpd), geopy, and thefuzz libraries.  No other libraries should be used.
+1. Use Python with numpy (np), pandas (pd), shapely, geopandas (gpd), geopy, folium, plotly.express (px) and thefuzz libraries.  No other libraries should be used.
 2. Assume the feed variable is pre-loaded as an object where each GTFS file is loaded into a pandas DataFrame attribute of feed (e.g., feed.stops, feed.routes, etc.). Omit import statements for dependencies.
 3. Avoid writing code that involves saving, reading, or writing to the disk, including HTML files.
 4. Include explanatory comments in the code. Specify the output format in a comment (e.g., DataFrame, Series, list, integer, string).  Do not add additional text outside the code block.
-5. Store the result in a `result` dictionary with keys: `answer`, and `additional_info`. Make sure the `result` varaible is always defined in the code. 
+5. Store the result in a `result` dictionary with keys: `answer`, `additional_info`, `dataframe` (optional), and `map`/`plot` (optional) if applicable where:
+   - `answer` is the main result
+   - `additional_info` provides context and other info to the answer
+   - `dataframe` [Optional] contains any DataFrame results if applicable
+   - `map`/`plot` [Optional] contains the generated map or plot which are map or figure objects
 6. Handle potential errors and missing data in the GTFS feed.
 7. Optimize code for performance as there is timeout of 300 seconds for the code execution.
-8. Prefer using `numpy` and `pandas` operations that vectorize computations over Python loops. Avoid using for loops whenever possible, as vectorized operations are significantly faster
+8. Prefer using `numpy` and `pandas` operations that uses vector computations over Python loops. Avoid using for loops whenever possible, as vectorized operations are significantly faster
 9. Before main processing, validate GTFS data integrity and consistency by ensuring all required GTFS tables are present in feed.
 10. Use only fields from the GTFS Static Specification and provided feed sample.
 11. For specific attributes, use example identifiers (e.g., `route_id`, `stop_id`) by sampling from the data. Example: `feed.routes.route_id.sample(n=1).values[0]` or `feed.stops.stop_id.sample(n=1).values[0]` 
@@ -1737,7 +732,8 @@ Adhere strictly to the following instructions:
 21. Ensure all data in the `result` dictionary is JSON-serializable. Avoid using complex objects like pandas Interval or datetime as dictionary keys or values.
 22. Try to be as resourceful as possible. Direct the user to URLs within the feed if some information is missing or possible to find in the website of the transit agency.
 23. Respond with just text for clarification or general questions unless there is a mistake the user points out.
-24. No visualizations allowed
+24. Always use `CartoDB Positron` for base map tiles. The `map` key should be a folium.Map, folium.Figure, or branca.element.Figure object.
+25. Create interactive maps with markers, popups, and relevant info.
 
 </instructions>
 
@@ -1747,7 +743,7 @@ These are some helpful tips and facts to know when solving the task:
 
 
 ### Task Tips
-- The `result` variable should be in a format that can be understood by a human and non-empty
+- The `result` variable should be in a format that can be understood by a human and non-empty. You can exclude optional keys from the `result` dictionary. Do not assign None to the `result` variable.
 - Use the provided GTFS knowledge and data types to understand the structure of the GTFS feed.
 - Validate the data and handle missing or inconsistent data appropriately.
 - All files listed in the sample are present in the feed. If you are unsure if a file is present in the feed, use hasattr(). For example, `hasattr(feed, 'stops')` will return True if the feed has a `stops` attribute.
@@ -1944,4 +940,19 @@ For distance calculations:
 - In case you do not find a match, report the stops that you have tried to find directions from and to.
 - If the user asks for directions, provide the directions and the distance in kilometers.
 
+</tips>
+
+<tips>
+
+### Plotting and Mapping
+- Use the default color scheme (that is colorblind proof) for plots and maps unless specified otherwise. 
+- Use markers to highlight key points in the plot or map.
+- Always have a legend and/or labels for the plots and maps to make them more informative.
+- Prefer plotly express for plotting as it provides a high-level interface for creating a variety of plots.
+- Remember that Dataframes, Figures and Maps are optional and should only be included if explicitly requested in the task or if they help in explaining the solution better.
+- While mapping routes, use the shape points in `shapes.txt` file to get the points along the route and convert them to a LineString.
+- Never use identifier such as `route_id` or `trip_id` on a continuous scale or axis. Treat them as categorical variables.
+- While displaying routes on a map, use all distinct shape_id for the route as the route shape can be split by direction
+- folium.PolyLine expects list of coordinates to be in the form of lat-long pairs : `[[lat, lon]]`
+- Display routes with their respective `route_color` if available
 </tips>

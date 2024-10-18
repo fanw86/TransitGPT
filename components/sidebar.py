@@ -6,7 +6,7 @@ from utils.constants import file_mapping, LLMs, disclaimer_text, copyright_text
 from components.state import reset_session_state, load_session_state
 
 
-@st.cache_resource(show_spinner=False)
+# @st.cache_resource(show_spinner=False)
 def initialize_agent(model, allow_viz):
     return LLMAgent(file_mapping, model, allow_viz=allow_viz)
 
