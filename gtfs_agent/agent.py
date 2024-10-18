@@ -78,7 +78,7 @@ class LLMAgent:
         return "llama"
 
     def create_messages(
-        self, system_prompt, user_prompt: str, model: str
+        self, user_prompt: str, model: str
     ) -> List[Dict[str, str]]:
         messages = []
         for interaction in self.chat_history:
@@ -123,7 +123,7 @@ class LLMAgent:
     def call_llm(self, user_input: str) -> Tuple[str, bool, str]:
         model = self.model
         self.logger.info(f"Calling LLM with model: {model}")
-        messages = self.create_messages(self.system_prompt, user_input, model)
+        messages = self.create_messages(user_input, model)
         client = self.clients[self.get_client_key(model)]
         self.logger.info(f"Messages sent to {model}: {messages}\n")
         response, call_success = client.call(model, messages, self.system_prompt)
@@ -229,7 +229,6 @@ class LLMAgent:
 
     # @task(name="Summary LLM Call")
     def call_summary_llm(self, stream_placeholder):
-        system_prompt = SUMMARY_LLM_SYSTEM_PROMPT
         last_interaction = self.chat_history[-1] if self.chat_history else None
 
         if not last_interaction:
@@ -248,12 +247,13 @@ class LLMAgent:
         )
         # Hardcoded model for summary LLM call
         model = SUMMARY_LLM
-        messages = self.create_messages(system_prompt, user_prompt, model)
+        messages = self.create_messages(user_prompt, model)
         self.logger.info(f"Summary LLM message sent to {model} : {messages}")
         full_response = ""
         client = self.clients["gpt"]
         # Stream the response
-        for chunk in client.stream_call(model, messages):
+        system_prompt = SUMMARY_LLM_SYSTEM_PROMPT
+        for chunk in client.stream_call(model, messages, system_prompt):
             full_response += chunk
             stream_placeholder.markdown(full_response + "▌")
 
@@ -355,7 +355,7 @@ class LLMAgent:
         """
 
         messages = self.create_messages(
-            self.system_prompt, validation_prompt, self.model
+            validation_prompt, self.model
         )
         client = self.clients["gpt"]
         validation_response, _ = client.call(SUMMARY_LLM, messages, self.system_prompt)

@@ -43,7 +43,10 @@ class OpenAIClient(LLMClient):
             self.last_error = error_message
             return error_message, False
 
-    def stream_call(self, model, messages) -> Generator[str, None, None]:
+    def stream_call(
+        self, model, messages, system_prompt=None
+    ) -> Generator[str, None, None]:
+        messages.insert(0, {"role": "system", "content": system_prompt})
         try:
             stream = self.client.chat.completions.create(
                 model=model,
