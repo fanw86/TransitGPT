@@ -26,3 +26,4 @@ tabulate
 googlemaps
 branca
 stqdm
+traceloop-sdk

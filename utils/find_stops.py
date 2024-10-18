@@ -12,19 +12,39 @@ def remove_text_in_braces(text):
     return re.sub(r"\s*\(.*?\)\s*", " ", text).strip()
 
 
-def get_geo_location(location_info):
+def get_geo_location(geo_address):
+    """
+    Retrieve geographical coordinates and formatted address for a given location.
+
+    This function attempts to obtain the latitude and longitude of a specified location
+    using either the Google Maps API or the Nominatim geocoding service. If the Google Maps
+    API key is available in the Streamlit secrets, it will use that service; otherwise, it
+    will fall back to Nominatim.
+
+    Args:
+        geo_address (str): The address of the geolocation of interest. Eg: "1004 Main St, Urbana, IL"
+
+    Returns:
+        tuple: A tuple containing:
+            - (float, float): The latitude and longitude of the location.
+            - str: The formatted address of the location, or None if not found.
+    """
     if "GMAP_API" in st.secrets:
         try:
             gmaps = googlemaps.Client(key=st.secrets["GMAP_API"])
-            location = gmaps.geocode(location_info)
+            location = gmaps.geocode(geo_address)
             geometry = location[0]["geometry"]["location"]
-            return (geometry["lat"], geometry["lng"]) if location else None
+            formatted_address = location[0]["formatted_address"]
+            return (geometry["lat"], geometry["lng"]), formatted_address
         except Exception:
-            return None
+            return None, None
     else:
         geolocator = Nominatim(user_agent="gtfs2code")
-        location = geolocator.geocode(location_info)
-        return (location.latitude, location.longitude) if location else None
+        location = geolocator.geocode(geo_address)
+        if location:
+            return (location.latitude, location.longitude), location.address
+        else:
+            return None, None
 
 
 def fuzzy_match(string: str, pattern: str, threshold: int = 80) -> bool:
@@ -206,13 +226,13 @@ def find_nearby_stops(
 
 
 def find_stops_by_address(
-    feed, query: str, city: str, radius_meters: float = 200, max_stops: int = 5
+    feed, address: str, radius_meters: float = 200, max_stops: int = 5
 ) -> pd.DataFrame:
     """
-    Find stops near a given address within a specified radius.
+    Find stops near a specified address within a defined radius.
 
     This function takes an address, converts it to geographic coordinates using
-    the get_geo_location function, and then finds all stops within the specified
+    the get_geo_location function, and then identifies all stops within the specified
     radius of that location.
 
     Args:
@@ -222,19 +242,22 @@ def find_stops_by_address(
                        get_geo_location function for geocoding. Example: "1004 Main St, Urbana, IL"
         radius_meters (float, optional): The radius in `meters` within which to
                                          search for stops. Defaults to 200 meters.
+        max_stops (int, optional): The maximum number of stops to return if no stops
+                                    are found within the radius. Defaults to 5.
 
     Returns:
-        pd.DataFrame: A DataFrame of stops within the specified radius of the
-                      given address, sorted by distance. If no stops are found
-                      within the radius, returns the 5 nearest stops. Returns an
-                      empty DataFrame if the address cannot be geocoded.
+        tuple: A tuple containing:
+            - pd.DataFrame: A DataFrame of stops within the specified radius of the
+                            given address, sorted by distance. If no stops are found
+                            within the radius, returns the 5 nearest stops.
+            - str: The matched address returned by the geocoding function, or None if not found.
+                   Returns an empty DataFrame if the address cannot be geocoded.
 
     Note:
         This function relies on an external get_geo_location function to convert
         addresses to coordinates. Ensure this function is available in your environment.
     """
-    address = f"{query}, {city}"
-    location = get_geo_location(address)
+    location, matched_address = get_geo_location(address)
 
     if not location:
         return pd.DataFrame()  # Return empty DataFrame if location not found
@@ -242,7 +265,7 @@ def find_stops_by_address(
     lat, lon = location
     matched_stops = find_nearby_stops(lat, lon, feed.stops, radius_meters, max_stops)
 
-    return matched_stops
+    return matched_stops, matched_address
 
 
 def find_route(feed, search_term, threshold=80):

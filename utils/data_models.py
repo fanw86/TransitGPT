@@ -11,12 +11,13 @@ class ChatInteraction(BaseModel):
     evaluation_result: Optional[Any] = None
     code_success: Optional[bool] = None
     error_message: Optional[str] = None
+    only_text: bool = False
 
 
 class ChatHistoryEntry(BaseModel):
     role: Literal["assistant"]  # Since this is always "assistant" in the given context
-    final_response: Optional[str] = None
-    code_response: Optional[str] = None
+    summary_response: Optional[str] = None
+    main_response: Optional[str] = None
     code_output: Optional[Any] = None
     eval_success: bool = False
     error_message: Optional[str] = None
@@ -27,8 +28,8 @@ class ChatHistoryEntry(BaseModel):
 class FeedbackEntry(BaseModel):
     timestamp: datetime = Field(default_factory=get_current_time)
     question: str
-    response: str
     code_eval_success: bool
+    response: Optional[str] = None
     GTFS: Optional[str] = None
     llm_model: Optional[str] = None
     system_prompt: Optional[str] = None
@@ -36,4 +37,4 @@ class FeedbackEntry(BaseModel):
     user_comment: Optional[str] = None
     code_eval_result: Optional[str] = None
     figure: Optional[str] = None
-    final_response: Optional[str]
+    summary_response: Optional[str] = None

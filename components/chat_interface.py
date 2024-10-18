@@ -1,6 +1,7 @@
 import re
 import json
 import streamlit as st
+import pandas as pd
 import matplotlib.pyplot as plt
 from utils.feedback import FeedbackAgent
 from streamlit_folium import folium_static
@@ -8,6 +9,7 @@ from components.sidebar import clear_chat_history
 import plotly.graph_objects as go
 from folium import Map
 from utils.constants import TIMEOUT_SECONDS
+
 
 @st.dialog("Maximum number of messages reached!")
 def clear_chat():
@@ -25,26 +27,28 @@ def is_json_serializable(obj):
         return False
 
 
-def safe_folium_display(folium_map):
-    if isinstance(folium_map, Map):
+@st.cache_data(show_spinner="Displaying Map")
+def safe_folium_display(_folium_map, message_id):
+    if isinstance(_folium_map, Map):
         try:
-            folium_static(folium_map, height=400)
+            folium_static(_folium_map, height=400)
         except Exception as e:
             st.error(f"Error displaying Folium map: {str(e)}")
             st.write("Map data (non-rendered):")
             st.json(
                 {
                     k: v
-                    for k, v in folium_map.__dict__.items()
+                    for k, v in _folium_map.__dict__.items()
                     if is_json_serializable(v)
                 }
             )
     else:
         st.error(
-            f"Expected a Folium Map object, but received a different type. Received object of type: {type(folium_map)}"
+            f"Expected a Folium Map object, but received a different type. Received object of type: {type(_folium_map)}"
         )
 
 
+@st.cache_data(show_spinner="Displaying Figure")
 def safe_fig_display(fig):
     if isinstance(fig, plt.Figure):
         try:
@@ -61,6 +65,26 @@ def safe_fig_display(fig):
     else:
         st.error(
             f"Expected a Matplotlib or Plotly Figure object, but received a different type. Received object of type: {type(fig)}"
+        )
+
+
+@st.cache_data(show_spinner="Displaying Dataframe")
+def safe_dataframe_display(df):
+    if isinstance(df, pd.DataFrame):
+        try:
+            st.dataframe(
+                df.reset_index(drop=True),
+                use_container_width=True,
+                height=50,
+                hide_index=True,
+            )
+        except Exception as e:
+            st.error(f"Error displaying DataFrame: {str(e)}")
+            st.write("DataFrame data (non-rendered):")
+            st.json(df.to_dict())
+    else:
+        st.error(
+            f"Expected a Pandas DataFrame object, but received a different type. Received object of type: {type(df)}"
         )
 
 
@@ -89,11 +113,13 @@ def display_code_output(message, only_text=False):
         st.write(code_output)
 
 
-def display_fig_map(code_output):
+def display_fig_map_dataframe(code_output, message_id):
     if "plot" in code_output and code_output["plot"] is not None:
         safe_fig_display(code_output["plot"])
     if "map" in code_output and code_output["map"] is not None:
-        safe_folium_display(code_output["map"])
+        safe_folium_display(code_output["map"], message_id)
+    if "dataframe" in code_output and code_output["dataframe"] is not None:
+        safe_dataframe_display(code_output["dataframe"])
 
 
 def display_figure(fig):
@@ -127,7 +153,7 @@ def display_llm_response(fb_agent, uuid, message, i):
         with st.expander("👨‍💻Code", expanded=False):
             executable_pattern = r"```python\n(.*?)```"
             executable_code = re.findall(
-                executable_pattern, message["code_response"], re.DOTALL
+                executable_pattern, message["main_response"], re.DOTALL
             )
             code_block = "```python\n" + executable_code[0] + "\n```"
             st.markdown(code_block)
@@ -135,30 +161,51 @@ def display_llm_response(fb_agent, uuid, message, i):
     col1, col2, col3 = st.columns([6, 2, 1])
     with col1:
         if "code_output" in message and not only_text:
+            # Default empty eval_success to False
             if message.get("eval_success", False):
                 display_code_output(message)
             else:
-                error_message = message['error_message']
+                error_message = message["error_message"]
                 if "TimeoutError" in error_message:
-                    st.warning(f"Code execution timed out. Timeout limit is {TIMEOUT_SECONDS//60} minutes.", icon="⏰")
+                    st.warning(
+                        f"⏰Code execution timed out. Current timeout is {TIMEOUT_SECONDS//60} minutes.",
+                    )
                     return  # Skip displaying the final message
                 with st.expander("❌ :red[Error Message]", expanded=False):
                     st.error(f"\n {error_message}")
                 if not st.session_state.get("retry_code", False):
-                    st.error("Please edit your prompt or toggle `🔘Allow Retry`.", icon="⚠")
+                    st.error(
+                        "Please edit your prompt or toggle `🔘Allow Retry`.", icon="⚠"
+                    )
                 else:
-                    st.error("Code execution Failed! Please try again with a different prompt.", icon="⚠")
-                return # Skip displaying the final message
-                
+                    st.error(
+                        "Code execution Failed! Please try again with a different prompt.",
+                        icon="⚠",
+                    )
+                return  # Skip displaying the final message
+        else:
+            if only_text and "main_response" in message:
+                st.write(message["main_response"])
+            else:
+                if "error_message" in message:
+                    st.error(
+                        f"Call Failed! Error: {message['error_message']}", icon="⚠"
+                    )
+                else:
+                    st.error(
+                        "Call Failed! Please try again with a different LLM.", icon="⚠"
+                    )
 
     message_id = f"{uuid}_{i}"
     st.session_state.current_message_id = message_id
 
-    if only_text or message["final_response"] != message["code_response"]:
-        colored_response = apply_color_codes(message["final_response"])
+    if only_text or message["summary_response"] != message["main_response"]:
+        if message["summary_response"] is None:
+            return
+        colored_response = apply_color_codes(message["summary_response"])
         if message["is_cancelled"]:
             with col1:
-                st.info(message["final_response"], icon="🚨")
+                st.info(message["summary_response"], icon="🚨")
         else:
             display_feedback_ui(fb_agent, message_id, col2, col3)
             if len(colored_response) <= 500:
@@ -167,7 +214,7 @@ def display_llm_response(fb_agent, uuid, message, i):
             else:
                 st.markdown(colored_response, unsafe_allow_html=True)
     if isinstance(message["code_output"], dict):
-        display_fig_map(message["code_output"])
+        display_fig_map_dataframe(message["code_output"], message_id)
 
 
 def display_chat_history(fb_agent: FeedbackAgent, uuid: str):

@@ -7,9 +7,83 @@ import traceback
 from typing import Optional, Any
 from functools import lru_cache
 from utils.helper import list_files_in_zip
+from geopy.distance import geodesic
+from shapely.geometry import Point
+from scipy.spatial import cKDTree
 
 DATE_FORMAT = "%Y%m%d"
 DATE_FORMAT_ALT = "%Y-%m-%d"
+
+
+@lru_cache(maxsize=None)
+def process_stop_sequence(stops, shape_coords, k_neighbors=3):
+    geo_const = 6371000 * np.pi / 180
+    tree = cKDTree(data=shape_coords)
+
+    if len(stops) <= 1:
+        return None
+
+    neighbors = k_neighbors
+    while True:
+        np_dist, np_inds = tree.query(stops, workers=-1, k=neighbors)
+        np_dist = np_dist * geo_const
+        prev_point = min(np_inds[0])
+        points = [prev_point]
+
+        for i, nps in enumerate(np_inds[1:]):
+            condition = (nps > prev_point) & (nps < max(np_inds[i + 1]))
+            points_valid = nps[condition]
+            if len(points_valid) > 0:
+                points_score = (np.power(points_valid - prev_point, 3)) * np.power(
+                    np_dist[i + 1, condition], 1
+                )
+                prev_point = nps[condition][np.argmin(points_score)]
+                points.append(prev_point)
+            else:
+                if neighbors < len(stops):
+                    neighbors = min(neighbors + 2, len(stops))
+                    break
+                else:
+                    return None
+
+        if len(points) == len(stops):
+            return points
+
+
+def nearest_points(
+    stop_df: pd.DataFrame, shape_points: pd.DataFrame, k_neighbors: int = 3
+) -> pd.DataFrame:
+    stop_df = stop_df.copy()
+    stop_df["snap_start_id"] = -1
+
+    shape_coords = np.array([point.coords[0] for point in shape_points]).reshape(-1, 2)
+
+    failed_trips = []
+    total_trips = 0
+    defective_trips = 0
+
+    for name, group in stop_df.groupby("trip_id"):
+        total_trips += 1
+        stops = tuple(x.coords[0] for x in group["geometry"])
+
+        points = process_stop_sequence(
+            stops, tuple(map(tuple, shape_coords)), k_neighbors
+        )
+
+        if points is None:
+            failed_trips.append(name)
+            defective_trips += 1
+            print(f"Excluding Trip: {name} due to processing failure")
+        else:
+            stop_df.loc[stop_df.trip_id == name, "snap_start_id"] = points
+
+    if defective_trips > 0:
+        percent_defective = (defective_trips / total_trips) * 100
+        print(f"Total defective trips: {defective_trips}")
+        print(f"Percentage defective trips: {percent_defective:.2f}%")
+
+    stop_df = stop_df[~stop_df.trip_id.isin(failed_trips)].reset_index(drop=True)
+    return stop_df
 
 
 class GTFSLoader:
@@ -22,136 +96,186 @@ class GTFSLoader:
         self.distance_unit = distance_unit
 
     def __getstate__(self):
-        # This method is called when pickling
         state = self.__dict__.copy()
-        # Don't pickle the 'feed' and 'zipfile' attributes
-        # if "feed" in state:
-        #     del state["feed"]
         if "zipfile" in state:
             del state["zipfile"]
         return state
 
     def __setstate__(self, state):
-        # This method is called when unpickling
         self.__dict__.update(state)
-        # Recreate the zipfile object if needed
-        # if hasattr(self, "gtfs_path"):
-        #     self.zipfile = zipfile.ZipFile(self.gtfs_path)
 
     def load_feed(self):
-        """Load the GTFS feed using GTFS Kit."""
         try:
             feed = gk.read_feed(self.gtfs_path, dist_units=self.distance_unit)
-            if (
-                "shape_dist_traveled" not in feed.stop_times.columns
-                or sum(feed.stop_times.shape_dist_traveled.isna()) > 0
-            ):
-                feed = feed.append_dist_to_stop_times()
-            if (
-                "shape_dist_traveled" not in feed.shapes.columns
-                or sum(feed.shapes.shape_dist_traveled.isna()) > 0
-            ):
-                feed = feed.append_dist_to_shapes()
-            feed = feed.clean()
-            vparse_time = np.vectorize(self.parse_time)
-            feed.stop_times["departure_time"] = vparse_time(
-                feed.stop_times["departure_time"]
-            )
-            feed.stop_times["arrival_time"] = vparse_time(
-                feed.stop_times["arrival_time"]
-            )
-            if hasattr(feed, "timeframes"):
-                feed.timeframes["start_time"] = vparse_time(
-                    feed.timeframes["start_time"]
-                )
-                feed.timeframes["end_time"] = vparse_time(feed.timeframes["end_time"])
-            vparse_date = np.vectorize(self.parse_date)
-            feed.calendar["start_date"] = vparse_date(feed.calendar["start_date"])
-            feed.calendar["end_date"] = vparse_date(feed.calendar["end_date"])
-            feed.calendar_dates["date"] = vparse_date(feed.calendar_dates["date"])
-            if hasattr(feed, "feed_info") and isinstance(feed.feed_info, pd.DataFrame):
-                feed.feed_info["feed_start_date"] = vparse_date(
-                    feed.feed_info["feed_start_date"]
-                )
-                feed.feed_info["feed_end_date"] = vparse_date(
-                    feed.feed_info["feed_end_date"]
-                )
+            feed = self._process_feed(feed)
             self.feed = feed
-            # self.feed = ptg.load_feed(self.gtfs_path)
         except Exception as e:
             print(f"Error loading GTFS feed: {e}")
             print(traceback.format_exc())
             return False
         return True
 
+    def _process_feed(self, feed):
+        feed = self._append_distances(feed)
+        feed = feed.clean()
+        feed = self._parse_times_and_dates(feed)
+        feed = self._remove_empty_attributes(feed)
+        return feed
+
+    def _append_distances(self, feed):
+        if (
+            "shape_dist_traveled" not in feed.shapes.columns
+            or feed.shapes.shape_dist_traveled.isna().any()
+        ):
+            feed = self._calculate_shape_distances(feed)
+        if (
+            "shape_dist_traveled" not in feed.stop_times.columns
+            or feed.stop_times.shape_dist_traveled.isna().any()
+        ):
+            feed = self._calculate_stop_distances(feed)
+        return feed
+
+    def _calculate_shape_distances(self, feed):
+        print("Calculating shape distances")
+
+        results = []
+        for _, group in feed.shapes.groupby("shape_id"):
+            result = self._calculate_single_shape(group, self.distance_unit)
+            results.append(result)
+
+        # Combine the results
+        feed.shapes = pd.concat(results)
+
+        return feed
+
+    def _calculate_single_shape(self, group, distance_unit):
+        cumulative_distance = 0
+        previous_point = None
+
+        for idx, row in group.iterrows():
+            current_point = (row["shape_pt_lat"], row["shape_pt_lon"])
+
+            if previous_point is not None:
+                distance = geodesic(previous_point, current_point).meters
+                if distance_unit == "km":
+                    distance /= 1000
+                elif distance_unit == "miles":
+                    distance *= 0.000621371
+                cumulative_distance += distance
+
+            group.at[idx, "shape_dist_traveled"] = cumulative_distance
+            previous_point = current_point
+
+        return group
+
+    def _calculate_stop_distances(self, feed):
+        print("Calculating stop distances")
+        stops = feed.stops
+        shapes = feed.shapes.sort_values(["shape_id", "shape_pt_sequence"])
+        stops["geometry"] = stops.apply(
+            lambda row: Point(row["stop_lon"], row["stop_lat"]), axis=1
+        )
+        # Create a GeoDataFrame with stop locations
+        stops_gdf = feed.stop_times.merge(stops[["stop_id", "geometry"]], on="stop_id")
+        stops_gdf = stops_gdf.merge(feed.trips[["trip_id", "shape_id"]], on="trip_id")
+        # Group by shape_id and apply nearest_points function
+        grouped = stops_gdf.groupby("shape_id")
+        results = []
+        for shape_id, group in grouped:
+            shape_id = shape_id.strip()
+            shape_points = shapes[shapes.shape_id == shape_id]
+            shape_geometry = shape_points.apply(
+                lambda x: Point(x["shape_pt_lon"], x["shape_pt_lat"]), axis=1
+            )
+            result = nearest_points(group, shape_geometry)
+            result["shape_dist_traveled"] = shape_points.iloc[result["snap_start_id"]][
+                "shape_dist_traveled"
+            ].values
+            results.append(result)
+
+        # Combine results
+        stop_gdf = pd.concat(results)
+
+        # Update feed.stop_times with calculated shape_dist_traveled
+        feed.stop_times = feed.stop_times.merge(
+            stop_gdf[["trip_id", "stop_sequence", "shape_dist_traveled"]],
+            on=["trip_id", "stop_sequence"],
+            how="left",
+        )
+
+        return feed
+
+    def _parse_times_and_dates(self, feed):
+        vparse_time = np.vectorize(self.parse_time)
+        vparse_date = np.vectorize(self.parse_date)
+
+        feed.stop_times[["departure_time", "arrival_time"]] = feed.stop_times[
+            ["departure_time", "arrival_time"]
+        ].apply(vparse_time)
+
+        if hasattr(feed, "timeframes"):
+            feed.timeframes[["start_time", "end_time"]] = feed.timeframes[
+                ["start_time", "end_time"]
+            ].apply(vparse_time)
+
+        for attr in ["calendar", "calendar_dates", "feed_info"]:
+            if hasattr(feed, attr) and isinstance(getattr(feed, attr), pd.DataFrame):
+                df = getattr(feed, attr)
+                date_columns = [col for col in df.columns if "date" in col.lower()]
+                df[date_columns] = df[date_columns].apply(vparse_date)
+                setattr(feed, attr, df)
+
+        return feed
+
+    def _remove_empty_attributes(self, feed):
+        for attr in dir(feed):
+            if not attr.startswith("_"):
+                value = getattr(feed, attr)
+                if value is None or (isinstance(value, pd.DataFrame) and value.empty):
+                    try:
+                        delattr(feed, attr)
+                    except Exception:
+                        pass
+        return feed
+
     @lru_cache(maxsize=None)
     def load_all_tables(self):
-        """Load all available GTFS tables as attributes."""
-        if not self.feed:
-            if not self.load_feed():
-                return
+        if not self.feed and not self.load_feed():
+            return
 
         for table in self.file_list:
-            table = table.split(".")[0]
-            if not hasattr(self.feed, table):
+            table_name = table.split(".")[0]
+            if not hasattr(self.feed, table_name):
                 try:
-                    with self.zipfile.open(table + ".txt", "r") as f:
+                    with self.zipfile.open(f"{table_name}.txt", "r") as f:
                         df = pd.read_csv(f, encoding="utf-8")
-                        setattr(self.feed, table, df)
+                        setattr(self.feed, table_name, df)
                 except Exception as e:
-                    print(f"Could not load {table} due to {e}")
+                    print(f"Could not load {table_name} due to {e}")
 
         print(f"Loaded all tables: {self.gtfs}")
-        # if hasattr(self, "feed"):
-        #     del (
-        #         self.feed
-        #     )  # Remove the feed object to free up memory and make it picklable
         if hasattr(self, "zipfile"):
             del self.zipfile
 
     @lru_cache(maxsize=2**18)
     def parse_time(self, val: Any) -> np.float32:
-        """
-        The function `parse_time` takes a string representing a time value in the format "hh:mm:ss" and
-        returns the equivalent time in seconds as a numpy int, or returns the input value if it is
-        already a numpy int or int.
-
-        Args:
-        val (str): The parameter `val` is a string representing a time value in the format "hh:mm:ss".
-
-        Returns:
-        a value of type np.float32.
-        """
-
-        if isinstance(val, float) or (
-            isinstance(val, float) and np.isnan(val)
-        ):  # Corrected handling for np.nan
+        if isinstance(val, (float, np.float32)) or pd.isna(val):
             return val
-        if str(val) == "":
+        if not val:
             return np.nan
         try:
-            val = np.float32(val)
-            return val
+            return np.float32(val)
         except ValueError:
-            val = str(val).strip()
-            h, m, s = map(float, val.split(":"))
+            h, m, s = map(float, str(val).strip().split(":"))
             return np.float32(h * 3600 + m * 60 + s)
 
     @lru_cache(maxsize=2**18)
     def parse_date(self, val: str) -> datetime.date:
-        """
-        The function `parse_date` takes a string or a `datetime.date` object as input and returns a
-        `datetime.date` object.
-
-        Args:
-        val (str): The `val` parameter is a string representing a date.
-
-        Returns:
-        a `datetime.date` object.
-        """
         if isinstance(val, datetime.date):
             return val
-        try:
-            return datetime.datetime.strptime(val, DATE_FORMAT).date()
-        except ValueError:
-            return datetime.datetime.strptime(val, DATE_FORMAT_ALT).date()
+        for date_format in [DATE_FORMAT, DATE_FORMAT_ALT]:
+            try:
+                return datetime.datetime.strptime(val, date_format).date()
+            except ValueError:
+                continue
+        raise ValueError(f"Unable to parse date: {val}")

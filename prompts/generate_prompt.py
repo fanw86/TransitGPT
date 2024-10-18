@@ -1,18 +1,26 @@
 import time
 import yaml
 from prompts.all_prompts import (
-    TASK_KNOWLEDGE,
+    GTFS_STRUCTURE,
     BASE_PROMPT,
     BASE_GTFS_FEED_DATATYPES,
     TASK_INSTRUCTION,
+    TASK_INSTRUCTION_VIZ,
     TASK_TIPS,
+    VISUALIZATION_TIPS,
 )
 from prompts.gtfs_file_field_type import GTFS_FILE_FIELD_TYPE_MAPPING
 from gtfs_agent.gtfs_loader import GTFSLoader
 from functools import lru_cache
-from utils.constants import FEW_SHOT_EXAMPLES_FILE
+from utils.constants import (
+    FEW_SHOT_EXAMPLES_FILE,
+    FEW_SHOT_EXAMPLES_FILE_VIZ,
+    FEW_SHOT_EXAMPLE_LIMIT,
+    PROMPT_OUTPUT_LOC,
+)
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from rich import print as rprint
 
 
 @lru_cache(maxsize=None)
@@ -21,7 +29,7 @@ def load_yaml_examples(yaml_file):
         return yaml.safe_load(file)
 
 
-def select_relevant_examples(query, examples, n=3, threshold=0.1):
+def select_relevant_examples(query, examples, n=FEW_SHOT_EXAMPLE_LIMIT, threshold=0.1):
     # Create a list of all examples
     all_examples = [f"{ex['question']}\n{ex['answer']}" for ex in examples.values()]
     # Add the query to the list
@@ -41,8 +49,10 @@ def select_relevant_examples(query, examples, n=3, threshold=0.1):
     return [list(examples.values())[i] for i in top_indices]
 
 
-def generate_dynamic_few_shot(query, n=3):
-    examples = load_yaml_examples(FEW_SHOT_EXAMPLES_FILE)
+def generate_dynamic_few_shot(query, allow_viz, n=3):
+    examples = load_yaml_examples(
+        FEW_SHOT_EXAMPLES_FILE_VIZ if allow_viz else FEW_SHOT_EXAMPLES_FILE
+    )
     relevant_examples = select_relevant_examples(query, examples, n)
     examples = ["<examples>"]
     for ex in relevant_examples:
@@ -74,7 +84,7 @@ def yaml_to_examples(yaml_file: str) -> str:
 
 
 def generate_fileinfo_dtypes(feed: GTFSLoader, file_list, distance_unit: str):
-    FILE_INFO = "\n\n## Sample from the feed:\n\n"
+    FILE_INFO = "\n\n## Sample from the feed: \n The following is a sample from the feed, showcasing the first five lines from each file:\n\n"
     GTFS_FEED_DATATYPES = BASE_GTFS_FEED_DATATYPES.format(distance_unit=distance_unit)
 
     for file_name in file_list:
@@ -95,6 +105,9 @@ def generate_fileinfo_dtypes(feed: GTFSLoader, file_list, distance_unit: str):
                         else:
                             GTFS_FEED_DATATYPES += f"- `{field}`: {df[field].dtype}\n"
                 GTFS_FEED_DATATYPES += "\n</data-type>\n\n"
+                GTFS_FEED_DATATYPES = GTFS_FEED_DATATYPES.replace(
+                    "GTFS_DISTANCE_UNITS", distance_unit
+                )
         except Exception as e:
             print(f"Failed to generate prompt for {file_name}: {e}")
             continue
@@ -102,7 +115,7 @@ def generate_fileinfo_dtypes(feed: GTFSLoader, file_list, distance_unit: str):
     return FILE_INFO, GTFS_FEED_DATATYPES
 
 
-def generate_system_prompt(loader: GTFSLoader) -> str:
+def generate_system_prompt(loader: GTFSLoader, allow_viz: bool = False) -> str:
     distance_unit = loader.distance_unit
     GTFS = loader.gtfs
     feed = loader.feed
@@ -111,22 +124,26 @@ def generate_system_prompt(loader: GTFSLoader) -> str:
     FILE_INFO, GTFS_FEED_DATATYPES = generate_fileinfo_dtypes(
         feed, file_list, distance_unit
     )
-    # EXAMPLE_CODE = "## Sample Code Generation for Tasks\n\n Here are few examples that help you discern the logic\n"
-    # EXAMPLE_CODE = EXAMPLE_CODE + "\n\n" + yaml_to_examples(FEW_SHOT_EXAMPLES_FILE)
-    print(
-        f"Prompt generated for {GTFS} with distance units {distance_unit}: {time.ctime()}"
+    rprint(
+        f"[bold green]Prompt generated[/bold green] for [cyan]{GTFS}[/cyan] with distance units [yellow]{distance_unit}[/yellow]: [magenta]{time.ctime()}[/magenta] and Viz: [blue]{allow_viz}[/blue]"
     )
+
+    # Choose the appropriate task instruction based on allow_viz
+    task_instruction = TASK_INSTRUCTION_VIZ if allow_viz else TASK_INSTRUCTION
 
     final_prompt = (
         BASE_PROMPT
-        + TASK_KNOWLEDGE
+        + GTFS_STRUCTURE
         + GTFS_FEED_DATATYPES
         + FILE_INFO
-        + TASK_INSTRUCTION
+        + task_instruction
         + TASK_TIPS
-        # + EXAMPLE_CODE
     )
 
-    with open("prompts/generated_prompt.md", "w", encoding="utf-8") as f:
+    # Add visualization tips if allow_viz is True
+    if allow_viz:
+        final_prompt += VISUALIZATION_TIPS
+
+    with open(PROMPT_OUTPUT_LOC, "w", encoding="utf-8") as f:
         f.write(final_prompt)
     return final_prompt

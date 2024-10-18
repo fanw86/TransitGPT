@@ -83,7 +83,7 @@ if st.session_state.is_processing:
 
     # Check if this input hasn't been added to chat history yet
     if not st.session_state.chat_history or (
-        "final_response" in st.session_state.chat_history[-1]
+        "summary_response" in st.session_state.chat_history[-1]
     ):
         with st.chat_message("user", avatar="🙋‍♂️"):
             st.write(user_input)
