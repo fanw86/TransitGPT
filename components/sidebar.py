@@ -112,13 +112,14 @@ def setup_sidebar():
             "[bold yellow]<<<==================Initializing Chat App=====================>>>[/bold yellow]"
         )
         agent = initialize_agent(st.session_state.model)
+        GTFS = st.session_state.GTFS
+        distance_unit = file_mapping[GTFS]["distance_unit"]
         agent.update_agent(
-            st.session_state.GTFS,
+            GTFS,
             st.session_state.model,
-            st.session_state.distance_unit,
+            distance_unit,
             st.session_state.allow_viz,
         )
         st.session_state["agent"] = agent
-        GTFS = st.session_state.GTFS
-        distance_unit = file_mapping[GTFS]["distance_unit"]
+        
         st.toast(f"Loaded GTFS feed: {GTFS} ({distance_unit})", icon="🚌")
