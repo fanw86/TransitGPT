@@ -6,7 +6,6 @@ from utils.constants import MAX_MESSAGES
 from components.state import load_session_state
 from components.sidebar import (
     setup_sidebar,
-    load_agent_evaluator,
 )
 from components.chat_interface import (
     display_chat_history,
@@ -22,10 +21,6 @@ st.set_page_config(
 load_session_state()
 # Setup sidebar
 setup_sidebar()
-
-# Initialize agent, evaluator and prompt with default GTFS feed
-if "agent" not in st.session_state:
-    load_agent_evaluator()
 
 # Chat interface
 st.title("🚌GTFS2CODE")

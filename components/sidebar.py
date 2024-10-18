@@ -27,7 +27,7 @@ def load_agent_evaluator():
             st.session_state["agent"] = agent
         else:
             agent = st.session_state["agent"]
-            agent.update_agent(GTFS, model, distance_unit, allow_viz)
+        agent.update_agent(GTFS, model, distance_unit, allow_viz)
         st.session_state["call_count"] += 1
         status.update(
             label=f"Loaded GTFS feed: {GTFS} ({distance_unit})", state="complete"
@@ -107,3 +107,8 @@ def setup_sidebar():
         st.markdown(disclaimer_text)
 
     st.sidebar.write(copyright_text)
+
+    # Initialize agent, evaluator and prompt with default GTFS feed
+
+    if "agent" not in st.session_state:
+        load_agent_evaluator()
