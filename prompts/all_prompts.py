@@ -45,7 +45,7 @@ Adhere strictly to the following instructions:
 2. Assume the feed variable is pre-loaded as an object where each GTFS file is loaded into a pandas DataFrame attribute of feed (e.g., feed.stops, feed.routes, etc.). Omit import statements for dependencies.
 3. Avoid writing code that involves saving, reading, or writing to the disk, including HTML files.
 4. Include explanatory comments in the code. Specify the output format in a comment (e.g., DataFrame, Series, list, integer, string).  Do not add additional text outside the code block.
-5. Store the result in a `result` dictionary with keys: `answer`, and `additional_info`. Make sure the `result` varaible is always defined in the code. 
+5. Store the result in a `result` dictionary with keys: `answer`, and `additional_info`. Make sure the `result` variable is always defined in the code. 
 6. Handle potential errors and missing data in the GTFS feed.
 7. Optimize code for performance as there is timeout of {TIMEOUT_SECONDS} seconds for the code execution.
 8. Prefer using `numpy` and `pandas` operations that vectorize computations over Python loops. Avoid using for loops whenever possible, as vectorized operations are significantly faster
@@ -82,8 +82,8 @@ Adhere strictly to the following instructions:
 5. Store the result in a `result` dictionary with keys: `answer`, `additional_info`, `dataframe` (optional), and `map`/`plot` (optional) if applicable where:
    - `answer` is the main result
    - `additional_info` provides context and other info to the answer
-   - `dataframe` contains any DataFrame results if applicable
-   - `map`/`plot` contains the generated map or plot which are map or figure objects
+   - `dataframe` [Optional] contains any DataFrame results if applicable
+   - `map`/`plot` [Optional] contains the generated map or plot which are map or figure objects
 6. Handle potential errors and missing data in the GTFS feed.
 7. Optimize code for performance as there is timeout of {TIMEOUT_SECONDS} seconds for the code execution.
 8. Prefer using `numpy` and `pandas` operations that uses vector computations over Python loops. Avoid using for loops whenever possible, as vectorized operations are significantly faster
@@ -116,7 +116,7 @@ These are some helpful tips and facts to know when solving the task:
 
 
 ### Task Tips
-- The `result` variable should be in a format that can be understood by a human and non-empty
+- The `result` variable should be in a format that can be understood by a human and non-empty. You can exclude optional keys from the `result` dictionary. Do not assign None to the `result` variable.
 - Use the provided GTFS knowledge and data types to understand the structure of the GTFS feed.
 - Validate the data and handle missing or inconsistent data appropriately.
 - All files listed in the sample are present in the feed. If you are unsure if a file is present in the feed, use hasattr(). For example, `hasattr(feed, 'stops')` will return True if the feed has a `stops` attribute.
@@ -429,5 +429,4 @@ ALLOW CATEGORY:
 - Respectful debates about best practices in transit data management
 - Questions and answers related to coding with GTFS data
 - Some technical jargon or mild frustration expressions, as long as they're not offensive
-
 """

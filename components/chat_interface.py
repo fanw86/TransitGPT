@@ -75,7 +75,7 @@ def safe_dataframe_display(df):
             st.dataframe(
                 df.reset_index(drop=True),
                 use_container_width=True,
-                height=5,
+                height=50,
                 hide_index=True,
             )
         except Exception as e:

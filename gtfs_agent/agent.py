@@ -11,12 +11,9 @@ from gtfs_agent.llm_client import OpenAIClient, GroqClient, AnthropicClient
 from utils.data_models import ChatInteraction
 from evaluator.eval_code import GTFS_Eval
 from streamlit_folium import folium_static
-from traceloop.sdk import Traceloop
-from traceloop.sdk.decorators import workflow, task
+# from traceloop.sdk import Traceloop
+# from traceloop.sdk.decorators import workflow, task
 from utils.logger import setup_logger, reset_logger
-
-Traceloop.init(disable_batch=True, api_key=st.secrets["TRACELOOP_API_KEY"])
-
 
 class LLMAgent:
     def __init__(
@@ -60,6 +57,8 @@ class LLMAgent:
         self.chat_history = []
         self.allow_viz = allow_viz
         self.load_system_prompt(self.GTFS, self.distance_unit, self.allow_viz)
+        # if "TRACELOOP_API_KEY" in st.secrets:
+        #     Traceloop.init(disable_batch=True, api_key=st.secrets["TRACELOOP_API_KEY"])
 
     def load_system_prompt(self, GTFS, distance_unit, allow_viz):
         ## Load system prompt
@@ -122,7 +121,7 @@ class LLMAgent:
             )
             self.chat_history.append(interaction)
 
-    @task(name="Call LLM")
+    # @task(name="Call LLM")
     def call_llm(self, user_input: str) -> Tuple[str, bool, str]:
         model = self.model
         self.logger.info(f"Calling LLM with model: {model}")
@@ -132,7 +131,7 @@ class LLMAgent:
         response, call_success = client.call(model, messages, self.system_prompt)
         return response, call_success
 
-    @task(name="Execute Code")
+    # @task(name="Execute Code")
     def execute(self, user_input: str, llm_response: str):
         self.logger.info("Evaluating code from LLM response")
         output = self.evaluator.evaluate(llm_response)
@@ -142,7 +141,7 @@ class LLMAgent:
         only_text = output["only_text"]
         return result, success, error, only_text
 
-    @task(name="Evaluate with Retry")
+    # @task(name="Evaluate with Retry")
     def evaluate_with_retry(
         self, user_input: str, llm_response: str, retry_code: bool
     ) -> Tuple[Any, bool, str, bool, str]:
@@ -218,7 +217,7 @@ class LLMAgent:
 
         return messages
 
-    @task(name="Call LLM Retry")
+    # @task(name="Call LLM Retry")
     def call_llm_retry(self, error: str) -> str:
         model = self.model
         self.logger.info(f"Retrying LLM call with model: {model}")
@@ -230,7 +229,7 @@ class LLMAgent:
         self.logger.info(f"LLM Response: {response}")
         return response, call_success
 
-    @task(name="Summary LLM Call")
+    # @task(name="Summary LLM Call")
     def call_summary_llm(self, stream_placeholder):
         system_prompt = SUMMARY_LLM_SYSTEM_PROMPT
         last_interaction = self.chat_history[-1] if self.chat_history else None
@@ -263,7 +262,7 @@ class LLMAgent:
         self.logger.info("Summary response from LLM:\n %s", full_response)
         return full_response
 
-    @task(name="Evaluate Code")
+    # @task(name="Evaluate Code")
     def evaluate_code(self, user_input, llm_response, retry_code):
         with st.status("Evaluating code..."):
             return self.evaluate_with_retry(user_input, llm_response, retry_code)
@@ -296,7 +295,7 @@ class LLMAgent:
         )
         self.load_system_prompt(GTFS, distance_unit, allow_viz)
 
-    @workflow(name="LLM Agent Workflow")
+    # @workflow(name="LLM Agent Workflow")
     def run_workflow(self, user_input: str, retry_code: bool = False):
         llm_response, call_success = self.call_llm(user_input)
 
@@ -329,7 +328,7 @@ class LLMAgent:
             validation_response,
         )
 
-    @task(name="Validate Evaluation")
+    # @task(name="Validate Evaluation")
     def validate_evaluation(
         self,
         user_input: str,
