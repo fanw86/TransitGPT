@@ -28,10 +28,6 @@ def setup_logger(log_file):
     if log_dir and not os.path.exists(log_dir):
         os.makedirs(log_dir)
 
-    # Generate a new log file name with timestamp
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    new_log_file = f"{os.path.splitext(log_file)[0]}_{timestamp}.log"
-
     # Create RichHandler for console output
     rich_handler = RichHandler(
         console=console, rich_tracebacks=True, tracebacks_show_locals=True,
@@ -45,7 +41,7 @@ def setup_logger(log_file):
 
     # Create a RotatingFileHandler for file output
     file_handler = RotatingFileHandler(
-        new_log_file, maxBytes=2 * 1024 * 1024, backupCount=5, encoding="utf-8"
+        log_file, maxBytes=2 * 1024 * 1024, backupCount=5, encoding="utf-8"
     )
     file_handler.setLevel(logging.DEBUG)
 
@@ -61,7 +57,7 @@ def setup_logger(log_file):
     logger.addHandler(rich_handler)
     logger.addHandler(file_handler)
 
-    logger.info(f"New log file created: {new_log_file}")
+    logger.info(f"Logging to file: {log_file}")
 
     return logger
 
