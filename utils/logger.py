@@ -6,6 +6,7 @@ from rich.logging import RichHandler
 from rich.console import Console
 from rich.traceback import install as install_rich_traceback
 from rich.text import Text
+import pytz  # Add this import
 
 
 def setup_logger(log_file):
@@ -45,13 +46,13 @@ def setup_logger(log_file):
     )
     file_handler.setLevel(logging.DEBUG)
 
-    # Use the same formatter for both handlers
-    rich_formatter = logging.Formatter("%(message)s")
-    rich_handler.setFormatter(rich_formatter)
-    file_formatter = logging.Formatter(
-        "%(asctime)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
-    )
+    # Create formatters
+    file_formatter = CSTFormatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_formatter = CSTFormatter('%(message)s')
+
+    # Set formatters for handlers
     file_handler.setFormatter(file_formatter)
+    rich_handler.setFormatter(console_formatter)
 
     # Add the new handlers to the logger
     logger.addHandler(rich_handler)
@@ -83,3 +84,16 @@ class RichColorFormatter(logging.Formatter):
     def format(self, record):
         message = super().format(record)
         return Text.from_markup(message)
+
+
+class CSTFormatter(logging.Formatter):
+    def converter(self, timestamp):
+        dt = datetime.fromtimestamp(timestamp)
+        cst_tz = pytz.timezone('America/Chicago')
+        return dt.replace(tzinfo=pytz.UTC).astimezone(cst_tz)
+
+    def formatTime(self, record, datefmt=None):
+        dt = self.converter(record.created)
+        if datefmt:
+            return dt.strftime(datefmt)
+        return dt.strftime("%Y-%m-%d %H:%M:%S %Z")
