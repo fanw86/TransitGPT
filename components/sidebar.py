@@ -7,7 +7,7 @@ from components.state import reset_session_state, load_session_state
 
 # @st.cache_resource(show_spinner=False)
 def initialize_agent(model):
-    return LLMAgent(file_mapping, model)
+    return LLMAgent(file_mapping=file_mapping, model=model)
 
 
 def update_agent_feed():
@@ -20,7 +20,7 @@ def update_agent_feed():
         allow_viz = st.session_state["allow_viz"]
         distance_unit = file_mapping[GTFS]["distance_unit"]
         if "agent" not in st.session_state:
-            agent = initialize_agent(model, allow_viz)
+            agent = initialize_agent(model)
             st.session_state["agent"] = agent
         else:
             agent = st.session_state["agent"]
@@ -111,8 +111,13 @@ def setup_sidebar():
         rprint(
             "[bold yellow]<<<==================Initializing Chat App=====================>>>[/bold yellow]"
         )
-        agent = initialize_agent(st.session_state.model, st.session_state.allow_viz)
-        agent.update_agent(st.session_state.GTFS, st.session_state.model, st.session_state.distance_unit, st.session_state.allow_viz)
+        agent = initialize_agent(st.session_state.model)
+        agent.update_agent(
+            st.session_state.GTFS,
+            st.session_state.model,
+            st.session_state.distance_unit,
+            st.session_state.allow_viz,
+        )
         st.session_state["agent"] = agent
         GTFS = st.session_state.GTFS
         distance_unit = file_mapping[GTFS]["distance_unit"]
