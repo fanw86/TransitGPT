@@ -20,7 +20,7 @@ from utils.constants import (
 )
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from rich import print as rprint
+from rich import print as rich_print
 
 
 @lru_cache(maxsize=None)
@@ -124,7 +124,7 @@ def generate_system_prompt(loader: GTFSLoader, allow_viz: bool = False) -> str:
     FILE_INFO, GTFS_FEED_DATATYPES = generate_fileinfo_dtypes(
         feed, file_list, distance_unit
     )
-    rprint(
+    rich_print(
         f"[bold green]Prompt generated[/bold green] for [cyan]{GTFS}[/cyan] with distance units [yellow]{distance_unit}[/yellow]: [magenta]{time.ctime()}[/magenta] and Viz: [blue]{allow_viz}[/blue]"
     )
 

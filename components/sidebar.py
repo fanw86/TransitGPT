@@ -1,11 +1,9 @@
 import streamlit as st
-from rich import print as rprint
+from rich import print as rich_print
 from gtfs_agent.agent import LLMAgent
 from utils.constants import file_mapping, LLMs, disclaimer_text, copyright_text
 from components.state import reset_session_state, load_session_state
 
-
-# @st.cache_resource(show_spinner=False)
 def initialize_agent(model):
     return LLMAgent(file_mapping=file_mapping, model=model)
 
@@ -108,8 +106,8 @@ def setup_sidebar():
     # Initialize agent, evaluator and prompt with default GTFS feed
 
     if "agent" not in st.session_state:
-        rprint(
-            "[bold yellow]<<<==================Initializing Chat App=====================>>>[/bold yellow]"
+        rich_print(
+            "[bold yellow]<<<=========Initializing Chat App=========>>>[/bold yellow]"
         )
         agent = initialize_agent(st.session_state.model)
         GTFS = st.session_state.GTFS
