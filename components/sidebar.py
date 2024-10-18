@@ -1,4 +1,3 @@
-import time
 import streamlit as st
 from rich import print as rprint
 from gtfs_agent.agent import LLMAgent
@@ -7,16 +6,14 @@ from components.state import reset_session_state, load_session_state
 
 
 # @st.cache_resource(show_spinner=False)
-def initialize_agent(model, allow_viz):
-    return LLMAgent(file_mapping, model, allow_viz=allow_viz)
+def initialize_agent(model):
+    return LLMAgent(file_mapping, model)
 
 
-def load_agent_evaluator():
+def update_agent_feed():
     # Clear chat history on change of model or GTFS feed
     if len(st.session_state.chat_history) > 0:
         clear_chat_history()
-    rprint("[bold yellow]<<<==================Initializing Chat App=====================>>>[/bold yellow]")
-    rprint(f"[blue]Call count:[/blue] {st.session_state['call_count']}, [blue]time:[/blue] {time.ctime()}")
     GTFS = st.session_state["GTFS"]
     with st.status(f"Loading `{GTFS}` GTFS Feed and setting up LLM Agent...") as status:
         model = st.session_state["model"]
@@ -79,7 +76,7 @@ def setup_sidebar():
     st.sidebar.selectbox(
         "Select GTFS Feed",
         GTFS_feed_list,
-        on_change=load_agent_evaluator,
+        on_change=update_agent_feed,
         key="GTFS",
         help="Select a GTFS feed to analyze.",
     )
@@ -111,4 +108,12 @@ def setup_sidebar():
     # Initialize agent, evaluator and prompt with default GTFS feed
 
     if "agent" not in st.session_state:
-        load_agent_evaluator()
+        rprint(
+            "[bold yellow]<<<==================Initializing Chat App=====================>>>[/bold yellow]"
+        )
+        agent = initialize_agent(st.session_state.model, st.session_state.allow_viz)
+        agent.update_agent(st.session_state.GTFS, st.session_state.model, st.session_state.distance_unit, st.session_state.allow_viz)
+        st.session_state["agent"] = agent
+        GTFS = st.session_state.GTFS
+        distance_unit = file_mapping[GTFS]["distance_unit"]
+        st.toast(f"Loaded GTFS feed: {GTFS} ({distance_unit})", icon="🚌")
