@@ -22,6 +22,25 @@ load_session_state()
 # Setup sidebar
 setup_sidebar()
 
+@st.dialog("User Information")
+def show_user_info_popup():
+    if "user_name" not in st.session_state or "user_email" not in st.session_state:
+        st.write("Please provide your information for feedback purposes:")
+        name = st.text_input("Name")
+        email = st.text_input("Email")
+        if st.button("Submit"):
+            if name and email:
+                st.session_state['user_name'] = name
+                st.session_state['user_email'] = email
+                st.success("Thank you for providing your information!")
+                st.rerun()
+            else:
+                st.error("Please fill in both name and email.")
+
+# Call the dialog function when needed
+if "user_name" not in st.session_state or "user_email" not in st.session_state:
+    show_user_info_popup()
+
 # Chat interface
 st.title("🚌GTFS2CODE")
 # Display chat history

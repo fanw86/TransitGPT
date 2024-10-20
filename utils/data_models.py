@@ -26,15 +26,17 @@ class ChatHistoryEntry(BaseModel):
 
 
 class FeedbackEntry(BaseModel):
-    timestamp: datetime = Field(default_factory=get_current_time)
     question: str
+    response: Optional[str]
     code_eval_success: bool
-    response: Optional[str] = None
-    GTFS: Optional[str] = None
-    llm_model: Optional[str] = None
-    system_prompt: Optional[str] = None
+    code_eval_result: Optional[str] = None
+    GTFS: str
+    llm_model: str
+    system_prompt: str
+    final_response: Optional[str]
+    figure: Optional[str] = None
     user_rating: Optional[int] = None
     user_comment: Optional[str] = None
-    code_eval_result: Optional[str] = None
-    figure: Optional[str] = None
-    summary_response: Optional[str] = None
+    timestamp: Optional[datetime] = Field(default_factory=get_current_time)
+    user_name: Optional[str]
+    user_email: Optional[str]

@@ -33,6 +33,8 @@ def create_feedback_entry(
         llm_model=agent.model,
         system_prompt=agent.system_prompt,
         final_response=final_response,
+        user_name=st.session_state.get("user_name", ""),
+        user_email=st.session_state.get("user_email", ""),
     )
 
     if eval_success:

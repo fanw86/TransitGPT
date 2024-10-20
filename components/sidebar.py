@@ -109,15 +109,16 @@ def setup_sidebar():
         rich_print(
             "[bold yellow]<<<=========Initializing Chat App=========>>>[/bold yellow]"
         )
-        agent = initialize_agent(st.session_state.model)
-        GTFS = st.session_state.GTFS
-        distance_unit = file_mapping[GTFS]["distance_unit"]
-        agent.update_agent(
-            GTFS,
-            st.session_state.model,
-            distance_unit,
-            st.session_state.allow_viz,
-        )
-        st.session_state["agent"] = agent
-        
+        with st.spinner("Initializing the App and setting up the LLM Agent..."):
+            agent = initialize_agent(st.session_state.model)
+            GTFS = st.session_state.GTFS
+            distance_unit = file_mapping[GTFS]["distance_unit"]
+            agent.update_agent(
+                GTFS,
+                st.session_state.model,
+                distance_unit,
+                st.session_state.allow_viz,
+            )
+            st.session_state["agent"] = agent
+            
         st.toast(f"Loaded GTFS feed: {GTFS} ({distance_unit})", icon="🚌")
