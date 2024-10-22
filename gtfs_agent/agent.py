@@ -1,4 +1,5 @@
 import streamlit as st
+import time
 from prompts.all_prompts import (
     SUMMARY_LLM_SYSTEM_PROMPT,
     SUMMARY_LLM_USER_PROMPT,
@@ -295,6 +296,7 @@ class LLMAgent:
 
     @workflow(name="LLM Agent Workflow")
     def run_workflow(self, user_input: str, retry_code: bool = False):
+        start_time = time.time()
         llm_response, call_success = self.call_llm(user_input)
 
         if not call_success:
@@ -303,7 +305,7 @@ class LLMAgent:
             return None, False, llm_response, True, None, None, None
 
         self.logger.info(f"LLM call success: {llm_response}")
-        result, success, error, only_text, llm_response = self.evaluate_code(
+        output, success, error, only_text, llm_response = self.evaluate_code(
             user_input, llm_response, retry_code=retry_code
         )
 
@@ -316,15 +318,20 @@ class LLMAgent:
         else:
             summary_response = None
 
-        return (
-            result,
-            success,
-            error,
-            only_text,
-            llm_response,
-            summary_response,
-            validation_response,
-        )
+        end_time = time.time()
+        execution_time = end_time - start_time
+        self.logger.info(f"Execution time: {execution_time:.2f} seconds")
+
+        return {
+            "code_output": output,
+            "eval_success": success,
+            "error_message": error,
+            "only_text": only_text,
+            "main_response": llm_response,
+            "summary_response": summary_response,
+            # "validation_response": validation_response,
+            "execution_time": execution_time,
+        }
 
     @task(name="Validate Evaluation")
     def validate_evaluation(

@@ -8,46 +8,32 @@ def process_user_input(user_input: str):
     agent = st.session_state.agent
     with st.chat_message("assistant", avatar="🚍"):
         with st.spinner("Processing your request..."):
-            (
-                result,
-                success,
-                error_message,
-                only_text,
-                llm_response,
-                summary_response,
-                validation_response,
-            ) = agent.run_workflow(user_input, st.session_state.retry_code)
+            result = agent.run_workflow(user_input, st.session_state.retry_code)
 
-        if not success and not only_text:
-            st.error(f"Error: {error_message}")
+        if not result["eval_success"] and not result["only_text"]:
+            st.error(f"Error: {result['error']}")
             chat_entry = ChatHistoryEntry(
                 role="assistant",
-                eval_success=success,
-                error_message=error_message,
-                main_response=llm_response,
-                only_text=only_text,
+                eval_success=result["eval_success"],
+                error_message=result["error_message"],
+                main_response=result["main_response"],
+                only_text=result["only_text"],
             )
         else:
             chat_entry = ChatHistoryEntry(
                 role="assistant",
-                summary_response=summary_response,
-                main_response=llm_response,
-                code_output=result,
-                eval_success=success,
-                error_message=error_message,
-                only_text=only_text,
+                summary_response=result["summary_response"],
+                main_response=result["main_response"],
+                code_output=result["code_output"],
+                eval_success=result["eval_success"],
+                error_message=result["error_message"],
+                only_text=result["only_text"],
             )
 
         st.session_state.chat_history.append(chat_entry.dict())
-        create_feedback_entry(
-            user_input,
-            agent,
-            llm_response,
-            success,
-            result,
-            error_message,
-            summary_response,
-        )
+        result["agent"] = agent
+        result["user_input"] = user_input
+        create_feedback_entry(**result)
 
 
 def process_cancellation():

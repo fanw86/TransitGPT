@@ -70,14 +70,18 @@ def save_benchmark_results(model, results, additional_results):
 
 
 def get_benchmark_files():
-    files = os.listdir("benchmark/results")
-    return ["None"] + files  # Add "None" as the first option
+    files = os.listdir("benchmark")
+    return ["None"] + sorted(files, reverse=True)  # Add "None" as the first option and sort files in reverse order
 
+def get_benchmark_results():
+    files = os.listdir("benchmark/results")
+    return ["None"] + sorted(
+        files, reverse=True
+    )  # Add "None" as the first option and sort files in reverse order
 
 # Function to load the DataFrame
 @st.cache_data
-def load_data():
-    yaml_file = "benchmark/sorted_benchmark.yaml"
+def load_data(yaml_file):
     with open(yaml_file, "r") as file:
         data = yaml.safe_load(file)
         df = pd.DataFrame.from_dict(data)
@@ -128,6 +132,8 @@ def main():
 
     st.sidebar.header("Select Model")
     model = st.sidebar.selectbox("Choose a model", options=LLMs, key="model_selector")
+    benchmark = st.sidebar.selectbox("Choose a benchmark", options=get_benchmark_files(), key="benchmark_selector")
+    st.session_state.df = load_data(f"benchmark/{benchmark}")
     if st.sidebar.button("Run Benchmark"):
         # Clear the main screen
         with st.spinner(f"Running benchmark for {model}..."):
@@ -141,16 +147,12 @@ def main():
             st.session_state.df.head(n_rows)[model] = results
             st.session_state.df.head(n_rows)[f"{model}_additional"] = additional_results
 
-    # Load the data
-    if "df" not in st.session_state:
-        st.session_state.df = load_data()
-
-    df = st.session_state.df
-
+    # Move the benchmark file selection to the top of the sidebar
+    st.sidebar.header("Select Results")
     selected_benchmark = st.sidebar.selectbox(
-        "Choose a benchmark file",
-        options=get_benchmark_files(),
-        key="benchmark_selector",
+        "Choose a benchmark results file",
+        options=get_benchmark_results(),
+        key="results_benchmark_selector",
     )
 
     if selected_benchmark == "None":
