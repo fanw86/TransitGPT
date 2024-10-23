@@ -27,32 +27,29 @@ def run_benchmark(df, model):
     new_results = []
     additional_results = []
     agent = get_agent(model)
+    # df = df.head(1) # TODO: Remove this
     for index, row in stqdm(df.iterrows(), total=df.shape[0]):
         st.write(f"Running {index + 1} of {df.shape[0]}")
         agent.update_agent(
-            row["feed"], model, file_mapping[row["feed"]]["distance_unit"]
+            row["feed"], model, file_mapping[row["feed"]]["distance_unit"], st.session_state.allow_viz
         )
-        response, call_success = agent.call_llm(row["question"])
-        if call_success:
-            result, success, error, only_text, llm_response = agent.evaluate_with_retry(
-                response
-            )
-            new_results.append({"result": result})
-            additional_results.append(
-                {
-                    "task": row["task"],
-                    "success": success,
-                    "error": error,
-                    "only_text": only_text,
-                    "llm_response": str(llm_response),
-                }
-            )
+        result = agent.run_workflow(row["question"], st.session_state.allow_retry, summarize = False)
+        new_results.append({"result": result['code_output']})
+        additional_results.append(
+            {
+                "task": row["task"],
+                "success": result["eval_success"],
+                "error": result["error_message"],
+                "only_text": result["only_text"],
+                "llm_response": str(result["main_response"]),
+            }
+        )
         # time.sleep(5)
     return new_results, additional_results
 
 
 def save_benchmark_results(model, results, additional_results):
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now().strftime("%B_%d-%H_%M")
     filename = f"benchmark/results/{model}_{timestamp}.json"
     with open(filename, "w") as f:
         json.dump(
@@ -133,7 +130,11 @@ def main():
     st.sidebar.header("Select Model")
     model = st.sidebar.selectbox("Choose a model", options=LLMs, key="model_selector")
     benchmark = st.sidebar.selectbox("Choose a benchmark", options=get_benchmark_files(), key="benchmark_selector")
-    st.session_state.df = load_data(f"benchmark/{benchmark}")
+    if benchmark != "None":
+        st.session_state.df = load_data(f"benchmark/{benchmark}")
+    with st.sidebar.expander("Benchmark Settings"):
+        st.sidebar.checkbox("Allow Visualization", value=False, key="allow_viz")
+        st.sidebar.checkbox("Allow Retry", value=False, key="allow_retry")
     if st.sidebar.button("Run Benchmark"):
         # Clear the main screen
         with st.spinner(f"Running benchmark for {model}..."):
@@ -196,12 +197,9 @@ def main():
         df["grade"] = df["grade"].replace("None", None)
         df["comment"] = df["comment"].replace("None", None)
 
-        model, timestamp, time = selected_benchmark.split("_")
-        time = time.split(".")[0]
-        formatted_time = datetime.strptime(timestamp + time, "%Y%m%d%H%M%S").strftime(
-            "%b %d, %Y %H:%M:%S"
-        )
-        st.success(f"Loaded benchmark results for {model} at {formatted_time}")
+        model = selected_benchmark.split("_")[0]
+        timestamp = "_".join(selected_benchmark.split("_")[1:]).split(".")[0]
+        st.success(f"Loaded benchmark results for {model} at {timestamp}")
 
         # Get ungraded items for this specific benchmark
         ungraded_df = get_ungraded_items(df)

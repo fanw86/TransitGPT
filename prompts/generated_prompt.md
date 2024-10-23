@@ -335,18 +335,14 @@ These are the datatypes for all files within the current GTFS:
 Adhere strictly to the following instructions:
 <instructions>
 
-1. Use Python with numpy (np), pandas (pd), shapely, geopandas (gpd), geopy, folium, plotly.express (px) and thefuzz libraries.  No other libraries should be used.
+1. Use Python with numpy (np), pandas (pd), shapely, geopandas (gpd), geopy, and thefuzz libraries.  No other libraries should be used.
 2. Assume the feed variable is pre-loaded as an object where each GTFS file is loaded into a pandas DataFrame attribute of feed (e.g., feed.stops, feed.routes, etc.). Omit import statements for dependencies.
 3. Avoid writing code that involves saving, reading, or writing to the disk, including HTML files.
 4. Include explanatory comments in the code. Specify the output format in a comment (e.g., DataFrame, Series, list, integer, string).  Do not add additional text outside the code block.
-5. Store the result in a `result` dictionary with keys: `answer`, `additional_info`, `dataframe` (optional), and `map`/`plot` (optional) if applicable where:
-   - `answer` is the main result
-   - `additional_info` provides context and other info to the answer
-   - `dataframe` [Optional] contains any DataFrame results if applicable
-   - `map`/`plot` [Optional] contains the generated map or plot which are map or figure objects
-6. Handle potential errors and missing data in the GTFS feed.
+5. Store the result in a `result` dictionary with keys: `answer`, and `additional_info`. Make sure the `result` variable is always defined in the code. 
+6. Handle potential errors and missing data in the GTFS feed. Also handle for scrambled data using sequence variables such as `stop_sequence` or `shape_pt_sequence`.
 7. Optimize code for performance as there is timeout of 300 seconds for the code execution.
-8. Prefer using `numpy` and `pandas` operations that uses vector computations over Python loops. Avoid using for loops whenever possible, as vectorized operations are significantly faster
+8. Prefer using `numpy` and `pandas` operations that vectorize computations over Python loops. Avoid using for loops whenever possible, as vectorized operations are significantly faster
 9. Before main processing, validate GTFS data integrity and consistency by ensuring all required GTFS tables are present in feed.
 10. Use only fields from the GTFS Static Specification and provided feed sample.
 11. For specific attributes, use example identifiers (e.g., `route_id`, `stop_id`) by sampling from the data. Example: `feed.routes.route_id.sample(n=1).values[0]` or `feed.stops.stop_id.sample(n=1).values[0]` 
@@ -362,8 +358,7 @@ Adhere strictly to the following instructions:
 21. Ensure all data in the `result` dictionary is JSON-serializable. Avoid using complex objects like pandas Interval or datetime as dictionary keys or values.
 22. Try to be as resourceful as possible. Direct the user to URLs within the feed if some information is missing or possible to find in the website of the transit agency.
 23. Respond with just text for clarification or general questions unless there is a mistake the user points out.
-24. Always use `CartoDB Positron` for base map tiles. The `map` key should be a folium.Map, folium.Figure, or branca.element.Figure object.
-25. Create interactive maps with markers, popups, and relevant info.
+24. No visualizations allowed
 
 </instructions>
 
@@ -570,19 +565,4 @@ For distance calculations:
 - In case you do not find a match, report the stops that you have tried to find directions from and to.
 - If the user asks for directions, provide the directions and the distance in kilometers.
 
-</tips>
-
-<tips>
-
-### Plotting and Mapping
-- Use the default color scheme (that is colorblind proof) for plots and maps unless specified otherwise. 
-- Use markers to highlight key points in the plot or map.
-- Always have a legend and/or labels for the plots and maps to make them more informative.
-- Prefer plotly express for plotting as it provides a high-level interface for creating a variety of plots.
-- Remember that Dataframes, Figures and Maps are optional and should only be included if explicitly requested in the task or if they help in explaining the solution better.
-- While mapping routes, use the shape points in `shapes.txt` file to get the points along the route and convert them to a LineString.
-- Never use identifier such as `route_id` or `trip_id` on a continuous scale or axis. Treat them as categorical variables.
-- While displaying routes on a map, use all distinct shape_id for the route as the route shape can be split by direction
-- folium.PolyLine expects list of coordinates to be in the form of lat-long pairs : `[[lat, lon]]`
-- Display routes with their respective `route_color` if available
 </tips>

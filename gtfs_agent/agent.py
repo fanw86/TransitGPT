@@ -295,7 +295,7 @@ class LLMAgent:
         self.load_system_prompt(GTFS, distance_unit, allow_viz)
 
     @workflow(name="LLM Agent Workflow")
-    def run_workflow(self, user_input: str, retry_code: bool = False):
+    def run_workflow(self, user_input: str, retry_code: bool = False, summarize: bool = True):
         start_time = time.time()
         llm_response, call_success = self.call_llm(user_input)
 
@@ -313,7 +313,7 @@ class LLMAgent:
         # validation_response = self.validate_evaluation(user_input, llm_response, result, success, error, only_text)
         validation_response = None
 
-        if success and not only_text:
+        if success and not only_text and summarize:
             summary_response = self.call_summary_llm(st.empty())
         else:
             summary_response = None

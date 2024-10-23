@@ -1,6 +1,7 @@
 # Imports for Evals
 import datetime
 import time
+import pytz
 import geopy
 import folium
 import geopandas as gpd
@@ -29,6 +30,7 @@ from utils.find_stops import (
 import_namespace = {
     "datetime": datetime,
     "time": time,
+    "pytz": pytz,
     "geopy": geopy,
     "folium": folium,
     "gpd": gpd,
