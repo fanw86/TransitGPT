@@ -179,6 +179,8 @@ example_6:
     question: Find directions from Orchard Downs to Newmark Civil Engineering Laboratory now
     answer: |
         ```python
+        import pytz
+
         def format_time_hhmmss(time):
             time = int(time)
             return f"{time // 3600:02d}:{(time % 3600) // 60:02d}:{time % 60:02d}"
@@ -199,7 +201,9 @@ example_6:
 
 
         def find_route_directions(feed, start_stops, end_stops):
-            now = datetime.now()
+            # Get current time in the agency's timezone
+            agency_tz = pytz.timezone(feed.agency.agency_timezone.iloc[0])
+            now = datetime.now(agency_tz)
             current_time_seconds = now.hour * 3600 + now.minute * 60 + now.second
             current_day = now.strftime("%A").lower()
 
