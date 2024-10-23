@@ -53,10 +53,14 @@ class OpenAIClient(LLMClient):
                 messages=messages,
                 temperature=SUMMARY_LLM_TEMPERATURE,
                 stream=True,
+                stream_options={"include_usage": True},
             )
             for chunk in stream:
-                if chunk.choices[0].delta.content is not None:
-                    yield chunk.choices[0].delta.content
+                try:        
+                    if chunk.choices[0].delta.content is not None:
+                        yield chunk.choices[0].delta.content
+                except Exception as e:
+                    pass  # for the usage data
         except OpenAIError as e:
             error_message = f"OpenAI API streaming call failed: {str(e)}"
             self.logger.error(error_message)

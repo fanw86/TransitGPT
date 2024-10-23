@@ -13,49 +13,40 @@ from utils.helper import fig_to_base64, plotly_fig_to_base64
 import plotly.graph_objs as go
 
 
-def create_feedback_entry(
-    user_input,
-    agent,
-    main_response=None,
-    eval_success=False,
-    code_output=None,
-    error_message=None,
-    summary_response=None,
-    only_text=False,
-    execution_time=None,
-):
+def create_feedback_entry(result):
     message_id = f"{st.session_state.uuid}_{len(st.session_state.chat_history) - 1}"
     st.session_state.current_message_id = message_id
 
     feedback_entry = FeedbackEntry(
-        question=user_input,
-        main_response=main_response,
-        code_eval_success=eval_success,
-        GTFS=agent.GTFS,
-        llm_model=agent.model,
+        question=result["user_input"],
+        main_response=result["main_response"],
+        code_eval_success=result["eval_success"],
+        GTFS=result["agent"].GTFS,
+        llm_model=result["agent"].model,
+        error_message=result["error_message"],
         # system_prompt=agent.system_prompt, # Excluded for brevity
-        summary_response=summary_response,
+        summary_response=result["summary_response"],
         user_name=st.session_state.get("user_name", ""),
         user_email=st.session_state.get("user_email", ""),
-        only_text=only_text,
-        execution_time=execution_time,
+        only_text=result["only_text"],
+        execution_time=result["execution_time"],
     )
 
-    if eval_success:
-        if isinstance(code_output, plt.Figure):
+    if result["eval_success"]:
+        if isinstance(result["code_output"], plt.Figure):
             feedback_entry.code_eval_result = "Matplotlib Figure generated"
-            feedback_entry.figure = fig_to_base64(code_output)
-        elif isinstance(code_output, go.Figure):
+            feedback_entry.figure = fig_to_base64(result["code_output"])
+        elif isinstance(result["code_output"], go.Figure):
             feedback_entry.code_eval_result = "Plotly Figure generated"
-            feedback_entry.figure = plotly_fig_to_base64(code_output)
-        elif isinstance(code_output, folium.Map):
+            feedback_entry.figure = plotly_fig_to_base64(result["code_output"])
+        elif isinstance(result["code_output"], folium.Map):
             feedback_entry.code_eval_result = "Map generated"
-        elif isinstance(code_output, (pd.DataFrame, pd.Series)):
-            feedback_entry.code_eval_result = code_output.to_string()
+        elif isinstance(result["code_output"], (pd.DataFrame, pd.Series)):
+            feedback_entry.code_eval_result = result["code_output"].to_string()
         else:
-            feedback_entry.code_eval_result = str(code_output)[:5000]
+            feedback_entry.code_eval_result = str(result["code_output"])[:5000]
     else:
-        feedback_entry.code_eval_result = str(error_message)[:5000]
+        feedback_entry.code_eval_result = str(result["error_message"])[:5000]
 
     collection_name = st.session_state["fb_agent"].collection_name
     st.session_state["fb_agent"].db.collection(collection_name).document(

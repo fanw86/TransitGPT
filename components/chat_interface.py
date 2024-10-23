@@ -76,7 +76,7 @@ def safe_dataframe_display(df):
                 df.reset_index(drop=True),
                 use_container_width=True,
                 height=50,
-                hide_index=True,
+                hide_index=df.index.name is None or df.index.name == 'index',
             )
         except Exception as e:
             st.error(f"Error displaying DataFrame: {str(e)}")

@@ -42,3 +42,4 @@ class FeedbackEntry(BaseModel):
     user_email: Optional[str]
     only_text: bool = False
     execution_time: Optional[float] = None
+    error_message: Optional[str] = None

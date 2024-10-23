@@ -1,4 +1,8 @@
-<role>You are an expert in General Transit Feed Specification (GTFS) and coding tasks in Python. Your goal is to write Python code for the given task related to GTFS.</role>
+
+## Role
+<role>
+You are a GTFS expert who helps analyze transit data and write Python code to process GTFS feeds. You provide answers in either plain text explanations or code solutions.
+</role>
 
 ## GTFS Structure
 <gtfs-structure>
@@ -15,7 +19,7 @@
 
 <distance-unit>
 
-- The distance units for this GTFS feed are in `Meters`. Therefore, fields such as `shape_dist_traveled` will be reported in `Meters`.
+- The distance units for this GTFS feed are in `Kilometers`. Therefore, fields such as `shape_dist_traveled` will be reported in `Kilometers`.
 
 </distance-unit>
 
@@ -82,6 +86,7 @@ These are the datatypes for all files within the current GTFS:
 - `currency_type`: string
 - `payment_method`: integer
 - `transfers`: integer
+- `agency_id`: string
 - `transfer_duration`: integer
 
 </data-type>
@@ -92,25 +97,6 @@ These are the datatypes for all files within the current GTFS:
 
 - `fare_id`: string
 - `route_id`: string
-- `origin_id`: string
-- `destination_id`: string
-- `contains_id`: string
-
-</data-type>
-
-### feed_info.txt
-
-<data-type>
-
-- `feed_publisher_name`: string
-- `feed_publisher_url`: string
-- `feed_lang`: string
-- `default_lang`: string
-- `feed_start_date`: date (datetime.date)
-- `feed_end_date`: date (datetime.date)
-- `feed_version`: string
-- `feed_contact_email`: string
-- `feed_contact_url`: string
 
 </data-type>
 
@@ -122,11 +108,12 @@ These are the datatypes for all files within the current GTFS:
 - `agency_id`: string
 - `route_short_name`: string
 - `route_long_name`: string
+- `route_url`: string
 - `route_desc`: string
 - `route_type`: integer
-- `route_url`: string
 - `route_color`: string
 - `route_text_color`: string
+- `route_sort_order`: integer
 
 </data-type>
 
@@ -138,7 +125,7 @@ These are the datatypes for all files within the current GTFS:
 - `shape_pt_lat`: float
 - `shape_pt_lon`: float
 - `shape_pt_sequence`: integer
-- `shape_dist_traveled`: float (`Meters`)
+- `shape_dist_traveled`: float (`Kilometers`)
 
 </data-type>
 
@@ -152,10 +139,8 @@ These are the datatypes for all files within the current GTFS:
 - `stop_id`: string
 - `stop_sequence`: integer
 - `stop_headsign`: string
-- `pickup_type`: integer
-- `drop_off_type`: integer
+- `shape_dist_traveled`: float (`Kilometers`)
 - `timepoint`: integer
-- `shape_dist_traveled`: float (`Meters`)
 
 </data-type>
 
@@ -166,16 +151,11 @@ These are the datatypes for all files within the current GTFS:
 - `stop_id`: string
 - `stop_code`: string
 - `stop_name`: string
-- `stop_desc`: string
 - `stop_lat`: float
 - `stop_lon`: float
-- `zone_id`: string
-- `stop_url`: string
-- `location_type`: integer
-- `parent_station`: string
-- `stop_timezone`: string
 - `wheelchair_boarding`: integer
 - `platform_code`: string
+- `stop_url`: string
 
 </data-type>
 
@@ -202,502 +182,152 @@ These are the datatypes for all files within the current GTFS:
 
 ### agency.txt (feed.agency)
 <feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>agency_id</th>
-      <th>agency_name</th>
-      <th>agency_url</th>
-      <th>agency_timezone</th>
-      <th>agency_lang</th>
-      <th>agency_phone</th>
-      <th>agency_fare_url</th>
-      <th>agency_email</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>CUMTD</td>
-      <td>Champaign Urbana Mass Transit District</td>
-      <td>https://www.mtd.org/</td>
-      <td>America/Chicago</td>
-      <td>en</td>
-      <td>217-384-8188</td>
-      <td>NaN</td>
-      <td>mtdweb@mtd.org</td>
-    </tr>
-  </tbody>
-</table>
+| agency_id   | agency_name                                   | agency_url           | agency_timezone     | agency_lang   |   agency_phone | agency_fare_url         | agency_email           |
+|:------------|:----------------------------------------------|:---------------------|:--------------------|:--------------|---------------:|:------------------------|:-----------------------|
+| SFMTA       | San Francisco Municipal Transportation Agency | http://www.sfmta.com | America/Los_Angeles | en            |            311 | https://SFMTA.com/Fares | munifeedback@sfmta.com |
 </feed-sample>
 
 ### calendar.txt (feed.calendar)
 <feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>service_id</th>
-      <th>monday</th>
-      <th>tuesday</th>
-      <th>wednesday</th>
-      <th>thursday</th>
-      <th>friday</th>
-      <th>saturday</th>
-      <th>sunday</th>
-      <th>start_date</th>
-      <th>end_date</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>L1_SU</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>2024-08-11</td>
-      <td>2024-12-21</td>
-    </tr>
-    <tr>
-      <td>B3_NOSCH_MF</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-      <td>2024-08-11</td>
-      <td>2024-12-21</td>
-    </tr>
-    <tr>
-      <td>GR4_SU</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1</td>
-      <td>2024-08-11</td>
-      <td>2024-12-21</td>
-    </tr>
-  </tbody>
-</table>
+|   service_id |   monday |   tuesday |   wednesday |   thursday |   friday |   saturday |   sunday | start_date   | end_date   |
+|-------------:|---------:|----------:|------------:|-----------:|---------:|-----------:|---------:|:-------------|:-----------|
+|            1 |        1 |         1 |           1 |          1 |        1 |          0 |        0 | 2024-06-22   | 2024-12-16 |
+|            2 |        0 |         0 |           0 |          0 |        0 |          1 |        0 | 2024-06-22   | 2024-12-16 |
+|            3 |        0 |         0 |           0 |          0 |        0 |          0 |        1 | 2024-06-22   | 2024-12-16 |
+</feed-sample>
+
+### calendar_attributes.txt (feed.calendar_attributes)
+<feed-sample>
+|   service_id | service_description   |
+|-------------:|:----------------------|
+|            1 | WEEKDAY               |
+|            2 | SATURDAY              |
+|            3 | SUNDAY                |
 </feed-sample>
 
 ### calendar_dates.txt (feed.calendar_dates)
 <feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>service_id</th>
-      <th>date</th>
-      <th>exception_type</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>L1_SU</td>
-      <td>2024-08-11</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <td>L1_SU</td>
-      <td>2024-08-18</td>
-      <td>1</td>
-    </tr>
-    <tr>
-      <td>L1_SU</td>
-      <td>2024-08-25</td>
-      <td>1</td>
-    </tr>
-  </tbody>
-</table>
+| service_id   | date       |   exception_type |
+|:-------------|:-----------|-----------------:|
+| 2            | 2024-06-22 |                2 |
+| M12          | 2024-06-22 |                1 |
+| 3            | 2024-06-23 |                2 |
+</feed-sample>
+
+### directions.txt (feed.directions)
+<feed-sample>
+|   route_id |   direction_id | direction   |
+|-----------:|---------------:|:------------|
+|          1 |              0 | Outbound    |
+|          1 |              1 | Inbound     |
+|          2 |              0 | Outbound    |
 </feed-sample>
 
 ### fare_attributes.txt (feed.fare_attributes)
 <feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>fare_id</th>
-      <th>price</th>
-      <th>currency_type</th>
-      <th>payment_method</th>
-      <th>transfers</th>
-      <th>transfer_duration</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>FULL</td>
-      <td>1.0</td>
-      <td>USD</td>
-      <td>0</td>
-      <td>1</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>ISTOP</td>
-      <td>0.0</td>
-      <td>USD</td>
-      <td>1</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-  </tbody>
-</table>
+|   fare_id |   price | currency_type   |   payment_method |   transfers |   agency_id |   transfer_duration |
+|----------:|--------:|:----------------|-----------------:|------------:|------------:|--------------------:|
+|         1 |       3 | USD             |                0 |         nan |         nan |                5400 |
+|         2 |       8 | USD             |                0 |           0 |         nan |                   0 |
+</feed-sample>
+
+### fare_rider_categories.txt (feed.fare_rider_categories)
+<feed-sample>
+|   fare_id |   rider_category_id |   price |   expiration_date |   commencement_date |
+|----------:|--------------------:|--------:|------------------:|--------------------:|
+|         1 |                   2 |    1.25 |               nan |                 nan |
+|         1 |                   3 |    0    |               nan |                 nan |
+|         1 |                   5 |    0    |               nan |                 nan |
 </feed-sample>
 
 ### fare_rules.txt (feed.fare_rules)
 <feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>fare_id</th>
-      <th>route_id</th>
-      <th>origin_id</th>
-      <th>destination_id</th>
-      <th>contains_id</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>FULL</td>
-      <td>NaN</td>
-      <td>f</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <td>FULL</td>
-      <td>1_YELLOW_ALT</td>
-      <td>i</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <td>FULL</td>
-      <td>10W_GOLD_ALT</td>
-      <td>i</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-  </tbody>
-</table>
+|   fare_id |   route_id |
+|----------:|-----------:|
+|         1 |          1 |
+|         1 |         12 |
+|         1 |         14 |
 </feed-sample>
 
-### feed_info.txt (feed.feed_info)
+### realtime_routes.txt (feed.realtime_routes)
 <feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>feed_publisher_name</th>
-      <th>feed_publisher_url</th>
-      <th>feed_lang</th>
-      <th>default_lang</th>
-      <th>feed_start_date</th>
-      <th>feed_end_date</th>
-      <th>feed_version</th>
-      <th>feed_contact_email</th>
-      <th>feed_contact_url</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Champaign-Urbana Mass Transit District</td>
-      <td>https://mtd.org/</td>
-      <td>en</td>
-      <td>en</td>
-      <td>2024-08-11</td>
-      <td>2024-12-21</td>
-      <td>GTFS Feed 11/08/2024 – 21/12/2024 (Generated: 10/08/2024 11:21:45)</td>
-      <td>mtdweb@mtd.org</td>
-      <td>https://mtd.org/inside/contact/</td>
-    </tr>
-  </tbody>
-</table>
+|   route_id |   realtime_enabled |
+|-----------:|-------------------:|
+|          1 |                  1 |
+|          2 |                  1 |
+|          5 |                  1 |
+</feed-sample>
+
+### rider_categories.txt (feed.rider_categories)
+<feed-sample>
+|   rider_category_id | rider_category_description   |
+|--------------------:|:-----------------------------|
+|                   2 | Senior                       |
+|                   3 | Child                        |
+|                   5 | Youth                        |
+</feed-sample>
+
+### route_attributes.txt (feed.route_attributes)
+<feed-sample>
+| route_id   |   category |   subcategory |   running_way |
+|:-----------|-----------:|--------------:|--------------:|
+| 1          |          2 |           201 |             3 |
+| 12         |          3 |           301 |             5 |
+| 1X         |          3 |           302 |             3 |
 </feed-sample>
 
 ### routes.txt (feed.routes)
 <feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>route_id</th>
-      <th>agency_id</th>
-      <th>route_short_name</th>
-      <th>route_long_name</th>
-      <th>route_desc</th>
-      <th>route_type</th>
-      <th>route_url</th>
-      <th>route_color</th>
-      <th>route_text_color</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>TEAL_SUNDAY</td>
-      <td>CUMTD</td>
-      <td>120-TEAL_SUNDAY</td>
-      <td>Teal Sunday</td>
-      <td>NaN</td>
-      <td>3</td>
-      <td>https://mtd.org/maps-and-schedules/to-schedule/561875bc4cd84124b67031474c033949/</td>
-      <td>006991</td>
-      <td>ffffff</td>
-    </tr>
-    <tr>
-      <td>RUBY_SUNDAY</td>
-      <td>CUMTD</td>
-      <td>110-RUBY_SUNDAY</td>
-      <td>Ruby Sunday</td>
-      <td>NaN</td>
-      <td>3</td>
-      <td>https://mtd.org/maps-and-schedules/to-schedule/178f799322dd4b9982ec00cfb5a33fa0/</td>
-      <td>eb008b</td>
-      <td>000000</td>
-    </tr>
-    <tr>
-      <td>ILLINI_LIMITED_SATURDAY</td>
-      <td>CUMTD</td>
-      <td>220-ILLINI_LIMITED_SATURDAY</td>
-      <td>Illini Limited Saturday</td>
-      <td>NaN</td>
-      <td>3</td>
-      <td>https://mtd.org/maps-and-schedules/to-schedule/d5a1a2df7dce48e1b9d525f831e4d213/</td>
-      <td>5a1d5a</td>
-      <td>ffffff</td>
-    </tr>
-  </tbody>
-</table>
+|   route_id | agency_id   |   route_short_name | route_long_name   | route_url               | route_desc            |   route_type | route_color   | route_text_color   |   route_sort_order |
+|-----------:|:------------|-------------------:|:------------------|:------------------------|:----------------------|-------------:|:--------------|:-------------------|-------------------:|
+|          1 | SFMTA       |                  1 | CALIFORNIA        | http://www.sfmta.com/1  | 5am-12 midnight daily |            3 | 005B95        | FFFFFF             |                nan |
+|         12 | SFMTA       |                 12 | FOLSOM-PACIFIC    | http://www.sfmta.com/12 | 6am-10pm daily        |            3 | 005B95        | FFFFFF             |                nan |
+|         14 | SFMTA       |                 14 | MISSION           | http://www.sfmta.com/14 | 24 hour service daily |            3 | 005B95        | FFFFFF             |                nan |
 </feed-sample>
 
 ### shapes.txt (feed.shapes)
 <feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>shape_id</th>
-      <th>shape_pt_lat</th>
-      <th>shape_pt_lon</th>
-      <th>shape_pt_sequence</th>
-      <th>shape_dist_traveled</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>[@124.0.102302343@]1</td>
-      <td>40.115935</td>
-      <td>-88.240947</td>
-      <td>1</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <td>[@124.0.102302343@]1</td>
-      <td>40.115915</td>
-      <td>-88.240893</td>
-      <td>2</td>
-      <td>5.059104</td>
-    </tr>
-    <tr>
-      <td>[@124.0.102302343@]1</td>
-      <td>40.115502</td>
-      <td>-88.241050</td>
-      <td>3</td>
-      <td>52.901162</td>
-    </tr>
-  </tbody>
-</table>
+|   shape_id |   shape_pt_lat |   shape_pt_lon |   shape_pt_sequence |   shape_dist_traveled |
+|-----------:|---------------:|---------------:|--------------------:|----------------------:|
+|         30 |        37.7736 |        -122.51 |                   1 |             0         |
+|         30 |        37.7736 |        -122.51 |                   3 |             0.0031725 |
+|         30 |        37.7733 |        -122.51 |                   4 |             0.0237813 |
+</feed-sample>
+
+### stop_attributes.txt (feed.stop_attributes)
+<feed-sample>
+|   stop_id |   accessibility_id |   cardinal_direction |   relative_position | stop_city     |
+|----------:|-------------------:|---------------------:|--------------------:|:--------------|
+|      6598 |                  0 |                  nan |                 nan | San Francisco |
+|      6599 |                  0 |                  nan |                 nan | San Francisco |
+|      6600 |                  0 |                  nan |                 nan | San Francisco |
 </feed-sample>
 
 ### stop_times.txt (feed.stop_times)
 <feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>trip_id</th>
-      <th>arrival_time</th>
-      <th>departure_time</th>
-      <th>stop_id</th>
-      <th>stop_sequence</th>
-      <th>stop_headsign</th>
-      <th>pickup_type</th>
-      <th>drop_off_type</th>
-      <th>timepoint</th>
-      <th>shape_dist_traveled</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>[@12.0.42224456@][3][1246897112109]/0__SV4_NOSCH_UIF</td>
-      <td>69960.0</td>
-      <td>69960.0</td>
-      <td>PAR:2</td>
-      <td>0</td>
-      <td>NaN</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0.000000</td>
-    </tr>
-    <tr>
-      <td>[@12.0.42224456@][3][1246897112109]/0__SV4_NOSCH_UIF</td>
-      <td>70020.0</td>
-      <td>70020.0</td>
-      <td>PAMD:2</td>
-      <td>1</td>
-      <td>NaN</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>332.110320</td>
-    </tr>
-    <tr>
-      <td>[@12.0.42224456@][3][1246897112109]/0__SV4_NOSCH_UIF</td>
-      <td>70065.0</td>
-      <td>70065.0</td>
-      <td>PSL:2</td>
-      <td>2</td>
-      <td>NaN</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>651.918921</td>
-    </tr>
-  </tbody>
-</table>
+|   trip_id |   arrival_time |   departure_time |   stop_id |   stop_sequence |   stop_headsign |   shape_dist_traveled |   timepoint |
+|----------:|---------------:|-----------------:|----------:|----------------:|----------------:|----------------------:|------------:|
+|  11593899 |          16320 |            16320 |      3892 |               1 |             nan |              0        |           1 |
+|  11593899 |          16361 |            16361 |      3875 |               2 |             nan |              0.172503 |           0 |
+|  11593899 |          16408 |            16408 |      3896 |               3 |             nan |              0.370289 |           0 |
 </feed-sample>
 
 ### stops.txt (feed.stops)
 <feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>stop_id</th>
-      <th>stop_code</th>
-      <th>stop_name</th>
-      <th>stop_desc</th>
-      <th>stop_lat</th>
-      <th>stop_lon</th>
-      <th>zone_id</th>
-      <th>stop_url</th>
-      <th>location_type</th>
-      <th>parent_station</th>
-      <th>stop_timezone</th>
-      <th>wheelchair_boarding</th>
-      <th>platform_code</th>
-      <th>geometry</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>150DALE:1</td>
-      <td>5437</td>
-      <td>U.S. 150 &amp; Dale (NE Corner)</td>
-      <td>NaN</td>
-      <td>40.114512</td>
-      <td>-88.180673</td>
-      <td>f</td>
-      <td>https://mtd.org/maps-and-schedules/bus-stops/info/150dale-1/</td>
-      <td>0</td>
-      <td>NaN</td>
-      <td>America/Chicago</td>
-      <td>0</td>
-      <td>NaN</td>
-      <td>POINT (-88.18067333 40.11451167)</td>
-    </tr>
-    <tr>
-      <td>150DALE:3</td>
-      <td>5437</td>
-      <td>U.S. 150 &amp; Dale (South Side)</td>
-      <td>NaN</td>
-      <td>40.114503</td>
-      <td>-88.180848</td>
-      <td>f</td>
-      <td>https://mtd.org/maps-and-schedules/bus-stops/info/150dale-3/</td>
-      <td>0</td>
-      <td>NaN</td>
-      <td>America/Chicago</td>
-      <td>0</td>
-      <td>NaN</td>
-      <td>POINT (-88.18084833 40.11450333)</td>
-    </tr>
-    <tr>
-      <td>150DOD:5</td>
-      <td>2634</td>
-      <td>U.S. 150 &amp; Dodson (NE Far Side)</td>
-      <td>NaN</td>
-      <td>40.114158</td>
-      <td>-88.173105</td>
-      <td>f</td>
-      <td>https://mtd.org/maps-and-schedules/bus-stops/info/150dod-5/</td>
-      <td>0</td>
-      <td>NaN</td>
-      <td>America/Chicago</td>
-      <td>0</td>
-      <td>NaN</td>
-      <td>POINT (-88.173105 40.11415833)</td>
-    </tr>
-  </tbody>
-</table>
+|   stop_id |   stop_code | stop_name                |   stop_lat |   stop_lon |   wheelchair_boarding | platform_code   | stop_url                    |
+|----------:|------------:|:-------------------------|-----------:|-----------:|----------------------:|:----------------|:----------------------------|
+|      4200 |       14200 | Crescent Ave & Porter St |    37.7349 |   -122.418 |                     0 |                 | https://www.sfmta.com/14200 |
+|      4201 |       14201 | Crescent Ave & Putnam St |    37.735  |   -122.411 |                     0 |                 | https://www.sfmta.com/14201 |
+|      4202 |       14202 | Crescent Ave & Putnam St |    37.7349 |   -122.411 |                     0 |                 | https://www.sfmta.com/14202 |
 </feed-sample>
 
 ### trips.txt (feed.trips)
 <feed-sample>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th>route_id</th>
-      <th>service_id</th>
-      <th>trip_id</th>
-      <th>trip_headsign</th>
-      <th>direction_id</th>
-      <th>block_id</th>
-      <th>shape_id</th>
-      <th>wheelchair_accessible</th>
-      <th>bikes_allowed</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>GREENHOPPER</td>
-      <td>GN8_MF</td>
-      <td>[@7.0.41101146@][4][1237930167062]/24__GN8_MF</td>
-      <td>Parkland College</td>
-      <td>1</td>
-      <td>GN8_MF</td>
-      <td>5W_HOPPER_81</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>SILVER_LIMITED_SUNDAY</td>
-      <td>SV1_NONUI_SU</td>
-      <td>[@124.0.92241454@][1484326515007]/37__SV1_NONUI_SU</td>
-      <td>Lincoln Square</td>
-      <td>0</td>
-      <td>SV1_NONUI_SU</td>
-      <td>[@124.0.92241454@]4</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <td>ORANGE</td>
-      <td>O4_RUBY_MF_(V001)</td>
-      <td>[@6.0.54216924@][1723045917795]/107__O4_RUBY_MF_(V001)</td>
-      <td>Butzow &amp; Lierman</td>
-      <td>0</td>
-      <td>O4_RUBY_MF_(V001)</td>
-      <td>[@6.0.54216924@]7</td>
-      <td>0</td>
-      <td>0</td>
-    </tr>
-  </tbody>
-</table>
+|   route_id |   service_id |   trip_id | trip_headsign       |   direction_id |   block_id |   shape_id |   wheelchair_accessible |   bikes_allowed |
+|-----------:|-------------:|----------:|:--------------------|---------------:|-----------:|-----------:|------------------------:|----------------:|
+|          1 |            1 |  11593899 | Geary + 33rd Avenue |              0 |        102 |        103 |                     nan |             nan |
+|          1 |            1 |  11593900 | Geary + 33rd Avenue |              0 |        103 |        103 |                     nan |             nan |
+|          1 |            1 |  11593901 | Geary + 33rd Avenue |              0 |        105 |        103 |                     nan |             nan |
 </feed-sample>
 
 

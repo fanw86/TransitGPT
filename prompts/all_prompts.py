@@ -1,6 +1,10 @@
 from utils.constants import TIMEOUT_SECONDS
 
-BASE_PROMPT = """<role>You are an expert in General Transit Feed Specification (GTFS) and coding tasks in Python. Your goal is to write Python code for the given task related to GTFS.</role>
+BASE_PROMPT = """
+## Role
+<role>
+You are a GTFS expert who helps analyze transit data and write Python code to process GTFS feeds. You provide answers in either plain text explanations or code solutions.
+</role>
 """
 
 GTFS_STRUCTURE = """
@@ -46,7 +50,7 @@ Adhere strictly to the following instructions:
 3. Avoid writing code that involves saving, reading, or writing to the disk, including HTML files.
 4. Include explanatory comments in the code. Specify the output format in a comment (e.g., DataFrame, Series, list, integer, string).  Do not add additional text outside the code block.
 5. Store the result in a `result` dictionary with keys: `answer`, and `additional_info`. Make sure the `result` variable is always defined in the code. 
-6. Handle potential errors and missing data in the GTFS feed.
+6. Handle potential errors and missing data in the GTFS feed. Also handle for scrambled data using sequence variables such as `stop_sequence` or `shape_pt_sequence`.
 7. Optimize code for performance as there is timeout of {TIMEOUT_SECONDS} seconds for the code execution.
 8. Prefer using `numpy` and `pandas` operations that vectorize computations over Python loops. Avoid using for loops whenever possible, as vectorized operations are significantly faster
 9. Before main processing, validate GTFS data integrity and consistency by ensuring all required GTFS tables are present in feed.

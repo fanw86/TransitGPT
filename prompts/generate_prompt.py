@@ -91,7 +91,7 @@ def generate_fileinfo_dtypes(feed: GTFSLoader, file_list, distance_unit: str):
         try:
             file = file_name.split(".txt")[0]
             df = getattr(feed, file)
-            df_string = df.head(3).to_html(index=False)
+            df_string = df.head(3).to_markdown(index=False)
 
             FILE_INFO += f"### {file_name} (feed.{file})\n<feed-sample>\n"
             FILE_INFO += df_string + "\n</feed-sample>\n\n"

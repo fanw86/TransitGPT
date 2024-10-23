@@ -33,7 +33,7 @@ def process_user_input(user_input: str):
         st.session_state.chat_history.append(chat_entry.dict())
         result["agent"] = agent
         result["user_input"] = user_input
-        create_feedback_entry(**result)
+        create_feedback_entry(result)
 
 
 def process_cancellation():
