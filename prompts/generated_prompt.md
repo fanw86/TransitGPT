@@ -46,15 +46,8 @@ These are the datatypes for all files within the current GTFS:
 - `agency_timezone`: string
 - `agency_lang`: string
 - `agency_phone`: string
-
-</data-type>
-
-### areas.txt
-
-<data-type>
-
-- `area_id`: string
-- `area_name`: string
+- `agency_fare_url`: string
+- `agency_email`: string
 
 </data-type>
 
@@ -84,53 +77,28 @@ These are the datatypes for all files within the current GTFS:
 
 </data-type>
 
-### fare_leg_rules.txt
+### fare_attributes.txt
 
 <data-type>
 
-- `leg_group_id`: string
-- `network_id`: string
-- `from_area_id`: string
-- `to_area_id`: string
-- `fare_product_id`: string
-- `from_timeframe_group_id`: string
-- `to_timeframe_group_id`: string
+- `fare_id`: string
+- `price`: float
+- `currency_type`: string
+- `payment_method`: integer
+- `transfers`: integer
+- `transfer_duration`: integer
 
 </data-type>
 
-### fare_media.txt
+### fare_rules.txt
 
 <data-type>
 
-- `fare_media_id`: string
-- `fare_media_name`: string
-- `fare_media_type`: integer
-
-</data-type>
-
-### fare_products.txt
-
-<data-type>
-
-- `fare_product_id`: string
-- `fare_product_name`: string
-- `fare_media_id`: string
-- `amount`: float
-- `currency`: string
-
-</data-type>
-
-### fare_transfer_rules.txt
-
-<data-type>
-
-- `from_leg_group_id`: string
-- `to_leg_group_id`: string
-- `transfer_count`: integer
-- `duration_limit`: integer
-- `duration_limit_type`: string
-- `fare_transfer_type`: string
-- `fare_product_id`: string
+- `fare_id`: string
+- `route_id`: string
+- `origin_id`: string
+- `destination_id`: string
+- `contains_id`: string
 
 </data-type>
 
@@ -141,37 +109,12 @@ These are the datatypes for all files within the current GTFS:
 - `feed_publisher_name`: string
 - `feed_publisher_url`: string
 - `feed_lang`: string
+- `default_lang`: string
 - `feed_start_date`: date (datetime.date)
 - `feed_end_date`: date (datetime.date)
 - `feed_version`: string
 - `feed_contact_email`: string
-
-</data-type>
-
-### levels.txt
-
-<data-type>
-
-- `level_id`: string
-- `level_index`: float
-- `level_name`: string
-
-</data-type>
-
-### pathways.txt
-
-<data-type>
-
-- `pathway_id`: string
-- `from_stop_id`: string
-- `to_stop_id`: string
-- `pathway_mode`: integer
-- `is_bidirectional`: integer
-- `length`: float
-- `traversal_time`: integer
-- `stair_count`: integer
-- `max_slope`: float
-- `signposted_as`: string
+- `feed_contact_url`: string
 
 </data-type>
 
@@ -188,8 +131,6 @@ These are the datatypes for all files within the current GTFS:
 - `route_url`: string
 - `route_color`: string
 - `route_text_color`: string
-- `route_sort_order`: integer
-- `network_id`: string
 
 </data-type>
 
@@ -202,15 +143,6 @@ These are the datatypes for all files within the current GTFS:
 - `shape_pt_lon`: float
 - `shape_pt_sequence`: integer
 - `shape_dist_traveled`: float (`Meters`)
-
-</data-type>
-
-### stop_areas.txt
-
-<data-type>
-
-- `stop_id`: string
-- `area_id`: string
 
 </data-type>
 
@@ -227,8 +159,6 @@ These are the datatypes for all files within the current GTFS:
 - `pickup_type`: integer
 - `drop_off_type`: integer
 - `timepoint`: integer
-- `continuous_pickup`: integer
-- `continuous_drop_off`: integer
 - `shape_dist_traveled`: float (`Meters`)
 
 </data-type>
@@ -241,37 +171,15 @@ These are the datatypes for all files within the current GTFS:
 - `stop_code`: string
 - `stop_name`: string
 - `stop_desc`: string
-- `platform_code`: string
 - `stop_lat`: float
 - `stop_lon`: float
 - `zone_id`: string
 - `stop_url`: string
-- `level_id`: string
 - `location_type`: integer
 - `parent_station`: string
+- `stop_timezone`: string
 - `wheelchair_boarding`: integer
-
-</data-type>
-
-### timeframes.txt
-
-<data-type>
-
-- `timeframe_group_id`: string
-- `start_time`: time (seconds since midnight)
-- `end_time`: time (seconds since midnight)
-- `service_id`: string
-
-</data-type>
-
-### transfers.txt
-
-<data-type>
-
-- `from_stop_id`: string
-- `to_stop_id`: string
-- `transfer_type`: integer
-- `min_transfer_time`: integer
+- `platform_code`: string
 
 </data-type>
 
@@ -283,7 +191,6 @@ These are the datatypes for all files within the current GTFS:
 - `service_id`: string
 - `trip_id`: string
 - `trip_headsign`: string
-- `trip_short_name`: string
 - `direction_id`: integer
 - `block_id`: string
 - `shape_id`: string
@@ -299,275 +206,96 @@ These are the datatypes for all files within the current GTFS:
 
 ### agency.txt (feed.agency)
 <feed-sample>
-|   agency_id | agency_name                         | agency_url                 | agency_timezone   | agency_lang   | agency_phone   |
-|------------:|:------------------------------------|:---------------------------|:------------------|:--------------|:---------------|
-|           3 | Cape Cod Regional Transit Authority | http://www.capecodrta.org/ | America/New_York  | EN            | 800-352-7155   |
-|           1 | MBTA                                | http://www.mbta.com        | America/New_York  | EN            | 617-222-3200   |
-</feed-sample>
-
-### areas.txt (feed.areas)
-<feed-sample>
-| area_id               | area_name                               |
-|:----------------------|:----------------------------------------|
-| area_bl               | Blue Line                               |
-| area_bl_airport       | Blue Line - Airport Station             |
-| area_cf_zone_buzzards | CapeFLYER - Wareham/Buzzards Bay/Bourne |
+| agency_id   | agency_name                            | agency_url           | agency_timezone   | agency_lang   | agency_phone   |   agency_fare_url | agency_email   |
+|:------------|:---------------------------------------|:---------------------|:------------------|:--------------|:---------------|------------------:|:---------------|
+| CUMTD       | Champaign Urbana Mass Transit District | https://www.mtd.org/ | America/Chicago   | en            | 217-384-8188   |               nan | mtdweb@mtd.org |
 </feed-sample>
 
 ### calendar.txt (feed.calendar)
 <feed-sample>
-| service_id                   |   monday |   tuesday |   wednesday |   thursday |   friday |   saturday |   sunday | start_date   | end_date   |
-|:-----------------------------|---------:|----------:|------------:|-----------:|---------:|-----------:|---------:|:-------------|:-----------|
-| BUS42024-hbg44rd1-Weekday-02 |        1 |         0 |           0 |          0 |        1 |          0 |        0 | 2024-08-30   | 2024-12-06 |
-| BUS42024-hbg44wk1-Weekday-02 |        0 |         1 |           1 |          1 |        0 |          0 |        0 | 2024-08-28   | 2024-12-12 |
-| BUS42024-hbs44sf1-Weekday-02 |        0 |         0 |           0 |          0 |        0 |          0 |        0 | 2024-11-29   | 2024-11-29 |
-</feed-sample>
-
-### calendar_attributes.txt (feed.calendar_attributes)
-<feed-sample>
-| service_id                   | service_description          | service_schedule_name   | service_schedule_type   |   service_schedule_typicality |   rating_start_date |   rating_end_date | rating_description   |
-|:-----------------------------|:-----------------------------|:------------------------|:------------------------|------------------------------:|--------------------:|------------------:|:---------------------|
-| BUS42024-hbg44rd1-Weekday-02 | Weekday schedule             | Weekday                 | Weekday                 |                             1 |            20240825 |               nan | Fall                 |
-| BUS42024-hbg44wk1-Weekday-02 | Weekday schedule             | Weekday                 | Weekday                 |                             1 |            20240825 |               nan | Fall                 |
-| BUS42024-hbs44sf1-Weekday-02 | Weekday schedule (no school) | Weekday (no school)     | Weekday                 |                             1 |            20240825 |               nan | Fall                 |
+| service_id   |   monday |   tuesday |   wednesday |   thursday |   friday |   saturday |   sunday | start_date   | end_date   |
+|:-------------|---------:|----------:|------------:|-----------:|---------:|-----------:|---------:|:-------------|:-----------|
+| L1_SU        |        0 |         0 |           0 |          0 |        0 |          0 |        1 | 2024-08-11   | 2024-12-21 |
+| B3_NOSCH_MF  |        1 |         1 |           1 |          1 |        1 |          0 |        0 | 2024-08-11   | 2024-12-21 |
+| GR4_SU       |        0 |         0 |           0 |          0 |        0 |          0 |        1 | 2024-08-11   | 2024-12-21 |
 </feed-sample>
 
 ### calendar_dates.txt (feed.calendar_dates)
 <feed-sample>
-| service_id                    | date       |   exception_type |   holiday_name |
-|:------------------------------|:-----------|-----------------:|---------------:|
-| RTL42024-hms44016-Saturday-01 | 2024-08-31 |                1 |            nan |
-| Spring/SummerSaturday         | 2024-08-31 |                1 |            nan |
-| RTL42024-hms44017-Sunday-01   | 2024-09-01 |                1 |            nan |
+| service_id   | date       |   exception_type |
+|:-------------|:-----------|-----------------:|
+| L1_SU        | 2024-08-11 |                1 |
+| L1_SU        | 2024-08-18 |                1 |
+| L1_SU        | 2024-08-25 |                1 |
 </feed-sample>
 
-### checkpoints.txt (feed.checkpoints)
+### fare_attributes.txt (feed.fare_attributes)
 <feed-sample>
-| checkpoint_id   | checkpoint_name                             |
-|:----------------|:--------------------------------------------|
-| 1010m           | 1010 Massachusetts Avenue @ Magazine Street |
-| 400cp           | 400 West Cummings Park                      |
-| abase           | Air Base                                    |
+| fare_id   |   price | currency_type   |   payment_method |   transfers |   transfer_duration |
+|:----------|--------:|:----------------|-----------------:|------------:|--------------------:|
+| FULL      |       1 | USD             |                0 |           1 |                   0 |
+| ISTOP     |       0 | USD             |                1 |           0 |                   0 |
 </feed-sample>
 
-### directions.txt (feed.directions)
+### fare_rules.txt (feed.fare_rules)
 <feed-sample>
-|   route_id |   direction_id | direction   | direction_destination   |
-|-----------:|---------------:|:------------|:------------------------|
-|          1 |              0 | Outbound    | Harvard Square          |
-|          1 |              1 | Inbound     | Nubian Station          |
-|         10 |              0 | Outbound    | City Point              |
-</feed-sample>
-
-### facilities.txt (feed.facilities)
-<feed-sample>
-|   facility_id |   facility_code |   facility_class | facility_type   | stop_id     | facility_short_name                | facility_long_name                                           |   facility_desc |   facility_lat |   facility_lon |   wheelchair_facility |
-|--------------:|----------------:|-----------------:|:----------------|:------------|:-----------------------------------|:-------------------------------------------------------------|----------------:|---------------:|---------------:|----------------------:|
-|           102 |             102 |                1 | escalator       | place-ogmnl | Washington Street to unpaid lobby  | Oak Grove Escalator 102 (Washington Street to unpaid lobby)  |             nan |            nan |            nan |                     2 |
-|           103 |             103 |                1 | escalator       | place-ogmnl | Orange Line platform to paid lobby | Oak Grove Escalator 103 (Orange Line platform to paid lobby) |             nan |            nan |            nan |                     2 |
-|           104 |             104 |                1 | escalator       | place-ogmnl | Parking, busway to unpaid lobby    | Oak Grove Escalator 104 (Parking, busway to unpaid lobby)    |             nan |            nan |            nan |                     2 |
-</feed-sample>
-
-### facilities_properties.txt (feed.facilities_properties)
-<feed-sample>
-|   facility_id | property_id   | value            |
-|--------------:|:--------------|:-----------------|
-|           102 | direction     | up               |
-|           102 | excludes-stop | 9328             |
-|           102 | excludes-stop | door-ogmnl-banks |
-</feed-sample>
-
-### facilities_properties_definitions.txt (feed.facilities_properties_definitions)
-<feed-sample>
-| property_id            | definition                                                                                           | possible_values                                  |
-|:-----------------------|:-----------------------------------------------------------------------------------------------------|:-------------------------------------------------|
-| address                | Facility address                                                                                     | Text                                             |
-| alternate-service-text | Intended for internal use only; gives information on alternate service if facility is out of service | Text                                             |
-| attended               | Indicates that the facility is regularly staffed                                                     | 1 for true, 2 for false, or 0 for no information |
-</feed-sample>
-
-### fare_leg_rules.txt (feed.fare_leg_rules)
-<feed-sample>
-| leg_group_id                           | network_id    | from_area_id          | to_area_id            | fare_product_id                 | from_timeframe_group_id   |   to_timeframe_group_id |   transfer_only |
-|:---------------------------------------|:--------------|:----------------------|:----------------------|:--------------------------------|:--------------------------|------------------------:|----------------:|
-| leg_airport_rapid_transit_quick_subway | rapid_transit | area_bl_airport       | nan                   | prod_rapid_transit_quick_subway | timeframe_regular         |                     nan |             nan |
-| leg_cape_buzzards_hyannis_cash         | cape_flyer    | area_cf_zone_buzzards | area_cf_zone_hyannis  | prod_cape_buzzards_hyannis_fare | nan                       |                     nan |             nan |
-| leg_cape_buzzards_hyannis_cash         | cape_flyer    | area_cf_zone_hyannis  | area_cf_zone_buzzards | prod_cape_buzzards_hyannis_fare | nan                       |                     nan |             nan |
-</feed-sample>
-
-### fare_media.txt (feed.fare_media)
-<feed-sample>
-| fare_media_id   | fare_media_name   |   fare_media_type |
-|:----------------|:------------------|------------------:|
-| cash            | Cash              |                 0 |
-| credit_debit    | Credit/debit card |                 0 |
-| charlieticket   | CharlieTicket     |                 1 |
-</feed-sample>
-
-### fare_products.txt (feed.fare_products)
-<feed-sample>
-| fare_product_id   | fare_product_name         | fare_media_id   |   amount | currency   |
-|:------------------|:--------------------------|:----------------|---------:|:-----------|
-| prod_boat_zone_1  | Ferry Zone 1 one-way fare | cash            |      6.5 | USD        |
-| prod_boat_zone_1  | Ferry Zone 1 one-way fare | credit_debit    |      6.5 | USD        |
-| prod_boat_zone_1  | Ferry Zone 1 one-way fare | mticket         |      6.5 | USD        |
-</feed-sample>
-
-### fare_transfer_rules.txt (feed.fare_transfer_rules)
-<feed-sample>
-| from_leg_group_id                       | to_leg_group_id                |   transfer_count |   duration_limit |   duration_limit_type |   fare_transfer_type |   fare_product_id | filter_fare_product_id          |   fare_media_behavior |   fare_product_behavior |
-|:----------------------------------------|:-------------------------------|-----------------:|-----------------:|----------------------:|---------------------:|------------------:|:--------------------------------|----------------------:|------------------------:|
-| leg_airport_rapid_transit_quick_subway  | leg_local_bus_quick_subway     |              nan |             7200 |                     1 |                    0 |               nan | prod_rapid_transit_quick_subway |                     0 |                       1 |
-| leg_airport_rapid_transit_quick_subway  | leg_rapid_transit_quick_subway |              nan |              nan |                   nan |                    0 |               nan | prod_rapid_transit_quick_subway |                     0 |                       1 |
-| leg_mattapan_rapid_transit_quick_subway | leg_local_bus_quick_subway     |              nan |             7200 |                     1 |                    0 |               nan | prod_rapid_transit_quick_subway |                     0 |                       1 |
+| fare_id   | route_id     | origin_id   |   destination_id |   contains_id |
+|:----------|:-------------|:------------|-----------------:|--------------:|
+| FULL      | nan          | f           |              nan |           nan |
+| FULL      | 1_YELLOW_ALT | i           |              nan |           nan |
+| FULL      | 10W_GOLD_ALT | i           |              nan |           nan |
 </feed-sample>
 
 ### feed_info.txt (feed.feed_info)
 <feed-sample>
-| feed_publisher_name   | feed_publisher_url   | feed_lang   | feed_start_date   | feed_end_date   | feed_version                                    | feed_contact_email   | feed_id    |
-|:----------------------|:---------------------|:------------|:------------------|:----------------|:------------------------------------------------|:---------------------|:-----------|
-| MBTA                  | http://www.mbta.com  | EN          | 2024-08-28        | 2024-12-14      | Fall 2024, 2024-09-04T19:08:53+00:00, version D | developer@mbta.com   | mbta-ma-us |
-</feed-sample>
-
-### levels.txt (feed.levels)
-<feed-sample>
-| level_id                     |   level_index | level_name                 |   level_elevation |
-|:-----------------------------|--------------:|:---------------------------|------------------:|
-| level_-4_alewife_platform    |            -4 | Alewife platform           |               nan |
-| level_-3_red_platform        |            -3 | Red Line platforms         |               nan |
-| level_-3_southbound_platform |            -3 | Ashmont/Braintree platform |               nan |
-</feed-sample>
-
-### lines.txt (feed.lines)
-<feed-sample>
-| line_id       |   line_short_name | line_long_name   |   line_desc |   line_url | line_color   | line_text_color   |   line_sort_order |
-|:--------------|------------------:|:-----------------|------------:|-----------:|:-------------|:------------------|------------------:|
-| line-Red      |               nan | Red Line         |         nan |        nan | DA291C       | FFFFFF            |             10010 |
-| line-Mattapan |               nan | Mattapan Trolley |         nan |        nan | DA291C       | FFFFFF            |             10011 |
-| line-Orange   |               nan | Orange Line      |         nan |        nan | ED8B00       | FFFFFF            |             10020 |
-</feed-sample>
-
-### linked_datasets.txt (feed.linked_datasets)
-<feed-sample>
-| url                                               |   trip_updates |   vehicle_positions |   service_alerts |   authentication_type |
-|:--------------------------------------------------|---------------:|--------------------:|-----------------:|----------------------:|
-| https://cdn.mbta.com/realtime/TripUpdates.pb      |              1 |                   0 |                0 |                     0 |
-| https://cdn.mbta.com/realtime/VehiclePositions.pb |              0 |                   1 |                0 |                     0 |
-| https://cdn.mbta.com/realtime/Alerts.pb           |              0 |                   0 |                1 |                     0 |
-</feed-sample>
-
-### multi_route_trips.txt (feed.multi_route_trips)
-<feed-sample>
-|   added_route_id |   trip_id |
-|-----------------:|----------:|
-|               32 |  65049981 |
-|               33 |  65049981 |
-|               32 |  65050111 |
-</feed-sample>
-
-### pathways.txt (feed.pathways)
-<feed-sample>
-| pathway_id   | from_stop_id                       | to_stop_id                         |   facility_id |   pathway_mode |   is_bidirectional |   length |   wheelchair_length |   traversal_time |   wheelchair_traversal_time |   stair_count |   max_slope | pathway_name                                                            |   pathway_code | signposted_as                        |   instructions |
-|:-------------|:-----------------------------------|:-----------------------------------|--------------:|---------------:|-------------------:|---------:|--------------------:|-----------------:|----------------------------:|--------------:|------------:|:------------------------------------------------------------------------|---------------:|:-------------------------------------|---------------:|
-| WML-0081-000 | door-WML-0081-harvard              | node-WML-0081-harvardstairs-bottom |           nan |              2 |                  0 |  nan     |             nan     |              nan |                         nan |           -34 |         nan | Newtonville - Harvard St to Bottom of stairs for Harvard St             |            nan | nan                                  |            nan |
-| WML-0081-001 | node-WML-0081-harvardstairs-bottom | door-WML-0081-harvard              |           nan |              2 |                  0 |  nan     |             nan     |              nan |                         nan |            34 |         nan | Bottom of stairs for Harvard St to Newtonville - Harvard St             |            nan | Newtonville - Harvard St             |            nan |
-| WML-0081-002 | node-WML-0081-harvardstairs-bottom | WML-0081-02                        |           nan |              1 |                  0 |  262.738 |             262.738 |              nan |                         nan |           nan |         nan | Bottom of stairs for Harvard St to Commuter Rail (Track 2 (All Trains)) |            nan | Commuter Rail - Track 2 (All Trains) |            nan |
-</feed-sample>
-
-### route_patterns.txt (feed.route_patterns)
-<feed-sample>
-| route_pattern_id   | route_id   |   direction_id | route_pattern_name   |   route_pattern_time_desc |   route_pattern_typicality |   route_pattern_sort_order | representative_trip_id   |   canonical_route_pattern |
-|:-------------------|:-----------|---------------:|:---------------------|--------------------------:|---------------------------:|---------------------------:|:-------------------------|--------------------------:|
-| Red-3-0            | Red        |              0 | Alewife - Braintree  |                       nan |                          1 |                  100100040 | canonical-Red-C1-0       |                         1 |
-| Red-1-0            | Red        |              0 | Alewife - Ashmont    |                       nan |                          1 |                  100100041 | canonical-Red-C2-0       |                         1 |
-| Red-3-1            | Red        |              1 | Braintree - Alewife  |                       nan |                          1 |                  100101040 | canonical-Red-C1-1       |                         1 |
+| feed_publisher_name                    | feed_publisher_url   | feed_lang   | default_lang   | feed_start_date   | feed_end_date   | feed_version                                                       | feed_contact_email   | feed_contact_url                |
+|:---------------------------------------|:---------------------|:------------|:---------------|:------------------|:----------------|:-------------------------------------------------------------------|:---------------------|:--------------------------------|
+| Champaign-Urbana Mass Transit District | https://mtd.org/     | en          | en             | 2024-08-11        | 2024-12-21      | GTFS Feed 11/08/2024 – 21/12/2024 (Generated: 10/08/2024 11:21:45) | mtdweb@mtd.org       | https://mtd.org/inside/contact/ |
 </feed-sample>
 
 ### routes.txt (feed.routes)
 <feed-sample>
-| route_id   |   agency_id | route_short_name   | route_long_name   | route_desc    |   route_type | route_url                               | route_color   | route_text_color   |   route_sort_order | route_fare_class   | line_id       |   listed_route | network_id      |
-|:-----------|------------:|:-------------------|:------------------|:--------------|-------------:|:----------------------------------------|:--------------|:-------------------|-------------------:|:-------------------|:--------------|---------------:|:----------------|
-| Red        |           1 | n/a-Red            | Red Line          | Rapid Transit |            1 | https://www.mbta.com/schedules/Red      | DA291C        | FFFFFF             |              10010 | Rapid Transit      | line-Red      |            nan | rapid_transit   |
-| Mattapan   |           1 | n/a-Mattapan       | Mattapan Trolley  | Rapid Transit |            0 | https://www.mbta.com/schedules/Mattapan | DA291C        | FFFFFF             |              10011 | Rapid Transit      | line-Mattapan |            nan | m_rapid_transit |
-| Orange     |           1 | n/a-Orange         | Orange Line       | Rapid Transit |            1 | https://www.mbta.com/schedules/Orange   | ED8B00        | FFFFFF             |              10020 | Rapid Transit      | line-Orange   |            nan | rapid_transit   |
+| route_id                | agency_id   | route_short_name            | route_long_name         |   route_desc |   route_type | route_url                                                                        | route_color   | route_text_color   |
+|:------------------------|:------------|:----------------------------|:------------------------|-------------:|-------------:|:---------------------------------------------------------------------------------|:--------------|:-------------------|
+| TEAL_SUNDAY             | CUMTD       | 120-TEAL_SUNDAY             | Teal Sunday             |          nan |            3 | https://mtd.org/maps-and-schedules/to-schedule/561875bc4cd84124b67031474c033949/ | 006991        | ffffff             |
+| RUBY_SUNDAY             | CUMTD       | 110-RUBY_SUNDAY             | Ruby Sunday             |          nan |            3 | https://mtd.org/maps-and-schedules/to-schedule/178f799322dd4b9982ec00cfb5a33fa0/ | eb008b        | 000000             |
+| ILLINI_LIMITED_SATURDAY | CUMTD       | 220-ILLINI_LIMITED_SATURDAY | Illini Limited Saturday |          nan |            3 | https://mtd.org/maps-and-schedules/to-schedule/d5a1a2df7dce48e1b9d525f831e4d213/ | 5a1d5a        | ffffff             |
 </feed-sample>
 
 ### shapes.txt (feed.shapes)
 <feed-sample>
-|   shape_id |   shape_pt_lat |   shape_pt_lon |   shape_pt_sequence |   shape_dist_traveled |
-|-----------:|---------------:|---------------:|--------------------:|----------------------:|
-|     010128 |        42.3298 |       -71.0839 |               10001 |                0      |
-|     010128 |        42.3298 |       -71.0833 |               10002 |               50.5536 |
-|     010128 |        42.3301 |       -71.0832 |               10003 |               84.4827 |
-</feed-sample>
-
-### stop_areas.txt (feed.stop_areas)
-<feed-sample>
-|   stop_id | area_id                         |
-|----------:|:--------------------------------|
-|       117 | area_route_426_downtown         |
-|       117 | area_route_450_downtown         |
-|     14460 | area_route_450_outside_downtown |
+| shape_id             |   shape_pt_lat |   shape_pt_lon |   shape_pt_sequence |   shape_dist_traveled |
+|:---------------------|---------------:|---------------:|--------------------:|----------------------:|
+| [@124.0.102302343@]1 |        40.1159 |       -88.2409 |                   1 |                0      |
+| [@124.0.102302343@]1 |        40.1159 |       -88.2409 |                   2 |                5.0591 |
+| [@124.0.102302343@]1 |        40.1155 |       -88.2411 |                   3 |               52.9012 |
 </feed-sample>
 
 ### stop_times.txt (feed.stop_times)
 <feed-sample>
-|   trip_id |   arrival_time |   departure_time |   stop_id |   stop_sequence |   stop_headsign |   pickup_type |   drop_off_type |   timepoint | checkpoint_id   |   continuous_pickup |   continuous_drop_off |   shape_dist_traveled |
-|----------:|---------------:|-----------------:|----------:|----------------:|----------------:|--------------:|----------------:|------------:|:----------------|--------------------:|----------------------:|----------------------:|
-|  63646280 |          21600 |            21600 |     70094 |              50 |             nan |             0 |               1 |           0 | asmnl           |                 nan |                   nan |                  0    |
-|  63646280 |          21660 |            21660 |     70092 |              60 |             nan |             0 |               0 |           0 | smmnl           |                 nan |                   nan |               1006.42 |
-|  63646280 |          21780 |            21780 |     70090 |              70 |             nan |             0 |               0 |           0 | fldcr           |                 nan |                   nan |               1990.66 |
+| trip_id                                              |   arrival_time |   departure_time | stop_id   |   stop_sequence |   stop_headsign |   pickup_type |   drop_off_type |   timepoint |   shape_dist_traveled |
+|:-----------------------------------------------------|---------------:|-----------------:|:----------|----------------:|----------------:|--------------:|----------------:|------------:|----------------------:|
+| [@12.0.42224456@][3][1246897112109]/0__SV4_NOSCH_UIF |          69960 |            69960 | PAR:2     |               0 |             nan |             0 |               0 |           0 |                 0     |
+| [@12.0.42224456@][3][1246897112109]/0__SV4_NOSCH_UIF |          70020 |            70020 | PAMD:2    |               1 |             nan |             0 |               0 |           0 |               332.11  |
+| [@12.0.42224456@][3][1246897112109]/0__SV4_NOSCH_UIF |          70065 |            70065 | PSL:2     |               2 |             nan |             0 |               0 |           0 |               651.919 |
 </feed-sample>
 
 ### stops.txt (feed.stops)
 <feed-sample>
-|   stop_id |   stop_code | stop_name                     |   stop_desc |   platform_code |   platform_name |   stop_lat |   stop_lon | zone_id             |   stop_address | stop_url                         |   level_id |   location_type |   parent_station |   wheelchair_boarding | municipality   | on_street          | at_street        |   vehicle_type | geometry                     |
-|----------:|------------:|:------------------------------|------------:|----------------:|----------------:|-----------:|-----------:|:--------------------|---------------:|:---------------------------------|-----------:|----------------:|-----------------:|----------------------:|:---------------|:-------------------|:-----------------|---------------:|:-----------------------------|
-|         1 |           1 | Washington St opp Ruggles St  |         nan |             nan |             nan |    42.331  |   -71.0828 | ExpressBus-Downtown |            nan | https://www.mbta.com/stops/1     |        nan |               0 |              nan |                     1 | Boston         | Washington Street  | Ruggles Street   |              3 | POINT (-71.082754 42.330957) |
-|        10 |          10 | Theo Glynn Way @ Newmarket Sq |         nan |             nan |             nan |    42.3306 |   -71.0688 | LocalBus            |            nan | https://www.mbta.com/stops/10    |        nan |               0 |              nan |                     1 | Boston         | Theodore Glynn Way | Newmarket Square |              3 | POINT (-71.068787 42.330555) |
-|     10000 |       10000 | Tremont St opp Temple Pl      |         nan |             nan |             nan |    42.3557 |   -71.0629 | LocalBus            |            nan | https://www.mbta.com/stops/10000 |        nan |               0 |              nan |                     1 | Boston         | Tremont Street     | Temple Place     |              3 | POINT (-71.062911 42.355692) |
-</feed-sample>
-
-### timeframes.txt (feed.timeframes)
-<feed-sample>
-| timeframe_group_id   |   start_time |   end_time | service_id   |
-|:---------------------|-------------:|-----------:|:-------------|
-| timeframe_regular    |          nan |        nan | fare_regular |
-</feed-sample>
-
-### transfers.txt (feed.transfers)
-<feed-sample>
-|   from_stop_id |   to_stop_id |   transfer_type |   min_transfer_time |   min_walk_time |   min_wheelchair_time |   suggested_buffer_time |   wheelchair_transfer |   from_trip_id |   to_trip_id |
-|---------------:|-------------:|----------------:|--------------------:|----------------:|----------------------:|------------------------:|----------------------:|---------------:|-------------:|
-|          70020 |        70021 |               1 |                 nan |             nan |                   nan |                     nan |                   nan |       64072650 |     64072611 |
-|          70020 |        70021 |               1 |                 nan |             nan |                   nan |                     nan |                   nan |       64072650 |     64166292 |
-|          70020 |        70021 |               1 |                 nan |             nan |                   nan |                     nan |                   nan |       64072650 |     64166660 |
+| stop_id   |   stop_code | stop_name                       |   stop_desc |   stop_lat |   stop_lon | zone_id   | stop_url                                                     |   location_type |   parent_station | stop_timezone   |   wheelchair_boarding |   platform_code | geometry                         |
+|:----------|------------:|:--------------------------------|------------:|-----------:|-----------:|:----------|:-------------------------------------------------------------|----------------:|-----------------:|:----------------|----------------------:|----------------:|:---------------------------------|
+| 150DALE:1 |        5437 | U.S. 150 & Dale (NE Corner)     |         nan |    40.1145 |   -88.1807 | f         | https://mtd.org/maps-and-schedules/bus-stops/info/150dale-1/ |               0 |              nan | America/Chicago |                     0 |             nan | POINT (-88.18067333 40.11451167) |
+| 150DALE:3 |        5437 | U.S. 150 & Dale (South Side)    |         nan |    40.1145 |   -88.1808 | f         | https://mtd.org/maps-and-schedules/bus-stops/info/150dale-3/ |               0 |              nan | America/Chicago |                     0 |             nan | POINT (-88.18084833 40.11450333) |
+| 150DOD:5  |        2634 | U.S. 150 & Dodson (NE Far Side) |         nan |    40.1142 |   -88.1731 | f         | https://mtd.org/maps-and-schedules/bus-stops/info/150dod-5/  |               0 |              nan | America/Chicago |                     0 |             nan | POINT (-88.173105 40.11415833)   |
 </feed-sample>
 
 ### trips.txt (feed.trips)
 <feed-sample>
-|   route_id | service_id   |   trip_id | trip_headsign   |   trip_short_name |   direction_id | block_id   |   shape_id |   wheelchair_accessible |   trip_route_type | route_pattern_id   |   bikes_allowed |
-|-----------:|:-------------|----------:|:----------------|------------------:|---------------:|:-----------|-----------:|------------------------:|------------------:|:-------------------|----------------:|
-|          1 | FallSaturday |  64387615 | Harvard         |               nan |              0 | C01-5      |     010128 |                       1 |               nan | 1-_-0              |               1 |
-|          1 | FallSaturday |  64387617 | Harvard         |               nan |              0 | C01-9      |     010128 |                       1 |               nan | 1-_-0              |               1 |
-|          1 | FallSaturday |  64387618 | Harvard         |               nan |              0 | C01-1      |     010128 |                       1 |               nan | 1-_-0              |               1 |
-</feed-sample>
-
-### trips_properties.txt (feed.trips_properties)
-<feed-sample>
-|   trip_id | trip_property_id   | value                                           |
-|----------:|:-------------------|:------------------------------------------------|
-|  63646322 | note               | Waits at some downtown stations for connections |
-|  63646322 | trip_type          | wait                                            |
-|  63646424 | note               | Waits at some downtown stations for connections |
-</feed-sample>
-
-### trips_properties_definitions.txt (feed.trips_properties_definitions)
-<feed-sample>
-| trip_property_id   | definition                   | possible_values                                                                                                                                                   |
-|:-------------------|:-----------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| note               | Extra details about the trip | Text                                                                                                                                                              |
-| trip_type          | Type of trip                 | 'supplemental' for irregular trips that only run on certain days, such as school days; 'wait' for trips that hold at one or more stops for a scheduled connection |
+| route_id              | service_id        | trip_id                                                | trip_headsign    |   direction_id | block_id          | shape_id            |   wheelchair_accessible |   bikes_allowed |
+|:----------------------|:------------------|:-------------------------------------------------------|:-----------------|---------------:|:------------------|:--------------------|------------------------:|----------------:|
+| GREENHOPPER           | GN8_MF            | [@7.0.41101146@][4][1237930167062]/24__GN8_MF          | Parkland College |              1 | GN8_MF            | 5W_HOPPER_81        |                       0 |               0 |
+| SILVER_LIMITED_SUNDAY | SV1_NONUI_SU      | [@124.0.92241454@][1484326515007]/37__SV1_NONUI_SU     | Lincoln Square   |              0 | SV1_NONUI_SU      | [@124.0.92241454@]4 |                       0 |               0 |
+| ORANGE                | O4_RUBY_MF_(V001) | [@6.0.54216924@][1723045917795]/107__O4_RUBY_MF_(V001) | Butzow & Lierman |              0 | O4_RUBY_MF_(V001) | [@6.0.54216924@]7   |                       0 |               0 |
 </feed-sample>
 
 
