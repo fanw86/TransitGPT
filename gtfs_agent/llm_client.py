@@ -26,13 +26,13 @@ class OpenAIClient(LLMClient):
     def set_logger(self, logger):
         self.logger = logger
 
-    def call(self, model, messages, system_prompt=None) -> Tuple[str, bool]:
+    def call(self, model, messages, system_prompt=None, temperature=MAIN_LLM_TEMPERATURE) -> Tuple[str, bool]:
         messages.insert(0, {"role": "system", "content": system_prompt})
         try:
             response = self.client.chat.completions.create(
                 model=model,
                 messages=messages,
-                temperature=MAIN_LLM_TEMPERATURE,
+                temperature=temperature,
             )
             self.logger.info(f"Raw Response from OpenAI: {response}")
             self.last_error = None
@@ -44,14 +44,14 @@ class OpenAIClient(LLMClient):
             return error_message, False
 
     def stream_call(
-        self, model, messages, system_prompt=None
+        self, model, messages, system_prompt=None, temperature=SUMMARY_LLM_TEMPERATURE
     ) -> Generator[str, None, None]:
         messages.insert(0, {"role": "system", "content": system_prompt})
         try:
             stream = self.client.chat.completions.create(
                 model=model,
                 messages=messages,
-                temperature=SUMMARY_LLM_TEMPERATURE,
+                temperature=temperature,
                 stream=True,
                 stream_options={"include_usage": True},
             )
@@ -77,13 +77,13 @@ class GroqClient(LLMClient):
     def set_logger(self, logger):
         self.logger = logger
 
-    def call(self, model, messages, system_prompt=None) -> Tuple[str, bool]:
+    def call(self, model, messages, system_prompt=None, temperature=MAIN_LLM_TEMPERATURE    ) -> Tuple[str, bool]:
         messages.insert(0, {"role": "system", "content": system_prompt})
         try:
             response = self.client.chat.completions.create(
                 model=model,
                 messages=messages,
-                temperature=MAIN_LLM_TEMPERATURE,
+                temperature=temperature,
             )
             self.logger.info(f"Raw Response from Groq: {response}")
             self.last_error = None
@@ -104,7 +104,7 @@ class AnthropicClient(LLMClient):
     def set_logger(self, logger):
         self.logger = logger
 
-    def call(self, model, messages, system_prompt) -> Tuple[str, bool]:
+    def call(self, model, messages, system_prompt, temperature=MAIN_LLM_TEMPERATURE ) -> Tuple[str, bool]:
         cache_system_prompt = [
             {
                 "type": "text",
@@ -118,7 +118,7 @@ class AnthropicClient(LLMClient):
                 system=cache_system_prompt,
                 messages=messages,
                 max_tokens=4096,
-                temperature=MAIN_LLM_TEMPERATURE,
+                temperature=temperature,
             )
             self.logger.info(f"Raw Response from Anthropic: {response}")
             self.last_error = None

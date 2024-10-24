@@ -340,7 +340,7 @@ VISUALIZATION_TIPS = """
 """
 # - Set regex=False in the `str.contains` function to perform exact string matching. Alternatively,use regular expressions (regex = True [Default]) in  `str.contains` for more complex string matching.
 
-BASE_USER_PROMPT = """Using the knowledge provided and following the task instructions, answer the user query.
+MAIN_LLM_USER_PROMPT = """Using the knowledge provided and following the task instructions, answer the user query.
 
 <user_query>
 {user_query}
@@ -349,7 +349,7 @@ BASE_USER_PROMPT = """Using the knowledge provided and following the task instru
 Here are some relevant examples:
 {examples}
 
-\n\nAnswer the user query: {user_query}
+Answer the user query: {user_query}
 """
 
 SUMMARY_LLM_SYSTEM_PROMPT = """

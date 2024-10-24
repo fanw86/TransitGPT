@@ -4,8 +4,10 @@ from prompts.all_prompts import (
     SUMMARY_LLM_SYSTEM_PROMPT,
     SUMMARY_LLM_USER_PROMPT,
     RETRY_PROMPT,
+    MAIN_LLM_USER_PROMPT,
 )
-from utils.constants import LOG_FILE, SUMMARY_LLM
+from prompts.generate_prompt import generate_dynamic_few_shot
+from utils.constants import LOG_FILE, SUMMARY_LLM, MAIN_LLM_RETRY_TEMPERATURE
 from typing import List, Dict, Any, Tuple
 from utils.helper import summarize_large_output
 from gtfs_agent.llm_client import OpenAIClient, GroqClient, AnthropicClient
@@ -124,7 +126,9 @@ class LLMAgent:
     def call_llm(self, user_input: str) -> Tuple[str, bool, str]:
         model = self.model
         self.logger.info(f"Calling LLM with model: {model}")
-        messages = self.create_messages(user_input, model)
+        few_shot_examples = generate_dynamic_few_shot(user_input, self.allow_viz)
+        user_prompt = MAIN_LLM_USER_PROMPT.format(user_query=user_input, examples=few_shot_examples)
+        messages = self.create_messages(user_prompt, model)
         client = self.clients[self.get_client_key(model)]
         self.logger.info(f"Messages sent to {model}: {messages}\n")
         response, call_success = client.call(model, messages, self.system_prompt)
@@ -163,7 +167,7 @@ class LLMAgent:
             self._log_retry_attempt(attempt, error)
 
             if attempt <= attempts_allowed:
-                llm_response, call_success = self.call_llm_retry(error)
+                llm_response, call_success = self.call_llm_retry(error, temperature=MAIN_LLM_RETRY_TEMPERATURE)
                 if not call_success:
                     errors.append(f"Attempt {attempt + 1}: LLM call failed")
                     break
@@ -217,13 +221,13 @@ class LLMAgent:
         return messages
 
     @task(name="Call LLM Retry")
-    def call_llm_retry(self, error: str) -> str:
+    def call_llm_retry(self, error: str, temperature: float = MAIN_LLM_RETRY_TEMPERATURE) -> str:
         model = self.model
         self.logger.info(f"Retrying LLM call with model: {model}")
 
         messages = self.get_retry_messages(error)
         client = self.clients[self.get_client_key(model)]
-        response, call_success = client.call(model, messages, self.system_prompt)
+        response, call_success = client.call(model, messages, self.system_prompt, temperature)
 
         self.logger.info(f"LLM Response: {response}")
         return response, call_success

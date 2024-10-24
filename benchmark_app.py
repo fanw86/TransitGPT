@@ -27,12 +27,13 @@ def run_benchmark(df, model):
     new_results = []
     additional_results = []
     agent = get_agent(model)
-    # df = df.head(1) # TODO: Remove this
+    # df = df.head(1) # For testing: Remove this
     for index, row in stqdm(df.iterrows(), total=df.shape[0]):
         st.write(f"Running {index + 1} of {df.shape[0]}")
         agent.update_agent(
             row["feed"], model, file_mapping[row["feed"]]["distance_unit"], st.session_state.allow_viz
         )
+        agent.reset() # Ensure chat history is cleared
         result = agent.run_workflow(row["question"], st.session_state.allow_retry, summarize = False)
         new_results.append({"result": result['code_output']})
         additional_results.append(
@@ -239,7 +240,7 @@ def main():
             additional_data = selected_row[f"{model}_additional"]
             if isinstance(additional_data, dict):
                 st.write(
-                    f"Task: {additional_data.get('task', 'N/A')} | Success: {additional_data.get('success', 'N/A')} | Error: {additional_data.get('error', 'N/A')} | Only Text: {additional_data.get('only_text', 'N/A')}"
+                    f"Task: {additional_data.get('task', 'N/A')} | Success: {additional_data.get('success', 'N/A')} | Only Text: {additional_data.get('only_text', 'N/A')} |\n\n Error: :red-background[{additional_data.get('error', 'N/A')}]"
                 )
                 st.json(
                     selected_row[["feed", "question", "task"]].to_dict(), expanded=True
