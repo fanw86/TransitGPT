@@ -18,6 +18,7 @@ from traceloop.sdk import Traceloop
 from traceloop.sdk.decorators import workflow, task
 from utils.logger import setup_logger, reset_logger
 
+
 class LLMAgent:
     def __init__(
         self,
@@ -34,7 +35,7 @@ class LLMAgent:
         self.GTFS = list(file_mapping.keys())[0]
         self.distance_unit = file_mapping[self.GTFS]["distance_unit"]
         self.allow_viz = allow_viz
-        
+
         # Set Hyperparameters
         self.max_retry = max_retry
         self.max_chars = max_chars
@@ -80,9 +81,7 @@ class LLMAgent:
             return "gpt"
         return "llama"
 
-    def create_messages(
-        self, user_prompt: str, model: str
-    ) -> List[Dict[str, str]]:
+    def create_messages(self, user_prompt: str, model: str) -> List[Dict[str, str]]:
         messages = []
         for interaction in self.chat_history:
             if interaction.user_prompt.strip():
@@ -127,7 +126,9 @@ class LLMAgent:
         model = self.model
         self.logger.info(f"Calling LLM with model: {model}")
         few_shot_examples = generate_dynamic_few_shot(user_input, self.allow_viz)
-        user_prompt = MAIN_LLM_USER_PROMPT.format(user_query=user_input, examples=few_shot_examples)
+        user_prompt = MAIN_LLM_USER_PROMPT.format(
+            user_query=user_input, examples=few_shot_examples
+        )
         messages = self.create_messages(user_prompt, model)
         client = self.clients[self.get_client_key(model)]
         self.logger.info(f"Messages sent to {model}: {messages}\n")
@@ -144,38 +145,48 @@ class LLMAgent:
         only_text = output["only_text"]
         return result, success, error, only_text
 
-    @task(name="Evaluate with Retry")
-    def evaluate_with_retry(
+    @task(name="Evaluate Code with Retry")
+    def evaluate_code_with_retry(
         self, user_input: str, llm_response: str, retry_code: bool
     ) -> Tuple[Any, bool, str, bool, str]:
         errors = []
         attempts_allowed = self.max_retry if retry_code else 1
-        for attempt in range(1, attempts_allowed + 1):
-            result, success, error, only_text = self.execute(user_input, llm_response)
-
-            if isinstance(result, dict) and "map" in result:
-                success, error = self._check_map_renderability(result["map"])
-
-            if success or only_text or "TimeoutError" in error:
-                error_message = "\n".join(errors) if len(errors) > 0 else error
-                self.update_chat_history(
-                    user_input, llm_response, result, success, error_message, only_text
+        with st.status("Evaluating code..."):
+            for attempt in range(1, attempts_allowed + 1):
+                result, success, error, only_text = self.execute(
+                    user_input, llm_response
                 )
-                return result, success, error_message, only_text, llm_response
 
-            errors.append(f"Attempt {attempt}: {error}")
-            self._log_retry_attempt(attempt, error)
+                if isinstance(result, dict) and "map" in result:
+                    success, error = self._check_map_renderability(result["map"])
 
-            if attempt <= attempts_allowed:
-                llm_response, call_success = self.call_llm_retry(error, temperature=MAIN_LLM_RETRY_TEMPERATURE)
-                if not call_success:
-                    errors.append(f"Attempt {attempt + 1}: LLM call failed")
-                    break
+                if success or only_text or "TimeoutError" in error:
+                    error_message = "\n".join(errors) if len(errors) > 0 else error
+                    self.update_chat_history(
+                        user_input,
+                        llm_response,
+                        result,
+                        success,
+                        error_message,
+                        only_text,
+                    )
+                    return result, success, error_message, only_text, llm_response
 
-        error_message = self._format_error_message(attempt, errors)
-        self.update_chat_history(
-            user_input, llm_response, result, success, error_message, only_text
-        )
+                errors.append(f"Attempt {attempt}: {error}")
+                self._log_retry_attempt(attempt, error)
+
+                if attempt <= attempts_allowed:
+                    llm_response, call_success = self.call_llm_retry(
+                        user_input, llm_response, error, temperature=MAIN_LLM_RETRY_TEMPERATURE
+                    )
+                    if not call_success:
+                        errors.append(f"Attempt {attempt + 1}: LLM call failed")
+                        break
+
+            error_message = self._format_error_message(attempt, errors)
+            self.update_chat_history(
+                user_input, llm_response, result, success, error_message, only_text
+            )
         return None, False, error_message, only_text, llm_response
 
     def _check_map_renderability(self, map_obj):
@@ -198,7 +209,9 @@ class LLMAgent:
             errors
         )
 
-    def get_retry_messages(self, error: str) -> List[Dict[str, str]]:
+    def get_retry_messages(
+        self, user_input: str, main_llm_response: str, error: str
+    ) -> List[Dict[str, str]]:
         messages = []
         for interaction in self.chat_history:
             if interaction.user_prompt.strip():
@@ -207,13 +220,15 @@ class LLMAgent:
                 messages.append(
                     {"role": "assistant", "content": interaction.assistant_response}
                 )
-
-        # Add the error message as part of the last assistant's response
-        if messages and messages[-1]["role"] == "assistant":
-            messages[-1]["content"] += f"\n\nError: {error}"
-        else:
-            # If the last message was not from the assistant, add a new assistant message with the error
-            messages.append({"role": "assistant", "content": f"Error: {error}"})
+        # Add the user input and main LLM response
+        messages.append({"role": "user", "content": user_input})
+        messages.append({"role": "assistant", "content": main_llm_response})
+        # # Add the error message as part of the last assistant's response
+        # if messages and messages[-1]["role"] == "assistant":
+        #     messages[-1]["content"] += f"\n\nError: {error}"
+        # else:
+        #     # If the last message was not from the assistant, add a new assistant message with the error
+        #     messages.append({"role": "assistant", "content": f"Error: {error}"})
 
         # Add the retry prompt as a new user message
         messages.append({"role": "user", "content": RETRY_PROMPT.format(error=error)})
@@ -221,13 +236,21 @@ class LLMAgent:
         return messages
 
     @task(name="Call LLM Retry")
-    def call_llm_retry(self, error: str, temperature: float = MAIN_LLM_RETRY_TEMPERATURE) -> str:
+    def call_llm_retry(
+        self,
+        user_input: str,
+        main_llm_response: str,
+        error: str,
+        temperature: float = MAIN_LLM_RETRY_TEMPERATURE,
+    ) -> str:
         model = self.model
         self.logger.info(f"Retrying LLM call with model: {model}")
-
-        messages = self.get_retry_messages(error)
+        messages = self.get_retry_messages(user_input, main_llm_response, error)
+        s
         client = self.clients[self.get_client_key(model)]
-        response, call_success = client.call(model, messages, self.system_prompt, temperature)
+        response, call_success = client.call(
+            model, messages, self.system_prompt, temperature
+        )
 
         self.logger.info(f"LLM Response: {response}")
         return response, call_success
@@ -265,11 +288,6 @@ class LLMAgent:
         self.logger.info("Summary response from LLM:\n %s", full_response)
         return full_response
 
-    @task(name="Evaluate Code")
-    def evaluate_code(self, user_input, llm_response, retry_code):
-        with st.status("Evaluating code..."):
-            return self.evaluate_with_retry(user_input, llm_response, retry_code)
-
     def reset(self):
         self.last_response = None
         self.chat_history = []
@@ -299,7 +317,9 @@ class LLMAgent:
         self.load_system_prompt(GTFS, distance_unit, allow_viz)
 
     @workflow(name="LLM Agent Workflow")
-    def run_workflow(self, user_input: str, retry_code: bool = False, summarize: bool = True):
+    def run_workflow(
+        self, user_input: str, retry_code: bool = False, summarize: bool = True
+    ):
         start_time = time.time()
         llm_response, call_success = self.call_llm(user_input)
 
@@ -309,7 +329,7 @@ class LLMAgent:
             return None, False, llm_response, True, None, None, None
 
         self.logger.info(f"LLM call success: {llm_response}")
-        output, success, error, only_text, llm_response = self.evaluate_code(
+        output, success, error, only_text, llm_response = self.evaluate_code_with_retry(
             user_input, llm_response, retry_code=retry_code
         )
 
@@ -365,9 +385,7 @@ class LLMAgent:
         Return (True, None) if everything is correct, (False, "Reason for failure") if something is incorrect.
         """
 
-        messages = self.create_messages(
-            validation_prompt, self.model
-        )
+        messages = self.create_messages(validation_prompt, self.model)
         client = self.clients["gpt"]
         validation_response, _ = client.call(SUMMARY_LLM, messages, self.system_prompt)
 
