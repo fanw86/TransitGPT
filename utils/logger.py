@@ -10,6 +10,15 @@ import pytz  # Add this import
 
 
 def setup_logger(log_file):
+    # Ensure the log file directory exists
+    log_dir = os.path.dirname(log_file)
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+
+    # Ensure the log file exists
+    if not os.path.exists(log_file):
+        open(log_file, 'a').close()
+
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
 
