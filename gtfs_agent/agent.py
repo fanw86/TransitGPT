@@ -246,7 +246,6 @@ class LLMAgent:
         model = self.model
         self.logger.info(f"Retrying LLM call with model: {model}")
         messages = self.get_retry_messages(user_input, main_llm_response, error)
-        s
         client = self.clients[self.get_client_key(model)]
         response, call_success = client.call(
             model, messages, self.system_prompt, temperature
