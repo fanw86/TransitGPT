@@ -11,7 +11,7 @@ def process_user_input(user_input: str):
             result = agent.run_workflow(user_input, st.session_state.retry_code)
 
         if not result["eval_success"] and not result["only_text"]:
-            st.error(f"Error: {result['error']}")
+            st.error(f"Error: {result['error_message']}")
             chat_entry = ChatHistoryEntry(
                 role="assistant",
                 eval_success=result["eval_success"],

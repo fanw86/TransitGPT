@@ -275,9 +275,9 @@ Output: DataFrame containing columns ['stop_id', 'stop_name', 'stop_lat', 'stop_
 - geo_address (str): The address of the geolocation of interest. Eg: "1004 Main St, Urbana, IL"
 </function_args>
 <return>Tuple containing:
-- (float, float): Latitude and longitude coordinates
-- str: Formatted address of the location, or None if not found
-- None: Placeholder for future use or additional information</return>
+- lat_lon (Tuple(float, float)): Latitude and longitude coordinates
+- formatted_address (str): Formatted address of the location, or None if not found
+</return>
 <example>
 Input: get_geo_location("1600 Pennsylvania Avenue NW, Washington, DC 20500")
 Output: ((38.8977, -77.0365), "1600 Pennsylvania Avenue NW, Washington, DC 20500, USA")
