@@ -117,7 +117,7 @@ example_5:
     answer: |
         ```python
         # Specify the route_id we're interested in
-        route_id = "25491"
+        route_id = feed.routes.route_id.sample(n=1).values[0]
 
         # Get trips for the specified route
         route_trips = feed.trips[feed.trips["route_id"] == route_id]
@@ -167,6 +167,7 @@ example_5:
 
         result = {
             'answer': {
+                'route_id': route_id,
                 'date': min_trips_date,
                 'trip_count': min_trips_count
             },

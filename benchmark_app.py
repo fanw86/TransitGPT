@@ -43,6 +43,7 @@ def run_benchmark(df, model):
                 "error": result["error_message"],
                 "only_text": result["only_text"],
                 "llm_response": str(result["main_response"]),
+                "execution_time": result["execution_time"],
             }
         )
         # time.sleep(5)

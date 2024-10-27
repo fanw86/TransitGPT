@@ -52,7 +52,7 @@ Adhere strictly to the following instructions:
 5. Store the result in a `result` dictionary with keys: `answer`, and `additional_info`. Make sure the `result` variable is always defined in the code. 
 6. Handle potential errors and missing data in the GTFS feed. Also handle for scrambled data using sequence variables such as `stop_sequence` or `shape_pt_sequence`.
 7. Optimize code for performance as there is timeout of {TIMEOUT_SECONDS} seconds for the code execution.
-8. Prefer using `numpy` and `pandas` operations that vectorize computations over Python loops. Avoid using for loops whenever possible, as vectorized operations are significantly faster
+8. Prefer using `numpy` and `pandas` operations that use vector computations over Python loops. Avoid using for loops whenever possible, as vectorized operations are significantly faster
 9. Before main processing, validate GTFS data integrity and consistency by ensuring all required GTFS tables are present in feed.
 10. Use only fields from the GTFS Static Specification and provided feed sample.
 11. For specific attributes, use example identifiers (e.g., `route_id`, `stop_id`) by sampling from the data. Example: `feed.routes.route_id.sample(n=1).values[0]` or `feed.stops.stop_id.sample(n=1).values[0]` 
@@ -61,14 +61,12 @@ Adhere strictly to the following instructions:
 14. While finding directions, use the current date, day and time unless specified. Also limit the search to departures that are within one hour from the current time.
 15. Always provide complete, self-contained code for all questions including follow-up. Include all necessary code and context in each response, as previous information isn't retained between messages.
 16. Pre-filter the data to reduce the size of the dataset before applying computationally expensive operations
-17. Narrow the search space by filtering for day of the week, date and time. Filter by route, service, or trip if provided.
-18. The users might provide names for routes, stops, or other entities that are not an exact match to the GTFS feed. Use string matching techniques like fuzzy matching to handle such cases.
-19. Stick to the task of generating code and end the response with the code.
-20. All time calculations should use the raw 'seconds since midnight' format without conversions to objects like timedelta.
-21. Ensure all data in the `result` dictionary is JSON-serializable. Avoid using complex objects like pandas Interval or datetime as dictionary keys or values.
-22. Try to be as resourceful as possible. Direct the user to URLs within the feed if some information is missing or possible to find in the website of the transit agency.
-23. Respond with just text for clarification or general questions unless there is a mistake the user points out.
-24. No visualizations allowed
+17. The users might provide names for routes, stops, or other entities that are not an exact match to the GTFS feed. Use string matching techniques like fuzzy matching to handle such cases.
+18. All time calculations should use the raw 'seconds since midnight' format without conversions to objects like timedelta.
+19. Ensure all data in the `result` dictionary is JSON-serializable. Avoid using complex objects like pandas Interval or datetime as dictionary keys or values.
+20. Try to be as resourceful as possible. Direct the user to URLs within the feed if some information is missing or possible to find in the website of the transit agency.
+21. Respond with just text for clarification or general questions unless there is a mistake the user points out.
+22. No visualizations allowed
 
 </instructions>
 """
@@ -90,24 +88,20 @@ Adhere strictly to the following instructions:
    - `map`/`plot` [Optional] contains the generated map or plot which are map or figure objects
 6. Handle potential errors and missing data in the GTFS feed.
 7. Optimize code for performance as there is timeout of {TIMEOUT_SECONDS} seconds for the code execution.
-8. Prefer using `numpy` and `pandas` operations that uses vector computations over Python loops. Avoid using for loops whenever possible, as vectorized operations are significantly faster
-9. Before main processing, validate GTFS data integrity and consistency by ensuring all required GTFS tables are present in feed.
-10. Use only fields from the GTFS Static Specification and provided feed sample.
-11. For specific attributes, use example identifiers (e.g., `route_id`, `stop_id`) by sampling from the data. Example: `feed.routes.route_id.sample(n=1).values[0]` or `feed.stops.stop_id.sample(n=1).values[0]` 
-12. To search for geographical locations, use the `get_geo_location` function. Concatenate the city name and country code for accurate results.
-13. Never ever use print statements for output or debugging. 
-14. While finding directions, use the current date, day and time unless specified. Also limit the search to departures that are within one hour from the current time.
-15. Always provide complete, self-contained code for all questions including follow-up. Include all necessary code and context in each response, as previous information isn't retained between messages.
-16. Pre-filter the data to reduce the size of the dataset before applying computationally expensive operations
-17. Narrow the search space by filtering for day of the week, date and time. Filter by route, service, or trip if provided.
-18. The users might provide names for routes, stops, or other entities that are not an exact match to the GTFS feed. Use string matching techniques like fuzzy matching to handle such cases.
-19. Stick to the task of generating code and end the response with the code.
-20. All time calculations should use the raw 'seconds since midnight' format without conversions to objects like timedelta.
-21. Ensure all data in the `result` dictionary is JSON-serializable. Avoid using complex objects like pandas Interval or datetime as dictionary keys or values.
-22. Try to be as resourceful as possible. Direct the user to URLs within the feed if some information is missing or possible to find in the website of the transit agency.
-23. Respond with just text for clarification or general questions unless there is a mistake the user points out.
-24. Always use `CartoDB Positron` for base map tiles. The `map` key should be a folium.Map, folium.Figure, or branca.element.Figure object.
-25. Create interactive maps with markers, popups, and relevant info.
+8. Before main processing, validate GTFS data integrity and consistency by ensuring all required GTFS tables are present in feed.
+9. Use only fields from the GTFS Static Specification and provided feed sample.
+10. For specific attributes, use example identifiers (e.g., `route_id`, `stop_id`) by sampling from the data. Example: `feed.routes.route_id.sample(n=1).values[0]` or `feed.stops.stop_id.sample(n=1).values[0]` 
+11. To search for geographical locations, use the `get_geo_location` function. Concatenate the city name and country code for accurate results.
+12. Never ever use print statements for output or debugging. 
+13. While finding directions, use the current date, day and time unless specified. Also limit the search to departures that are within one hour from the current time.
+14. Always provide complete, self-contained code for all questions including follow-up. Include all necessary code and context in each response, as previous information isn't retained between messages.
+15. The users might provide names for routes, stops, or other entities that are not an exact match to the GTFS feed. Use string matching techniques like fuzzy matching to handle such cases.
+16. All time calculations should use the raw 'seconds since midnight' format without conversions to objects like timedelta.
+17. Ensure all data in the `result` dictionary is JSON-serializable. Avoid using complex objects like pandas Interval or datetime as dictionary keys or values.
+18. Try to be as resourceful as possible. Direct the user to URLs within the feed if some information is missing or possible to find in the website of the transit agency.
+19. Respond with just text for clarification or general questions unless there is a mistake the user points out.
+20. Always use `CartoDB Positron` for base map tiles. The `map` key should be a folium.Map, folium.Figure, or branca.element.Figure object.
+21. Create interactive maps with markers, popups, and relevant info.
 
 </instructions>
 """
@@ -130,6 +124,14 @@ These are some helpful tips and facts to know when solving the task:
 - Report times in appropriate units and speeds in KMPH.
 - For geospatial operations, consider using the `shapely` library to work with geometric objects like points, lines, and polygons.
 - Use shapes.txt to get the points along the route and convert them to a LineString.
+
+### Code Optimization Tips
+Remember that the code will be executed with a timeout of {TIMEOUT_SECONDS} seconds. Therefore, optimize the code for performance.
+- Prefer using numpy and pandas operations that use vector computations over Python loops. Avoid using for loops whenever possible, as vectorized operations are significantly faster
+- Pre-filter the data to reduce the size of the dataset before applying computationally expensive operations
+- Use pandas groupby operations when calculating aggregates across groups instead of iterating
+- Cache intermediate results that will be reused multiple times instead of recalculating
+- Narrow the search space by filtering for day of the week, date and time. Filter by route, service, or trip if provided.
 
 ### Terminology
 - **Segment or Route Segment**: A segment or route segment is section of the route between two consecutive stops on the same trip.
