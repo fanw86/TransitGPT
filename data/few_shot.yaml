@@ -311,7 +311,7 @@ example_6:
                 }
         ```
 
-example_8:
+example_7:
     feed: CUMTD
     question: Find the stop at University St and Victor Ave
     answer: |
@@ -352,7 +352,7 @@ example_8:
             }
         ```
 
-example_9:
+example_8:
     feed: DART
     question: Find all mid block stops on Illinois
     answer: |
@@ -369,7 +369,7 @@ example_9:
         }
         ```
 
-example_10:
+example_9:
     feed: CTA
     question: Show all routes that operate post midnight
     answer: |
@@ -386,7 +386,7 @@ example_10:
             "additional_info": f"These routes have trips that depart after 24:00:00 (86400 seconds since midnight). ",
         ```
 
-example_11:
+example_10:
     feed: CUMTD
     question: How far does the Orange route travel from University and Victor to University and Fourth in the eastbound direction?
     answer: |
@@ -488,7 +488,7 @@ example_11:
         # The result dictionary now contains the answer and additional information
         ```
 
-example_12:
+example_11:
     feed: CUMTD
     question: Find directions from University and Victor to Illinois Terminal
     answer: |
@@ -537,4 +537,53 @@ example_12:
                             "The following routes are circular:\n\n" + 
                             circular_route_details[['route_id', 'route_short_name', 'route_long_name']].to_string(index=False),
         }
+        ```
+
+example_12:
+    feed: SFMTA
+    question: Find the average speed for the route KBus
+    answer: |
+        ```python
+        # Find the KBus route
+        kbus_route = find_route(feed, "KBus")
+        if kbus_route is None:
+            result = {
+                'answer': "Could not find the KBus route",
+                'additional_info': "Please check if the route name is correct."
+            }
+        else:
+            route_id = kbus_route['route_id']
+        
+            # Get all trips for the KBus route
+            kbus_trips = feed.trips[feed.trips['route_id'] == route_id]
+        
+            if kbus_trips.empty:
+                result = {
+                    'answer': "No trips found for the KBus route",
+                    'additional_info': "Please check if the route has any scheduled trips."
+                }
+            else:
+                # Get stop times for these trips
+                stop_times = feed.stop_times[feed.stop_times['trip_id'].isin(kbus_trips['trip_id'])]
+        
+                # Calculate the total travel time for each trip
+                trip_durations = stop_times.groupby('trip_id').agg({
+                    'arrival_time': 'max',
+                    'departure_time': 'min',
+                    'shape_dist_traveled': 'max'
+                }).reset_index()
+        
+                # Calculate the duration in seconds for each trip
+                trip_durations['duration'] = trip_durations['arrival_time'] - trip_durations['departure_time']
+        
+                # Calculate average speed in km/h (distance in kilometers, time in hours)
+                trip_durations['average_speed'] = (trip_durations['shape_dist_traveled'] / (trip_durations['duration'] / 3600)).fillna(0)
+        
+                # Get the maximum average speed
+                average_speed = trip_durations['average_speed'].mean()
+        
+                result = {
+                    'answer': average_speed,
+                    'additional_info': f"The average speed for the KBus route is {average_speed:.2f} km/h."
+                }
         ```
