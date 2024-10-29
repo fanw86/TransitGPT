@@ -149,6 +149,7 @@ def main():
             st.toast(f"Benchmark completed and saved as {filename}")
             st.session_state.df.head(n_rows)[model] = results
             st.session_state.df.head(n_rows)[f"{model}_additional"] = additional_results
+            st.rerun()
 
     # Move the benchmark file selection to the top of the sidebar
     st.sidebar.header("Select Results")
@@ -243,6 +244,10 @@ def main():
                 st.write(
                     f"Task: {additional_data.get('task', 'N/A')} | Success: {additional_data.get('success', 'N/A')} | Only Text: {additional_data.get('only_text', 'N/A')} |\n\n Error: :red-background[{additional_data.get('error', 'N/A')}]"
                 )
+                if additional_data.get("execution_time", "N/A") != "N/A":
+                    # Round to 2 decimal places
+                    execution_time = round(additional_data.get("execution_time", "N/A"), 2)
+                    st.write(f"Execution Time: {execution_time} seconds")
                 st.json(
                     selected_row[["feed", "question", "task"]].to_dict(), expanded=True
                 )

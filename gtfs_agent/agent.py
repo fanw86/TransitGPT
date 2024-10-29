@@ -121,8 +121,8 @@ class LLMAgent:
             )
             self.chat_history.append(interaction)
 
-    @task(name="Call LLM")
-    def call_llm(self, user_input: str) -> Tuple[str, bool, str]:
+    @task(name="Call Main LLM")
+    def call_main_llm(self, user_input: str) -> Tuple[str, bool, str]:
         model = self.model
         self.logger.info(f"Calling LLM with model: {model}")
         few_shot_examples = generate_dynamic_few_shot(user_input, self.allow_viz)
@@ -175,8 +175,8 @@ class LLMAgent:
                 errors.append(f"Attempt {attempt}: {error}")
                 self._log_retry_attempt(attempt, error)
 
-                if attempt <= attempts_allowed:
-                    llm_response, call_success = self.call_llm_retry(
+                if attempt < attempts_allowed:
+                    llm_response, call_success = self.call_main_llm_retry(
                         user_input, llm_response, error, temperature=MAIN_LLM_RETRY_TEMPERATURE
                     )
                     if not call_success:
@@ -235,8 +235,8 @@ class LLMAgent:
 
         return messages
 
-    @task(name="Call LLM Retry")
-    def call_llm_retry(
+    @task(name="Call Main LLM Retry")
+    def call_main_llm_retry(
         self,
         user_input: str,
         main_llm_response: str,
@@ -317,10 +317,10 @@ class LLMAgent:
 
     @workflow(name="LLM Agent Workflow")
     def run_workflow(
-        self, user_input: str, retry_code: bool = False, summarize: bool = True
+        self, user_input: str, retry_code: bool = False, summarize: bool = True, task: str = None
     ):
         start_time = time.time()
-        llm_response, call_success = self.call_llm(user_input)
+        llm_response, call_success = self.call_main_llm(user_input)
 
         if not call_success:
             self.logger.error(f"LLM call failed: {llm_response}")
@@ -346,6 +346,7 @@ class LLMAgent:
         self.logger.info(f"Execution time: {execution_time:.2f} seconds")
 
         return {
+            "task": task,
             "code_output": output,
             "eval_success": success,
             "error_message": error,
