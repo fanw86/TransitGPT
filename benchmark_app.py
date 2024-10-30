@@ -34,7 +34,7 @@ def run_benchmark(df, model):
             row["feed"], model, file_mapping[row["feed"]]["distance_unit"], st.session_state.allow_viz
         )
         agent.reset() # Ensure chat history is cleared
-        result = agent.run_workflow(row["question"], st.session_state.allow_retry, summarize = False)
+        result = agent.run_workflow(row["question"], st.session_state.allow_retry, summarize = False, task = row["task"])
         new_results.append({"result": result['code_output']})
         additional_results.append(
             {
@@ -52,7 +52,7 @@ def run_benchmark(df, model):
 
 def save_benchmark_results(model, results, additional_results):
     timestamp = datetime.now().strftime("%B_%d-%H_%M")
-    filename = f"benchmark/results/{model}_{timestamp}.json"
+    filename = f"benchmark/results/{timestamp}_{model}.json"
     with open(filename, "w") as f:
         json.dump(
             {
@@ -220,47 +220,6 @@ def main():
         # Update the session state with the selected index
         st.session_state.selected_index = selected_index
         selected_row = df.iloc[selected_index]
-
-        # Display Evaluation and Response in an expander with columns
-        with st.expander("Evaluation and Response", expanded=True):
-            col1, col2 = st.columns(2)
-            with col1:
-                st.subheader("Evaluation")
-                eval_data = parse_json_like(selected_row["evaluation"])
-                st.json(eval_data, expanded=True)
-
-            with col2:
-                st.subheader("Response")
-                response_data = parse_json_like(selected_row[model])
-                if isinstance(response_data, dict) and "result" in response_data:
-                    st.json(response_data["result"], expanded=True)
-                else:
-                    st.write(selected_row[model])
-
-        # Put additional info in another expander
-        with st.expander("Additional Information"):
-            additional_data = selected_row[f"{model}_additional"]
-            if isinstance(additional_data, dict):
-                st.write(
-                    f"Task: {additional_data.get('task', 'N/A')} | Success: {additional_data.get('success', 'N/A')} | Only Text: {additional_data.get('only_text', 'N/A')} |\n\n Error: :red-background[{additional_data.get('error', 'N/A')}]"
-                )
-                if additional_data.get("execution_time", "N/A") != "N/A":
-                    # Round to 2 decimal places
-                    execution_time = round(additional_data.get("execution_time", "N/A"), 2)
-                    st.write(f"Execution Time: {execution_time} seconds")
-                st.json(
-                    selected_row[["feed", "question", "task"]].to_dict(), expanded=True
-                )
-                st.write("LLM Response:")
-                main_response = (
-                    additional_data.get("llm_response", "N/A")
-                    .split("```python")[1]
-                    .split("```")[0]
-                )
-                st.code(main_response)
-            else:
-                st.write(additional_data)
-
         # Current Grade and Grading in the same row
         st.subheader("Grading")
         col1, col2 = st.columns(2)
@@ -318,6 +277,47 @@ def main():
                 "Add a comment", value=current_comment, key=f"comment_{selected_index}"
             )
 
+        # Display Evaluation and Response in an expander with columns
+        with st.expander("Evaluation and Response", expanded=True):
+            col1, col2 = st.columns(2)
+            with col1:
+                st.subheader("Evaluation")
+                eval_data = parse_json_like(selected_row["evaluation"])
+                st.json(eval_data, expanded=True)
+
+            with col2:
+                st.subheader("Response")
+                response_data = parse_json_like(selected_row[model])
+                if isinstance(response_data, dict) and "result" in response_data:
+                    st.json(response_data["result"], expanded=True)
+                else:
+                    st.write(selected_row[model])
+
+        # Put additional info in another expander
+        with st.expander("Additional Information"):
+            additional_data = selected_row[f"{model}_additional"]
+            if isinstance(additional_data, dict):
+                st.write(
+                    f"Task: {additional_data.get('task', 'N/A')} | Success: {additional_data.get('success', 'N/A')} | Only Text: {additional_data.get('only_text', 'N/A')} |\n\n Error: :red-background[{additional_data.get('error', 'N/A')}]"
+                )
+                if additional_data.get("execution_time", "N/A") != "N/A":
+                    # Round to 2 decimal places
+                    execution_time = round(additional_data.get("execution_time", "N/A"), 2)
+                    st.write(f"Execution Time: {execution_time} seconds")
+                st.json(
+                    selected_row[["feed", "question", "task"]].to_dict(), expanded=True
+                )
+                st.write("LLM Response:")
+                main_response = (
+                    additional_data.get("llm_response", "N/A")
+                    .split("```python")[1]
+                    .split("```")[0]
+                )
+                st.code(main_response)
+            else:
+                st.write(additional_data)
+
+        
         # Auto-update grade and comment when selection changes
         if selected_grade != current_grade or comment != current_comment:
             grade_or_comment_changed = update_grade(

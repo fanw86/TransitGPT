@@ -334,7 +334,7 @@ class LLMAgent:
 
         # New step: Validate evaluation results
         # validation_response = self.validate_evaluation(user_input, llm_response, result, success, error, only_text)
-        validation_response = None
+        # validation_response = None
 
         if success and not only_text and summarize:
             summary_response = self.call_summary_llm(st.empty())

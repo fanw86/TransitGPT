@@ -4,6 +4,11 @@
     "distance_unit": "m",
     "pickle_loc": "gtfs_data/feed_pickles/CUMTD_gtfs_loader.pkl"
   },
+  "RTD": {
+    "file_loc": "gtfs_data/Denver-Regional Transportation District (RTD)-CO/gtfs.zip",
+    "distance_unit": "m",
+    "pickle_loc": "gtfs_data/feed_pickles/RTD_gtfs_loader.pkl"
+  },
   "DART": {
     "file_loc": "gtfs_data/Dallas-Dallas Area Rapid Transit (DART)-TX/gtfs.zip",
     "distance_unit": "km",
