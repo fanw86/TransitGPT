@@ -35,7 +35,11 @@ def show_user_info_popup():
                 st.success("Thank you for providing your information!")
                 st.rerun()
             else:
-                st.error("Please fill in both name and email.")
+                st.session_state["user_name"] = None
+                st.session_state["user_email"] = None
+                st.rerun()
+                # st.error("Please fill in both name and email.")
+        
 
 # Call the dialog function when needed
 if "user_name" not in st.session_state or "user_email" not in st.session_state:
