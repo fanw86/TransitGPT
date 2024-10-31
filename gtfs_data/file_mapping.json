@@ -1,4 +1,9 @@
 {
+  "SFMTA": {
+    "file_loc": "gtfs_data/San Francisco-San Francisco Municipal Transportation Agency (SFMTA, Muni)-CA/gtfs.zip",
+    "distance_unit": "km",
+    "pickle_loc": "gtfs_data/feed_pickles/SFMTA_gtfs_loader.pkl"
+  },
   "CUMTD": {
     "file_loc": "gtfs_data/Urbana-Champaign Urbana Mass Transit District (MTD)-IL/gtfs_mod.zip",
     "distance_unit": "m",
@@ -14,11 +19,6 @@
     "distance_unit": "km",
     "pickle_loc": "gtfs_data/feed_pickles/DART_gtfs_loader.pkl"
   },
-  "SFMTA": {
-    "file_loc": "gtfs_data/San Francisco-San Francisco Municipal Transportation Agency (SFMTA, Muni)-CA/gtfs.zip",
-    "distance_unit": "km",
-    "pickle_loc": "gtfs_data/feed_pickles/SFMTA_gtfs_loader.pkl"
-  },
   "CTA": {
     "file_loc": "gtfs_data/Chicago-Chicago Transit Authority (CTA)-IL/gtfs.zip",
     "distance_unit": "m",
@@ -28,16 +28,6 @@
     "file_loc": "gtfs_data/Boston-Massachusetts Bay Transportation Authority (MBTA)-MA/gtfs.zip",
     "distance_unit": "m",
     "pickle_loc": "gtfs_data/feed_pickles/MBTA_gtfs_loader.pkl"
-  },
-  "Go-RTS": {
-    "file_loc": "gtfs_data/Gainesville-Gainesville Regional Transit System-FL/gtfs.zip",
-    "distance_unit": "m",
-    "pickle_loc": "gtfs_data/feed_pickles/Go-RTS_gtfs_loader.pkl"
-  },
-  "TheBus": {
-    "file_loc": "gtfs_data/Honolulu-TheBus-HI/gtfs.zip",
-    "distance_unit": "m",
-    "pickle_loc": "gtfs_data/feed_pickles/TheBus_gtfs_loader.pkl"
   },
   "SDMTS": {
     "file_loc": "gtfs_data/San Diego-San Diego International Airport, Metropolitan Transit System (MTS)-CA/gtfs.zip",
@@ -53,15 +43,5 @@
     "file_loc": "gtfs_data/Oakland-Alameda-Contra Costa Transit District (AC Transit)-CA/gtfs.zip",
     "distance_unit": "m",
     "pickle_loc": "gtfs_data/feed_pickles/AC Transit_gtfs_loader.pkl"
-  },
-  "samTrans": {
-    "file_loc": "gtfs_data/San Mateo-San Mateo County Transit District (samTrans)-CA/gtfs.zip",
-    "distance_unit": "m",
-    "pickle_loc": "gtfs_data/feed_pickles/samTrans_gtfs_loader.pkl"
-  },
-  "Caltrain": {
-    "file_loc": "gtfs_data/San Francisco-Caltrain-CA/gtfs.zip",
-    "distance_unit": "m",
-    "pickle_loc": "gtfs_data/feed_pickles/Caltrain_gtfs_loader.pkl"
   }
 }
