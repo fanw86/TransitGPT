@@ -125,7 +125,7 @@ class GTFS_Eval:
             thread.join(timeout=timeout_seconds)
 
             if thread.is_alive():
-                raise TimeoutError("Code execution timed out")
+                raise TimeoutError(f"Code execution timed out after {timeout_seconds} seconds")
             if execution_result is None:
                 raise Exception(
                     "Code execution did not return a result. Please ensure the `result` variable is assigned"

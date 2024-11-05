@@ -42,12 +42,11 @@ These are the datatypes for all files within the current GTFS:
 
 - `agency_id`: string
 - `agency_name`: string
+- `agency_phone`: string
 - `agency_url`: string
 - `agency_timezone`: string
 - `agency_lang`: string
-- `agency_phone`: string
 - `agency_fare_url`: string
-- `agency_email`: string
 
 </data-type>
 
@@ -77,26 +76,17 @@ These are the datatypes for all files within the current GTFS:
 
 </data-type>
 
-### fare_attributes.txt
+### feed_info.txt
 
 <data-type>
 
-- `fare_id`: string
-- `price`: float
-- `currency_type`: string
-- `payment_method`: integer
-- `transfers`: integer
-- `agency_id`: string
-- `transfer_duration`: integer
-
-</data-type>
-
-### fare_rules.txt
-
-<data-type>
-
-- `fare_id`: string
-- `route_id`: string
+- `feed_publisher_name`: string
+- `feed_publisher_url`: string
+- `feed_lang`: string
+- `feed_version`: string
+- `feed_start_date`: date (datetime.date)
+- `feed_end_date`: date (datetime.date)
+- `feed_contact_url`: string
 
 </data-type>
 
@@ -108,12 +98,11 @@ These are the datatypes for all files within the current GTFS:
 - `agency_id`: string
 - `route_short_name`: string
 - `route_long_name`: string
-- `route_url`: string
 - `route_desc`: string
 - `route_type`: integer
+- `route_url`: string
 - `route_color`: string
 - `route_text_color`: string
-- `route_sort_order`: integer
 
 </data-type>
 
@@ -139,6 +128,8 @@ These are the datatypes for all files within the current GTFS:
 - `stop_id`: string
 - `stop_sequence`: integer
 - `stop_headsign`: string
+- `pickup_type`: integer
+- `drop_off_type`: integer
 - `shape_dist_traveled`: float (`Kilometers`)
 - `timepoint`: integer
 
@@ -151,11 +142,12 @@ These are the datatypes for all files within the current GTFS:
 - `stop_id`: string
 - `stop_code`: string
 - `stop_name`: string
+- `stop_desc`: string
 - `stop_lat`: float
 - `stop_lon`: float
-- `wheelchair_boarding`: integer
-- `platform_code`: string
+- `zone_id`: string
 - `stop_url`: string
+- `wheelchair_boarding`: integer
 
 </data-type>
 
@@ -170,8 +162,6 @@ These are the datatypes for all files within the current GTFS:
 - `direction_id`: integer
 - `block_id`: string
 - `shape_id`: string
-- `wheelchair_accessible`: integer
-- `bikes_allowed`: integer
 
 </data-type>
 
@@ -182,152 +172,115 @@ These are the datatypes for all files within the current GTFS:
 
 ### agency.txt (feed.agency)
 <feed-sample>
-| agency_id   | agency_name                                   | agency_url           | agency_timezone     | agency_lang   |   agency_phone | agency_fare_url         | agency_email           |
-|:------------|:----------------------------------------------|:---------------------|:--------------------|:--------------|---------------:|:------------------------|:-----------------------|
-| SFMTA       | San Francisco Municipal Transportation Agency | http://www.sfmta.com | America/Los_Angeles | en            |            311 | https://SFMTA.com/Fares | munifeedback@sfmta.com |
+| agency_id   | agency_name               | agency_phone   | agency_url           | agency_timezone   | agency_lang   | agency_fare_url                                            |
+|:------------|:--------------------------|:---------------|:---------------------|:------------------|:--------------|:-----------------------------------------------------------|
+| DART        | DALLAS AREA RAPID TRANSIT | 214-979-1111   | https://www.dart.org | America/Chicago   | en            | https://www.dart.org/fare/general-fares-and-overview/fares |
+</feed-sample>
+
+### blocks.txt (feed.blocks)
+<feed-sample>
+|   SERVICE_ID |   BLOCK_ID |   PULLOUTTIME |   PULLINTIME |
+|-------------:|-----------:|--------------:|-------------:|
+|            2 |        101 |         12120 |        83040 |
+|            2 |        102 |         13440 |        71160 |
+|            2 |        103 |         13920 |        91080 |
 </feed-sample>
 
 ### calendar.txt (feed.calendar)
 <feed-sample>
 |   service_id |   monday |   tuesday |   wednesday |   thursday |   friday |   saturday |   sunday | start_date   | end_date   |
 |-------------:|---------:|----------:|------------:|-----------:|---------:|-----------:|---------:|:-------------|:-----------|
-|            1 |        1 |         1 |           1 |          1 |        1 |          0 |        0 | 2024-06-22   | 2024-12-16 |
-|            2 |        0 |         0 |           0 |          0 |        0 |          1 |        0 | 2024-06-22   | 2024-12-16 |
-|            3 |        0 |         0 |           0 |          0 |        0 |          0 |        1 | 2024-06-22   | 2024-12-16 |
-</feed-sample>
-
-### calendar_attributes.txt (feed.calendar_attributes)
-<feed-sample>
-|   service_id | service_description   |
-|-------------:|:----------------------|
-|            1 | WEEKDAY               |
-|            2 | SATURDAY              |
-|            3 | SUNDAY                |
+|            2 |        1 |         1 |           1 |          1 |        1 |          0 |        0 | 2024-10-05   | 2024-10-20 |
+|            3 |        0 |         0 |           0 |          0 |        0 |          1 |        0 | 2024-10-05   | 2024-10-20 |
+|            4 |        0 |         0 |           0 |          0 |        0 |          0 |        1 | 2024-10-05   | 2024-10-20 |
 </feed-sample>
 
 ### calendar_dates.txt (feed.calendar_dates)
 <feed-sample>
-| service_id   | date       |   exception_type |
-|:-------------|:-----------|-----------------:|
-| 2            | 2024-06-22 |                2 |
-| M12          | 2024-06-22 |                1 |
-| 3            | 2024-06-23 |                2 |
+|   service_id | date       |   exception_type |
+|-------------:|:-----------|-----------------:|
+|           19 | 2024-10-05 |                1 |
+|           10 | 2024-10-12 |                1 |
+|           19 | 2024-10-19 |                1 |
 </feed-sample>
 
-### directions.txt (feed.directions)
+### facilities.txt (feed.facilities)
 <feed-sample>
-|   route_id |   direction_id | direction   |
-|-----------:|---------------:|:------------|
-|          1 |              0 | Outbound    |
-|          1 |              1 | Inbound     |
-|          2 |              0 | Outbound    |
+|   facility_id |   facility_code | facility_name         |   facility_desc |   facility_lat |   facility_lon |   facility_type |   facility_url |
+|--------------:|----------------:|:----------------------|----------------:|---------------:|---------------:|----------------:|---------------:|
+|         22729 |           22729 | CEDARS STATION        |             nan |        32.7686 |       -96.7933 |               1 |            nan |
+|         25435 |           25435 | CBD WEST TC           |             nan |        32.7816 |       -96.8041 |               1 |            nan |
+|         29270 |           29270 | BUSH TURNPIKE STATION |             nan |        33.0033 |       -96.7025 |               1 |            nan |
 </feed-sample>
 
-### fare_attributes.txt (feed.fare_attributes)
+### feed_info.txt (feed.feed_info)
 <feed-sample>
-|   fare_id |   price | currency_type   |   payment_method |   transfers |   agency_id |   transfer_duration |
-|----------:|--------:|:----------------|-----------------:|------------:|------------:|--------------------:|
-|         1 |       3 | USD             |                0 |         nan |         nan |                5400 |
-|         2 |       8 | USD             |                0 |           0 |         nan |                   0 |
+| feed_publisher_name       | feed_publisher_url   | feed_lang   | feed_version          | feed_start_date   | feed_end_date   | feed_contact_url                |
+|:--------------------------|:---------------------|:------------|:----------------------|:------------------|:----------------|:--------------------------------|
+| DALLAS AREA RAPID TRANSIT | https://www.dart.org | en          | V561-193-194-20241005 | 2024-10-05        | 2024-10-20      | https://www.dart.org/contact-us |
 </feed-sample>
 
-### fare_rider_categories.txt (feed.fare_rider_categories)
+### nodes.txt (feed.nodes)
 <feed-sample>
-|   fare_id |   rider_category_id |   price |   expiration_date |   commencement_date |
-|----------:|--------------------:|--------:|------------------:|--------------------:|
-|         1 |                   2 |    1.25 |               nan |                 nan |
-|         1 |                   3 |    0    |               nan |                 nan |
-|         1 |                   5 |    0    |               nan |                 nan |
+|   ROUTE_NAME_SHORT |   DIRECTION_ID | NODE     |   STOP_ID | NODENAME            |
+|-------------------:|---------------:|:---------|----------:|:--------------------|
+|                001 |              0 | MAPLWCLF |     14447 | MAPLE & WYCLIFF     |
+|                001 |              0 | SAMOBEXA |     15842 | SAMOA & BEXAR       |
+|                001 |              0 | MALCMLKX |     15879 | MALCOM X & M.L KING |
 </feed-sample>
 
-### fare_rules.txt (feed.fare_rules)
+### route_direction.txt (feed.route_direction)
 <feed-sample>
-|   fare_id |   route_id |
-|----------:|-----------:|
-|         1 |          1 |
-|         1 |         12 |
-|         1 |         14 |
-</feed-sample>
-
-### realtime_routes.txt (feed.realtime_routes)
-<feed-sample>
-|   route_id |   realtime_enabled |
-|-----------:|-------------------:|
-|          1 |                  1 |
-|          2 |                  1 |
-|          5 |                  1 |
-</feed-sample>
-
-### rider_categories.txt (feed.rider_categories)
-<feed-sample>
-|   rider_category_id | rider_category_description   |
-|--------------------:|:-----------------------------|
-|                   2 | Senior                       |
-|                   3 | Child                        |
-|                   5 | Youth                        |
-</feed-sample>
-
-### route_attributes.txt (feed.route_attributes)
-<feed-sample>
-| route_id   |   category |   subcategory |   running_way |
-|:-----------|-----------:|--------------:|--------------:|
-| 1          |          2 |           201 |             3 |
-| 12         |          3 |           301 |             5 |
-| 1X         |          3 |           302 |             3 |
+|   ARTICLE |   DIRNUM | DIRECTIONNAME   |
+|----------:|---------:|:----------------|
+|       001 |        0 | SOUTHBOUND      |
+|       001 |        1 | NORTHBOUND      |
+|       003 |        0 | INBOUND         |
 </feed-sample>
 
 ### routes.txt (feed.routes)
 <feed-sample>
-|   route_id | agency_id   |   route_short_name | route_long_name   | route_url               | route_desc            |   route_type | route_color   | route_text_color   |   route_sort_order |
-|-----------:|:------------|-------------------:|:------------------|:------------------------|:----------------------|-------------:|:--------------|:-------------------|-------------------:|
-|          1 | SFMTA       |                  1 | CALIFORNIA        | http://www.sfmta.com/1  | 5am-12 midnight daily |            3 | 005B95        | FFFFFF             |                nan |
-|         12 | SFMTA       |                 12 | FOLSOM-PACIFIC    | http://www.sfmta.com/12 | 6am-10pm daily        |            3 | 005B95        | FFFFFF             |                nan |
-|         14 | SFMTA       |                 14 | MISSION           | http://www.sfmta.com/14 | 24 hour service daily |            3 | 005B95        | FFFFFF             |                nan |
+|   route_id | agency_id   |   route_short_name | route_long_name    |   route_desc |   route_type | route_url                                                                  | route_color   | route_text_color   |
+|-----------:|:------------|-------------------:|:-------------------|-------------:|-------------:|:---------------------------------------------------------------------------|:--------------|:-------------------|
+|      25697 | DART        |                001 | MALCOLM X/MAPLE    |          nan |            3 | https://www.dart.org/guide/transit-and-use/bus-routes/bus-route-detail/001 | FFCC00        | FFFFFF             |
+|      25698 | DART        |                003 | ROSS               |          nan |            3 | https://www.dart.org/guide/transit-and-use/bus-routes/bus-route-detail/003 | FFCC00        | FFFFFF             |
+|      25699 | DART        |                005 | LOVE FIELD SHUTTLE |          nan |            3 | https://www.dart.org/guide/transit-and-use/bus-routes/bus-route-detail/005 | FFCC00        | FFFFFF             |
 </feed-sample>
 
 ### shapes.txt (feed.shapes)
 <feed-sample>
 |   shape_id |   shape_pt_lat |   shape_pt_lon |   shape_pt_sequence |   shape_dist_traveled |
 |-----------:|---------------:|---------------:|--------------------:|----------------------:|
-|         30 |        37.7736 |        -122.51 |                   1 |             0         |
-|         30 |        37.7736 |        -122.51 |                   3 |             0.0031725 |
-|         30 |        37.7733 |        -122.51 |                   4 |             0.0237813 |
-</feed-sample>
-
-### stop_attributes.txt (feed.stop_attributes)
-<feed-sample>
-|   stop_id |   accessibility_id |   cardinal_direction |   relative_position | stop_city     |
-|----------:|-------------------:|---------------------:|--------------------:|:--------------|
-|      6598 |                  0 |                  nan |                 nan | San Francisco |
-|      6599 |                  0 |                  nan |                 nan | San Francisco |
-|      6600 |                  0 |                  nan |                 nan | San Francisco |
+|     143210 |        32.8125 |       -96.8332 |                   1 |                0      |
+|     143210 |        32.8126 |       -96.8333 |                   2 |                0.0134 |
+|     143210 |        32.8127 |       -96.8334 |                   3 |                0.0279 |
 </feed-sample>
 
 ### stop_times.txt (feed.stop_times)
 <feed-sample>
-|   trip_id |   arrival_time |   departure_time |   stop_id |   stop_sequence |   stop_headsign |   shape_dist_traveled |   timepoint |
-|----------:|---------------:|-----------------:|----------:|----------------:|----------------:|----------------------:|------------:|
-|  11593899 |          16320 |            16320 |      3892 |               1 |             nan |              0        |           1 |
-|  11593899 |          16361 |            16361 |      3875 |               2 |             nan |              0.172503 |           0 |
-|  11593899 |          16408 |            16408 |      3896 |               3 |             nan |              0.370289 |           0 |
+|   trip_id |   arrival_time |   departure_time |   stop_id |   stop_sequence |   stop_headsign |   pickup_type |   drop_off_type |   shape_dist_traveled |   timepoint |
+|----------:|---------------:|-----------------:|----------:|----------------:|----------------:|--------------:|----------------:|----------------------:|------------:|
+|   8107589 |          16560 |            16560 |     33286 |               1 |             nan |             0 |               0 |                0      |           1 |
+|   8107589 |          16664 |            16664 |     13396 |               2 |             nan |             0 |               0 |                0.5865 |           0 |
+|   8107589 |          16706 |            16706 |     22649 |               3 |             nan |             0 |               0 |                0.8252 |           0 |
 </feed-sample>
 
 ### stops.txt (feed.stops)
 <feed-sample>
-|   stop_id |   stop_code | stop_name                |   stop_lat |   stop_lon |   wheelchair_boarding | platform_code   | stop_url                    |
-|----------:|------------:|:-------------------------|-----------:|-----------:|----------------------:|:----------------|:----------------------------|
-|      4200 |       14200 | Crescent Ave & Porter St |    37.7349 |   -122.418 |                     0 |                 | https://www.sfmta.com/14200 |
-|      4201 |       14201 | Crescent Ave & Putnam St |    37.735  |   -122.411 |                     0 |                 | https://www.sfmta.com/14201 |
-|      4202 |       14202 | Crescent Ave & Putnam St |    37.7349 |   -122.411 |                     0 |                 | https://www.sfmta.com/14202 |
+|   stop_id |   stop_code | stop_name                         | stop_desc                                                                  |   stop_lat |   stop_lon |   zone_id |   stop_url |   wheelchair_boarding |
+|----------:|------------:|:----------------------------------|:---------------------------------------------------------------------------|-----------:|-----------:|----------:|-----------:|----------------------:|
+|     12901 |       12901 | FOREST @ SHEPHERD - E - NS        | FOREST @ SHEPHERD -Eastbound -Near Side (before the intersection)          |    32.9091 |   -96.7504 |       nan |        nan |                     1 |
+|     12908 |       12908 | WALNUT HILL @ RAMBLER - W - MB    | WALNUT HILL @ RAMBLER -Westbound -Mid Block (not near the intersection)    |    32.8834 |   -96.7609 |       nan |        nan |                     1 |
+|     12909 |       12909 | WALNUT HILL @ GREENVILLE - E - MB | WALNUT HILL @ GREENVILLE -Eastbound -Mid Block (not near the intersection) |    32.8832 |   -96.7602 |       nan |        nan |                     0 |
 </feed-sample>
 
 ### trips.txt (feed.trips)
 <feed-sample>
-|   route_id |   service_id |   trip_id | trip_headsign       |   direction_id |   block_id |   shape_id |   wheelchair_accessible |   bikes_allowed |
-|-----------:|-------------:|----------:|:--------------------|---------------:|-----------:|-----------:|------------------------:|----------------:|
-|          1 |            1 |  11593899 | Geary + 33rd Avenue |              0 |        102 |        103 |                     nan |             nan |
-|          1 |            1 |  11593900 | Geary + 33rd Avenue |              0 |        103 |        103 |                     nan |             nan |
-|          1 |            1 |  11593901 | Geary + 33rd Avenue |              0 |        105 |        103 |                     nan |             nan |
+|   route_id |   service_id |   trip_id | trip_headsign   |   direction_id |   block_id |   shape_id |
+|-----------:|-------------:|----------:|:----------------|---------------:|-----------:|-----------:|
+|      25697 |            2 |   8107832 | 1 BEXAR         |              0 |        102 |     143210 |
+|      25697 |            2 |   8107833 | 1 BEXAR         |              0 |        101 |     143210 |
+|      25697 |            2 |   8107834 | 1 BEXAR         |              0 |        103 |     143210 |
 </feed-sample>
 
 

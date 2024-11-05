@@ -30,12 +30,40 @@ def run_benchmark(df, model):
     # df = df.head(1) # For testing: Remove this
     for index, row in stqdm(df.iterrows(), total=df.shape[0]):
         st.write(f"Running {index + 1} of {df.shape[0]}")
-        agent.update_agent(
-            row["feed"], model, file_mapping[row["feed"]]["distance_unit"], st.session_state.allow_viz
+        allow_viz = (
+            row["visualization"]
+            if "visualization" in row
+            else st.session_state.allow_viz
         )
-        agent.reset() # Ensure chat history is cleared
-        result = agent.run_workflow(row["question"], st.session_state.allow_retry, summarize = False, task = row["task"])
-        new_results.append({"result": result['code_output']})
+        allow_retry = (
+            row["allow_retry"] if "allow_retry" in row else st.session_state.allow_retry
+        )
+        agent.update_agent(
+            row["feed"], model, file_mapping[row["feed"]]["distance_unit"], allow_viz
+        )
+        agent.reset()  # Ensure chat history is cleared
+        result = agent.run_workflow(
+            row["question"], allow_retry, summarize=False, task=row["task"]
+        )
+        
+        # Handle visualization outputs
+        if allow_viz and result["code_output"]:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            viz_dir = "benchmark/visualizations"
+            os.makedirs(viz_dir, exist_ok=True)
+            
+            if isinstance(result["code_output"], dict):
+                if "map" in result["code_output"]:
+                    map_path = f"{viz_dir}/{timestamp}_{index}_map.html"
+                    result["code_output"]["map"].save(map_path)
+                    result["code_output"]["map"] = map_path
+                    
+                if "plot" in result["code_output"]:
+                    plot_path = f"{viz_dir}/{timestamp}_{index}_plot.png"
+                    result["code_output"]["plot"].write_image(plot_path)
+                    result["code_output"]["plot"] = plot_path
+
+        new_results.append({"result": result["code_output"]})
         additional_results.append(
             {
                 "task": row["task"],
@@ -70,13 +98,17 @@ def save_benchmark_results(model, results, additional_results):
 
 def get_benchmark_files():
     files = os.listdir("benchmark")
-    return ["None"] + sorted(files, reverse=True)  # Add "None" as the first option and sort files in reverse order
-
-def get_benchmark_results():
-    files = os.listdir("benchmark/results")
     return ["None"] + sorted(
         files, reverse=True
     )  # Add "None" as the first option and sort files in reverse order
+
+
+def get_benchmark_results():
+    files = [f for f in os.listdir("benchmark/results") if f.endswith(".json")]
+    return ["None"] + sorted(
+        files, reverse=True
+    )  # Add "None" as the first option and sort files in reverse order
+
 
 # Function to load the DataFrame
 @st.cache_data
@@ -131,7 +163,9 @@ def main():
 
     st.sidebar.header("Select Model")
     model = st.sidebar.selectbox("Choose a model", options=LLMs, key="model_selector")
-    benchmark = st.sidebar.selectbox("Choose a benchmark", options=get_benchmark_files(), key="benchmark_selector")
+    benchmark = st.sidebar.selectbox(
+        "Choose a benchmark", options=get_benchmark_files(), key="benchmark_selector"
+    )
     if benchmark != "None":
         st.session_state.df = load_data(f"benchmark/{benchmark}")
     with st.sidebar.expander("Benchmark Settings"):
@@ -302,7 +336,9 @@ def main():
                 )
                 if additional_data.get("execution_time", "N/A") != "N/A":
                     # Round to 2 decimal places
-                    execution_time = round(additional_data.get("execution_time", "N/A"), 2)
+                    execution_time = round(
+                        additional_data.get("execution_time", "N/A"), 2
+                    )
                     st.write(f"Execution Time: {execution_time} seconds")
                 st.json(
                     selected_row[["feed", "question", "task"]].to_dict(), expanded=True
@@ -317,7 +353,6 @@ def main():
             else:
                 st.write(additional_data)
 
-        
         # Auto-update grade and comment when selection changes
         if selected_grade != current_grade or comment != current_comment:
             grade_or_comment_changed = update_grade(

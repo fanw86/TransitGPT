@@ -1,0 +1,16 @@
+import sys
+import os
+import pytest
+
+# Add the parent directory to the sys.path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from evaluator.eval_code import GTFS_Eval
+from utils.constants import file_mapping
+
+evaluator = GTFS_Eval(file_mapping)
+evaluator.get_system_prompt("DART", "m", True)
+
+code = "```python\n# Validate that all necessary GTFS tables are present\nrequired_tables = ['trips', 'stop_times', 'routes']\nif not all(hasattr(feed, table) for table in required_tables):\n    result = {\n        'answer': \"Missing required GTFS tables.\",\n        'additional_info': \"Please ensure that trips, stop_times, and routes tables are present in the feed.\"\n    }\nelse:\n    # Get the current date and day of the week\n    import datetime\n    today = datetime.datetime.now()\n    current_day = today.strftime(\"%A\")  # Get the current day of the week\n\n    # Define the days of the week for ordering\n    days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']\n\n    # Create a DataFrame to count trips per day of the week\n    trip_counts = {day: 0 for day in days_of_week}\n\n    # Iterate through each trip to count occurrences\n    for trip_id in feed.trips['trip_id']:\n        # Get the service_id for the trip\n        service_id = feed.trips.loc[feed.trips['trip_id'] == trip_id, 'service_id'].values[0]\n        \n        # Check if the service_id is active today\n        service_info = feed.calendar[feed.calendar['service_id'] == service_id]\n        if not service_info.empty:\n            # Check if the service operates today\n            if service_info[current_day.lower()].values[0] == 1:\n                # Count the trip for the corresponding day\n                trip_counts[current_day] += 1\n\n    # Prepare data for plotting\n    trip_data = []\n    for route_id in feed.routes['route_id']:\n        # Count trips for each route\n        route_trips = feed.trips[feed.trips['route_id'] == route_id]\n        for day in days_of_week:\n            count = sum(1 for trip_id in route_trips['trip_id'] if trip_id in feed.stop_times['trip_id'].values)\n            trip_data.append({\n                'route_id': route_id,\n                'day': day,\n                'count': count,\n                'route_color': feed.routes.loc[feed.routes['route_id'] == route_id, 'route_color'].values[0]\n            })\n\n    # Create a DataFrame for plotting\n    trip_df = pd.DataFrame(trip_data)\n\n    # Create a horizontal bar chart using Plotly Express\n    import plotly.express as px\n\n    fig = px.bar(\n        trip_df,\n        x='count',\n        y='day',\n        color='route_color',\n        text='count',\n        orientation='h',\n        title='Number of Trips by Day of the Week',\n        labels={'count': 'Number of Trips', 'day': 'Day of the Week'},\n        color_discrete_sequence=trip_df['route_color'].unique()\n    )\n\n    # Prepare the result\n    result = {\n        'answer': \"Horizontal bar chart created showing the number of trips by day of the week.\",\n        'additional_info': \"The chart is stacked by route and represented by route color.\",\n        'plot': fig\n    }\n```"
+
+evaluator.evaluate(code, 10)
