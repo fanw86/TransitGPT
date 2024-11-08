@@ -5,7 +5,7 @@ from utils.data_models import ChatHistoryEntry
 
 
 def process_user_input(user_input: str):
-    agent = st.session_state.agent
+    agent = st.session_state["agent"]
     with st.chat_message("assistant", avatar="🚍"):
         with st.spinner("Processing your request..."):
             result = agent.run_workflow(user_input, st.session_state.retry_code)

@@ -30,6 +30,7 @@ def create_feedback_entry(result):
         user_email=st.session_state.get("user_email", ""),
         only_text=result["only_text"],
         execution_time=result["execution_time"],
+        token_usage=result["token_usage"],
     )
 
     if result["eval_success"]:

@@ -1,77 +1,59 @@
 import logging
 import os
 from datetime import datetime
-from logging.handlers import RotatingFileHandler
 from rich.logging import RichHandler
-from rich.console import Console
 from rich.traceback import install as install_rich_traceback
-from rich.text import Text
-import pytz  # Add this import
+import pytz
 
-
-def setup_logger(log_file):
-    # Ensure the log file directory exists
-    log_dir = os.path.dirname(log_file)
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir)
-
-    # Ensure the log file exists
-    if not os.path.exists(log_file):
-        open(log_file, 'a').close()
-
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
-
-    # Create a RichHandler
-    rich_handler = RichHandler(rich_tracebacks=True)
-    rich_handler.setLevel(logging.INFO)
-
-    # Create a file handler
-    file_handler = logging.FileHandler(log_file)
-    file_handler.setLevel(logging.INFO)
-
-    # Create a formatter and add it to the handlers
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    file_handler.setFormatter(formatter)
-
-    # Add the handlers to the logger
-    logger.addHandler(rich_handler)
-    logger.addHandler(file_handler)
-
-    return logger
-
-
-def reset_logger(logger, log_file):
-    # Remove all handlers from the logger
-    for handler in logger.handlers[:]:
-        logger.removeHandler(handler)
-        handler.close()
-
-    # Remove the logger from the logging module's dict
-    if logger.name in logging.Logger.manager.loggerDict:
-        del logging.Logger.manager.loggerDict[logger.name]
-
-    # Create a new logger instance
-    new_logger = setup_logger(log_file)
-    new_logger.info("Logger reset and reinitialized")
-
-    return new_logger
-
-
-class RichColorFormatter(logging.Formatter):
-    def format(self, record):
-        message = super().format(record)
-        return Text.from_markup(message)
-
+install_rich_traceback()
 
 class CSTFormatter(logging.Formatter):
     def converter(self, timestamp):
-        dt = datetime.fromtimestamp(timestamp)
-        cst_tz = pytz.timezone('America/Chicago')
-        return cst_tz.localize(dt)
+        dt = datetime.fromtimestamp(timestamp, tz=pytz.UTC)
+        cst_tz = pytz.timezone("America/Chicago")
+        return dt.astimezone(cst_tz)
 
     def formatTime(self, record, datefmt=None):
         dt = self.converter(record.created)
         if datefmt:
             return dt.strftime(datefmt)
-        return dt.strftime("%Y-%m-%d %H:%M:%S %Z")
+        return dt.strftime("%B %d, %Y %H:%M:%S %Z")
+
+
+def setup_logger(log_file):
+    log_dir = os.path.dirname(log_file)
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+    
+    # Create and configure file handler separately
+    file_handler = logging.FileHandler(log_file, mode="w")
+    formatter = CSTFormatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    file_handler.setFormatter(formatter)
+    
+    # Configure rich handler separately
+    rich_handler = RichHandler(markup=True, rich_tracebacks=True)
+    rich_handler.setFormatter(logging.Formatter("%(message)s"))
+    
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[rich_handler, file_handler],
+        force=True,
+    )
+
+    logger = logging.getLogger(__name__)
+    return logger
+
+
+def reset_logger(logger, log_file):
+    for handler in logger.handlers[:]:
+        logger.removeHandler(handler)
+        handler.close()
+
+    if logger.name in logging.Logger.manager.loggerDict:
+        del logging.Logger.manager.loggerDict[logger.name]
+
+    new_logger = setup_logger(log_file)
+    new_logger.info("Logger reset and reinitialized")
+
+    return new_logger

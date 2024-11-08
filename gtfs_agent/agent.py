@@ -132,8 +132,8 @@ class LLMAgent:
         messages = self.create_messages(user_prompt, model)
         client = self.clients[self.get_client_key(model)]
         self.logger.info(f"Messages sent to {model}: {messages}\n")
-        response, call_success = client.call(model, messages, self.system_prompt)
-        return response, call_success
+        response, call_success, usage = client.call(model, messages, self.system_prompt)
+        return response, call_success, usage
 
     @task(name="Execute Code")
     def execute(self, user_input: str, llm_response: str):
@@ -150,7 +150,9 @@ class LLMAgent:
         self, user_input: str, llm_response: str, retry_code: bool
     ) -> Tuple[Any, bool, str, bool, str]:
         errors = []
+        total_usage = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
         attempts_allowed = self.max_retry if retry_code else 1
+        
         with st.status("Evaluating code..."):
             for attempt in range(1, attempts_allowed + 1):
                 result, success, error, only_text = self.execute(
@@ -170,15 +172,19 @@ class LLMAgent:
                         error_message,
                         only_text,
                     )
-                    return result, success, error_message, only_text, llm_response
+                    return result, success, error_message, only_text, llm_response, total_usage
 
                 errors.append(f"Attempt {attempt}: {error}")
                 self._log_retry_attempt(attempt, error)
 
                 if attempt < attempts_allowed:
-                    llm_response, call_success = self.call_main_llm_retry(
+                    llm_response, call_success, usage = self.call_main_llm_retry(
                         user_input, llm_response, error, temperature=MAIN_LLM_RETRY_TEMPERATURE
                     )
+                    # Add usage from retry attempt
+                    for key in total_usage:
+                        total_usage[key] += usage.get(key, 0)
+                        
                     if not call_success:
                         errors.append(f"Attempt {attempt + 1}: LLM call failed")
                         break
@@ -187,7 +193,7 @@ class LLMAgent:
             self.update_chat_history(
                 user_input, llm_response, result, success, error_message, only_text
             )
-        return None, False, error_message, only_text, llm_response
+        return None, False, error_message, only_text, llm_response, total_usage
 
     def _check_map_renderability(self, map_obj):
         try:
@@ -247,12 +253,12 @@ class LLMAgent:
         self.logger.info(f"Retrying LLM call with model: {model}")
         messages = self.get_retry_messages(user_input, main_llm_response, error)
         client = self.clients[self.get_client_key(model)]
-        response, call_success = client.call(
+        response, call_success, usage = client.call(
             model, messages, self.system_prompt, temperature
         )
 
         self.logger.info(f"LLM Response: {response}")
-        return response, call_success
+        return response, call_success, usage
 
     @task(name="Summary LLM Call")
     def call_summary_llm(self, stream_placeholder):
@@ -320,18 +326,22 @@ class LLMAgent:
         self, user_input: str, retry_code: bool = False, summarize: bool = True, task: str = None
     ):
         start_time = time.time()
-        llm_response, call_success = self.call_main_llm(user_input)
+        llm_response, call_success, usage = self.call_main_llm(user_input)
 
         if not call_success:
             self.logger.error(f"LLM call failed: {llm_response}")
             # If call is not successful, LLM response is the error message
             return None, False, llm_response, True, None, None, None
-
+        
+        # Evaluate the code with retry
         self.logger.info(f"LLM call success: {llm_response}")
-        output, success, error, only_text, llm_response = self.evaluate_code_with_retry(
+        output, success, error, only_text, llm_response, total_usage = self.evaluate_code_with_retry(
             user_input, llm_response, retry_code=retry_code
         )
-
+        # Compute the total usage by adding the usage from the first attempt
+        total_usage["prompt_tokens"] += usage["prompt_tokens"]
+        total_usage["completion_tokens"] += usage["completion_tokens"]
+        total_usage["total_tokens"] += usage["total_tokens"]
         # New step: Validate evaluation results
         # validation_response = self.validate_evaluation(user_input, llm_response, result, success, error, only_text)
         # validation_response = None
@@ -353,6 +363,7 @@ class LLMAgent:
             "only_text": only_text,
             "main_response": llm_response,
             "summary_response": summary_response,
+            "token_usage": total_usage,
             # "validation_response": validation_response,
             "execution_time": execution_time,
         }

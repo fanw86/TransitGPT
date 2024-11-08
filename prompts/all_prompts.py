@@ -294,7 +294,7 @@ Output: ((38.8977, -77.0365), "1600 Pennsylvania Avenue NW, Washington, DC 20500
 
 ### Distance Calculations
 For distance calculations:
-- Prefer using `shape_dist_traveled` from `shapes.txt` or `stop_times.txt` files when available.
+- Prefer using `shape_dist_traveled` from `stop_times.txt` or `shapes.txt` files when available.
 - If `shape_dist_traveled` is not available, use `geodesic` from geopy.distance.
 - All coordinates are in `EPSG:4326` CRS (WGS84).
 - `shape_dist_traveled` represents cumulative distance along the route.

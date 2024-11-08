@@ -43,3 +43,4 @@ class FeedbackEntry(BaseModel):
     only_text: bool = False
     execution_time: Optional[float] = None
     error_message: Optional[str] = None
+    token_usage: Optional[dict] = None

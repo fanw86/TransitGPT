@@ -15,6 +15,7 @@ import shapely
 import streamlit as st
 from shapely.geometry import LineString, Point, Polygon
 from thefuzz import process, fuzz
+from tqdm import tqdm
 from stqdm import stqdm
 from utils.find_stops import (
     get_geo_location,
@@ -46,6 +47,7 @@ import_namespace = {
     "Polygon": Polygon,
     "process": process,
     "fuzz": fuzz,
+    "tqdm": tqdm,
     "stqdm": stqdm,
     "get_geo_location": get_geo_location,
     "find_stops_by_full_name": find_stops_by_full_name,

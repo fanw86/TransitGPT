@@ -7,10 +7,11 @@ import threading
 import copy
 import warnings
 from typing import Dict, Any
+import psutil
+import gc
 
 ## For Evals
 from evaluator.eval_imports import import_namespace
-from streamlit.runtime.scriptrunner import add_script_run_ctx
 
 # Custom Imports
 from utils.constants import TIMEOUT_SECONDS
@@ -29,9 +30,20 @@ class PropagatingThread(threading.Thread):
         self.exc = None
         self.ret = None
         try:
+            # Set CPU affinity to use only 80% of available cores
+            process = psutil.Process()
+            num_cores = psutil.cpu_count()
+            cores_to_use = max(1, int(num_cores * 0.8))  # Use 80% of cores, minimum 1
+            # On Windows/Linux, use the first N cores
+            available_cores = list(range(cores_to_use))
+            process.cpu_affinity(available_cores)
+            
             self.ret = self._target(*self._args, **self._kwargs)
         except BaseException as e:
             self.exc = e
+        finally:
+            # Reset CPU affinity to use all cores
+            process.cpu_affinity(list(range(psutil.cpu_count())))
 
     def join(self, timeout=None):
         super().join(timeout)
@@ -66,10 +78,9 @@ class GTFS_Eval:
     def load_current_feed(self, GTFS: str):
         current_loader = getattr(self, f"loader_{GTFS.lower()}")
         if self.gtfs != GTFS:
-            # Load all tables for the selected GTFS feed
-            # current_loader.load_all_tables()
+            # Force garbage collection before loading new feed
+            gc.collect()
             self.gtfs = GTFS
-            # print(f"Loaded feed {self.gtfs}")
         return current_loader
 
     def get_system_prompt(self, GTFS, distance_unit, allow_viz):
@@ -86,9 +97,7 @@ class GTFS_Eval:
             self.system_prompt = generate_system_prompt(self.current_loader, allow_viz)
         return self.system_prompt
 
-    def evaluate(
-        self, code: str, timeout_seconds: int = TIMEOUT_SECONDS
-    ) -> Dict[str, Any]:
+    def evaluate(self, code: str, timeout_seconds: int = TIMEOUT_SECONDS) -> Dict[str, Any]:
         """
         Evaluates the given code and returns the result.
         """
@@ -117,13 +126,15 @@ class GTFS_Eval:
                 global execution_result
                 exec(code, nm)
                 execution_result = nm.get("result")
+                # Force garbage collection after execution
+                gc.collect()
 
             thread = PropagatingThread(target=execute_code)
-            add_script_run_ctx(thread)
             thread.daemon = True
             thread.start()
             thread.join(timeout=timeout_seconds)
-
+            # Keep gc.collect() here to ensure cleanup even if execute_code() times out
+            gc.collect()
             if thread.is_alive():
                 raise TimeoutError(f"Code execution timed out after {timeout_seconds} seconds")
             if execution_result is None:
@@ -196,4 +207,6 @@ class GTFS_Eval:
         self.gtfs = None
         self.system_prompt = None
         self.distance_unit = None
+        # Force garbage collection after reset
+        gc.collect()
         print("GTFS_Eval instance has been reset.")

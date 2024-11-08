@@ -3,17 +3,23 @@ import pandas as pd
 import json
 import yaml
 import os
+import ast
 from datetime import datetime
 from stqdm import stqdm
 from utils.constants import LLMs, file_mapping
 from utils.helper import NpEncoder
+from utils.save_visuals import save_map, save_plot, save_dataframe
 from gtfs_agent.agent import LLMAgent
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import time
 from streamlit_shortcuts import button, add_keyboard_shortcuts
 from streamlit_extras.add_vertical_space import add_vertical_space
+import streamlit.components.v1 as components
 
+import plotly.io as pio
+
+pio.templates.default = "plotly"
 
 @st.cache_resource
 def get_agent(model):
@@ -54,14 +60,19 @@ def run_benchmark(df, model):
             
             if isinstance(result["code_output"], dict):
                 if "map" in result["code_output"]:
-                    map_path = f"{viz_dir}/{timestamp}_{index}_map.html"
-                    result["code_output"]["map"].save(map_path)
-                    result["code_output"]["map"] = map_path
+                    result["code_output"]["map"] = save_map(
+                        result["code_output"]["map"], viz_dir, timestamp, index
+                    )
                     
                 if "plot" in result["code_output"]:
-                    plot_path = f"{viz_dir}/{timestamp}_{index}_plot.png"
-                    result["code_output"]["plot"].write_image(plot_path)
-                    result["code_output"]["plot"] = plot_path
+                    result["code_output"]["plot"] = save_plot(
+                        result["code_output"]["plot"], viz_dir, timestamp, index
+                    )
+                    
+                if "dataframe" in result["code_output"]:
+                    result["code_output"]["dataframe"] = save_dataframe(
+                        result["code_output"]["dataframe"], viz_dir, timestamp, index
+                    )
 
         new_results.append({"result": result["code_output"]})
         additional_results.append(
@@ -72,6 +83,7 @@ def run_benchmark(df, model):
                 "only_text": result["only_text"],
                 "llm_response": str(result["main_response"]),
                 "execution_time": result["execution_time"],
+                "token_usage": result["token_usage"],
             }
         )
         # time.sleep(5)
@@ -97,7 +109,7 @@ def save_benchmark_results(model, results, additional_results):
 
 
 def get_benchmark_files():
-    files = os.listdir("benchmark")
+    files = [f for f in os.listdir("benchmark") if f.endswith(".yaml")]
     return ["None"] + sorted(
         files, reverse=True
     )  # Add "None" as the first option and sort files in reverse order
@@ -127,10 +139,15 @@ def get_ungraded_items(df):
 
 # Function to parse JSON-like strings
 def parse_json_like(s):
-    try:
-        return json.loads(s)
-    except:
+    # print(type(s))
+    # print(s)
+    if isinstance(s, dict):
         return s
+    try:
+        return ast.literal_eval(s)
+    except:
+        print("failed to parse json")
+        return str(s)
 
 
 def custom_notification(message, duration=2):
@@ -279,13 +296,11 @@ def main():
                     current_grade, "#6c757d"
                 )  # Default to a neutral color if not found
                 st.markdown(
-                    f"<div style='padding: 10px; border-radius: 5px; background-color: {grade_color}; color: white; text-align: center;'>"
+                    f"<div style='padding: 5px; border-radius: 5px; background-color: {grade_color}; color: white; text-align: center;'>"
                     f"<span style='font-weight: bold;'>Current Grade:</span> {current_grade}"
                     "</div>",
                     unsafe_allow_html=True,
                 )
-
-        with col2:
             grade_options = [
                 "",
                 "Correct",
@@ -301,31 +316,51 @@ def main():
                 if current_grade in grade_options
                 else 0,
                 key=f"grade_select_{selected_index}",
-                label_visibility="collapsed",
+                # label_visibility="collapsed",
             )
-
+        with col2:
             current_comment = (
                 df.at[selected_index, "comment"] if "comment" in df.columns else ""
             )
             comment = st.text_area(
-                "Add a comment", value=current_comment, key=f"comment_{selected_index}"
+                "Add a comment",
+                placeholder="Add a comment",
+                value=current_comment,
+                key=f"comment_{selected_index}",
+                height=100,
+                label_visibility="collapsed",
             )
 
         # Display Evaluation and Response in an expander with columns
-        with st.expander("Evaluation and Response", expanded=True):
+        with st.expander("GT and Response", expanded=True):
             col1, col2 = st.columns(2)
             with col1:
-                st.subheader("Evaluation")
+                st.subheader("Ground Truth")
                 eval_data = parse_json_like(selected_row["evaluation"])
                 st.json(eval_data, expanded=True)
+                if "plot" in eval_data:
+                    st.image(eval_data["plot"])
+                if "map" in eval_data:
+                    components.html(open(eval_data["map"], "r").read(), height=400)
+                if "dataframe" in eval_data:
+                    st.dataframe(pd.read_csv(eval_data["dataframe"]))
 
             with col2:
                 st.subheader("Response")
-                response_data = parse_json_like(selected_row[model])
-                if isinstance(response_data, dict) and "result" in response_data:
-                    st.json(response_data["result"], expanded=True)
+                print("type of selected_row[model]: ", type(selected_row[model]))
+                response_data = parse_json_like(selected_row[model]['result'])
+                if isinstance(response_data, dict):
+                    st.json(response_data, expanded=True)
                 else:
-                    st.write(selected_row[model])
+                    st.write(response_data)
+                print(response_data)
+                print(type(response_data))
+                if "plot" in response_data:
+                    st.image(response_data["plot"])
+                if "map" in response_data:
+                    components.html(open(response_data["map"], "r").read(), height=400)
+                if "dataframe" in response_data:
+                    st.dataframe(pd.read_csv(response_data["dataframe"]))
 
         # Put additional info in another expander
         with st.expander("Additional Information"):
@@ -344,12 +379,12 @@ def main():
                     selected_row[["feed", "question", "task"]].to_dict(), expanded=True
                 )
                 st.write("LLM Response:")
-                main_response = (
-                    additional_data.get("llm_response", "N/A")
-                    .split("```python")[1]
-                    .split("```")[0]
-                )
-                st.code(main_response)
+                response = additional_data.get("llm_response", "N/A")
+                if "```python" in response:
+                    response = response.split("```python")[1].split("```")[0]
+                    st.code(response)
+                else:
+                    st.write(response)
             else:
                 st.write(additional_data)
 
