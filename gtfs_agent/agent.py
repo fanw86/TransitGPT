@@ -117,10 +117,10 @@ class LLMAgent:
             )
             self.chat_history.append(interaction)
 
-    def call_main_llm(self, user_input: str) -> Tuple[str, bool, str]:
+    def call_main_llm(self, user_input: str, use_few_shot: bool = True) -> Tuple[str, bool, str]:
         model = self.model
         self.logger.info(f"Calling LLM with model: {model}")
-        few_shot_examples = generate_dynamic_few_shot(user_input, self.allow_viz)
+        few_shot_examples = generate_dynamic_few_shot(user_input, self.allow_viz) if use_few_shot else ""
         user_prompt = MAIN_LLM_USER_PROMPT.format(
             user_query=user_input, examples=few_shot_examples
         )
@@ -313,10 +313,11 @@ class LLMAgent:
         self.load_system_prompt(GTFS, distance_unit, allow_viz)
 
     def run_workflow(
-        self, user_input: str, retry_code: bool = False, summarize: bool = True, task: str = None
+        self, user_input: str, retry_code: bool = False, summarize: bool = True, task: str = None, use_few_shot: bool = True
     ):
         start_time = time.time()
-        llm_response, call_success, usage = self.call_main_llm(user_input)
+        # First call to LLM with option to include or exclude few shot examples
+        llm_response, call_success, usage = self.call_main_llm(user_input, use_few_shot = use_few_shot)
 
         if not call_success:
             self.logger.error(f"LLM call failed: {llm_response}")

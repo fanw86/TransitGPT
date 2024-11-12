@@ -40,7 +40,7 @@ Common data types:
 These are the datatypes for all files within the current GTFS:\n
 """
 
-TASK_INSTRUCTION = f"""
+TASK_INSTRUCTION_NO_VIZ = f"""
 ## Task Instructions
 Adhere strictly to the following instructions:
 <instructions>

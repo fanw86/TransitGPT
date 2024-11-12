@@ -345,7 +345,7 @@ Adhere strictly to the following instructions:
    - `dataframe` [Optional] contains any DataFrame results if applicable
    - `map`/`plot` [Optional] contains the generated map or plot which are map or figure objects
 6. Handle potential errors and missing data in the GTFS feed.
-7. Optimize code for performance as there is timeout of 300 seconds for the code execution.
+7. Optimize code for performance as there is timeout of 180 seconds for the code execution.
 8. Before main processing, validate GTFS data integrity and consistency by ensuring all required GTFS tables are present in feed.
 9. Use only fields from the GTFS Static Specification and provided feed sample.
 10. For specific attributes, use example identifiers (e.g., `route_id`, `stop_id`) by sampling from the data. Example: `feed.routes.route_id.sample(n=1).values[0]` or `feed.stops.stop_id.sample(n=1).values[0]` 

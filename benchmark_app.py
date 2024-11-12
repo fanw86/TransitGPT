@@ -21,6 +21,7 @@ import plotly.io as pio
 
 pio.templates.default = "plotly"
 
+
 @st.cache_resource
 def get_agent(model):
     return LLMAgent(file_mapping, model=model)
@@ -44,14 +45,25 @@ def run_benchmark(df, model):
         allow_retry = (
             row["allow_retry"] if "allow_retry" in row else st.session_state.allow_retry
         )
+        allow_few_shot = (
+            row["allow_few_shot"]
+            if "allow_few_shot" in row
+            else st.session_state.allow_few_shot
+        )
         agent.update_agent(
             row["feed"], model, file_mapping[row["feed"]]["distance_unit"], allow_viz
         )
         agent.reset()  # Ensure chat history is cleared
+
+        # The main workflow is here. Summary prompt will not be generated
         result = agent.run_workflow(
-            row["question"], allow_retry, summarize=False, task=row["task"]
+            row["question"],
+            allow_retry,
+            summarize=False,
+            task=row["task"],
+            use_few_shot=allow_few_shot,
         )
-        
+
         # Handle visualization outputs
         if allow_viz and result["code_output"]:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -177,17 +189,23 @@ def main():
         st.session_state.grade_updated = False
     if "selected_index" not in st.session_state:
         st.session_state.selected_index = 0
-
-    st.sidebar.header("Select Model")
-    model = st.sidebar.selectbox("Choose a model", options=LLMs, key="model_selector")
-    benchmark = st.sidebar.selectbox(
-        "Choose a benchmark", options=get_benchmark_files(), key="benchmark_selector"
-    )
-    if benchmark != "None":
-        st.session_state.df = load_data(f"benchmark/{benchmark}")
     with st.sidebar.expander("Benchmark Settings"):
-        st.sidebar.checkbox("Allow Visualization", value=False, key="allow_viz")
-        st.sidebar.checkbox("Allow Retry", value=False, key="allow_retry")
+        st.sidebar.header("Select Model")
+        model = st.sidebar.selectbox(
+            "Choose a model", options=LLMs, key="model_selector"
+        )
+        benchmark = st.sidebar.selectbox(
+            "Choose a benchmark",
+            options=get_benchmark_files(),
+            key="benchmark_selector",
+        )
+        if benchmark != "None":
+            st.session_state.df = load_data(f"benchmark/{benchmark}")
+            st.sidebar.checkbox(
+                "Use Few Shot Examples", value=False, key="allow_few_shot"
+            )
+            st.sidebar.checkbox("Allow Visualization", value=False, key="allow_viz")
+            st.sidebar.checkbox("Allow Retry", value=False, key="allow_retry")
     if st.sidebar.button("Run Benchmark"):
         # Clear the main screen
         with st.spinner(f"Running benchmark for {model}..."):
@@ -339,16 +357,25 @@ def main():
                 eval_data = parse_json_like(selected_row["evaluation"])
                 st.json(eval_data, expanded=True)
                 if "plot" in eval_data:
-                    st.image(eval_data["plot"])
+                    try:
+                        st.image(eval_data["plot"])
+                    except Exception as e:
+                        st.error(f"Error displaying plot: {str(e)}")
                 if "map" in eval_data:
-                    components.html(open(eval_data["map"], "r").read(), height=400)
+                    try:
+                        components.html(open(eval_data["map"], "r").read(), height=400)
+                    except Exception as e:
+                        st.error(f"Error displaying map: {str(e)}")
                 if "dataframe" in eval_data:
-                    st.dataframe(pd.read_csv(eval_data["dataframe"]))
+                    try:
+                        st.dataframe(pd.read_csv(eval_data["dataframe"]))
+                    except Exception as e:
+                        st.error(f"Error displaying dataframe: {str(e)}")
 
             with col2:
                 st.subheader("Response")
                 print("type of selected_row[model]: ", type(selected_row[model]))
-                response_data = parse_json_like(selected_row[model]['result'])
+                response_data = parse_json_like(selected_row[model]["result"])
                 if isinstance(response_data, dict):
                     st.json(response_data, expanded=True)
                 else:

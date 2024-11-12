@@ -4,7 +4,7 @@ from prompts.all_prompts import (
     GTFS_STRUCTURE,
     BASE_PROMPT,
     BASE_GTFS_FEED_DATATYPES,
-    TASK_INSTRUCTION,
+    TASK_INSTRUCTION_NO_VIZ,
     TASK_INSTRUCTION_VIZ,
     TASK_TIPS,
     VISUALIZATION_TIPS,
@@ -115,7 +115,7 @@ def generate_fileinfo_dtypes(feed: GTFSLoader, file_list, distance_unit: str):
     return FILE_INFO, GTFS_FEED_DATATYPES
 
 
-def generate_system_prompt(loader: GTFSLoader, allow_viz: bool = False) -> str:
+def generate_system_prompt(loader: GTFSLoader, allow_viz: bool = False, basic_prompt: bool = False) -> str:
     distance_unit = loader.distance_unit
     GTFS = loader.gtfs
     feed = loader.feed
@@ -129,14 +129,16 @@ def generate_system_prompt(loader: GTFSLoader, allow_viz: bool = False) -> str:
     )
 
     # Choose the appropriate task instruction based on allow_viz
-    task_instruction = TASK_INSTRUCTION_VIZ if allow_viz else TASK_INSTRUCTION
+    TASK_INSTRUCTION = (
+        TASK_INSTRUCTION_VIZ if allow_viz else TASK_INSTRUCTION_NO_VIZ
+    )
 
     final_prompt = (
         BASE_PROMPT
         + GTFS_STRUCTURE
         + GTFS_FEED_DATATYPES
         + FILE_INFO
-        + task_instruction
+        + TASK_INSTRUCTION
         + TASK_TIPS
     )
 

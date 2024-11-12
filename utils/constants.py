@@ -1,8 +1,8 @@
 import json
 import streamlit as st
 
-# Set timeout to 5 minutes
-TIMEOUT_SECONDS = 5 * 60
+# Set timeout to 3 minutes
+TIMEOUT_SECONDS = 3 * 60
 
 # File to store sample questions
 QUESTIONS_FILE = "data/sample_questions.json"
