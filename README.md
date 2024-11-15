@@ -1,6 +1,6 @@
-# GTFS2CODE 🚌
+# TransitGPT 🚌
 
-GTFS2CODE is a specialized chatbot that helps transit enthusiasts retrieve transit information and analyze GTFS feeds via code.
+TransitGPT is a specialized chatbot that helps transit enthusiasts retrieve transit information and analyze GTFS feeds via code.
 
 
 <p align="center">
