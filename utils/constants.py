@@ -46,8 +46,8 @@ if "ANTHROPIC_API_KEY" in st.secrets:
         ]
     )
 
-if "GROQ_API_KEY" in st.secrets:
-    LLMs.extend(["llama-3.1-8b-instant"])
+# if "GROQ_API_KEY" in st.secrets:
+#     LLMs.extend(["llama-3.1-8b-instant"])
 
 disclaimer_text = """
 This chatbot is an AI-powered tool designed to assist with GTFS data analysis and code generation. Please be aware of the following:

@@ -48,7 +48,7 @@ class LLMAgent:
         )
         self.clients = {
             "gpt": OpenAIClient(),
-            "llama": GroqClient(),
+            # "llama": GroqClient(),
             "claude": AnthropicClient(),
         }
 
