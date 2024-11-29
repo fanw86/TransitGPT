@@ -6,7 +6,7 @@ from prompts.all_prompts import (
     RETRY_PROMPT,
     MAIN_LLM_USER_PROMPT,
     MODERATION_LLM_SYSTEM_PROMPT,
-    MODERATION_LLM_BLOCK_RESPONSE
+    MODERATION_LLM_BLOCK_RESPONSE,
 )
 from prompts.generate_prompt import generate_dynamic_few_shot
 from utils.constants import (
@@ -17,10 +17,10 @@ from utils.constants import (
     ENABLE_TRACING,
     MODERATION_LLM,
     MODERATION_LLM_TEMPERATURE,
-    MODERATION_LLM_MAX_TOKENS
+    MODERATION_LLM_MAX_TOKENS,
 )
 from typing import List, Dict, Any, Tuple
-from utils.helper import summarize_large_output
+from utils.helper import summarize_large_output, combine_token_usage
 from gtfs_agent.llm_client import OpenAIClient, GroqClient, AnthropicClient
 from utils.data_models import ChatInteraction
 from evaluator.eval_code import GTFS_Eval
@@ -153,7 +153,13 @@ class LLMAgent:
         system_prompt = MODERATION_LLM_SYSTEM_PROMPT
         messages = self.create_messages(user_input, model)
         client = self.clients[self.get_client_key(model)]
-        response, call_success, usage = client.call(model, messages, system_prompt, max_tokens = MODERATION_LLM_MAX_TOKENS, temperature=MODERATION_LLM_TEMPERATURE)
+        response, call_success, usage = client.call(
+            model,
+            messages,
+            system_prompt,
+            max_tokens=MODERATION_LLM_MAX_TOKENS,
+            temperature=MODERATION_LLM_TEMPERATURE,
+        )
         return response, call_success, usage
 
     @task(name="Execute Code")
@@ -363,9 +369,11 @@ class LLMAgent:
         task: str = None,
     ):
         start_time = time.time()
-        moderation_response, call_success, moderation_usage =  self.call_moderation_llm(user_input)
-        
-        if 'BLOCK' in moderation_response:
+        moderation_response, call_success, moderation_usage = self.call_moderation_llm(
+            user_input
+        )
+
+        if "BLOCK" in moderation_response:
             return {
                 "task": task,
                 "code_output": None,
@@ -377,8 +385,8 @@ class LLMAgent:
                 "token_usage": moderation_usage,
                 "execution_time": 0,
             }
-        
-        llm_response, call_success, usage = self.call_main_llm(user_input)
+
+        llm_response, call_success, main_llm_usage = self.call_main_llm(user_input)
 
         if not call_success:
             self.logger.error(f"LLM call failed: {llm_response}")
@@ -387,15 +395,16 @@ class LLMAgent:
 
         # Evaluate the code with retry
         self.logger.info(f"LLM call success: {llm_response}")
-        output, success, error, only_text, llm_response, total_usage = (
+        output, success, error, only_text, llm_response, retry_usage = (
             self.evaluate_code_with_retry(
                 user_input, llm_response, retry_code=retry_code
             )
         )
         # Compute the total usage by adding the usage from the first attempt
-        total_usage["prompt_tokens"] += usage["prompt_tokens"]
-        total_usage["completion_tokens"] += usage["completion_tokens"]
-        total_usage["total_tokens"] += usage["total_tokens"]
+        total_usage = combine_token_usage(
+            [moderation_usage, main_llm_usage, retry_usage]
+        )
+
         # New step: Validate evaluation results
         # validation_response = self.validate_evaluation(user_input, llm_response, result, success, error, only_text)
         # validation_response = None

@@ -35,7 +35,7 @@ FILE_MAPPING_LOC = "gtfs_data/file_mapping.json"
 file_mapping = json.loads(open(FILE_MAPPING_LOC).read())
 
 # Enable Tracing
-ENABLE_TRACING = False
+ENABLE_TRACING = True
 
 # Populate LLMs based on available API keys
 LLMs = []

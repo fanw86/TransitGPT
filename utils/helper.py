@@ -135,3 +135,15 @@ def plotly_fig_to_base64(fig):
     img_bytes = pio.to_image(fig, format="png")
     img_str = base64.b64encode(img_bytes).decode()
     return img_str
+
+def combine_token_usage(usage_list):
+    combined_usage = {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0
+    }
+    for usage in usage_list:
+        combined_usage["prompt_tokens"] += usage["prompt_tokens"]
+        combined_usage["completion_tokens"] += usage["completion_tokens"]
+        combined_usage["total_tokens"] += usage["total_tokens"]
+    return combined_usage
