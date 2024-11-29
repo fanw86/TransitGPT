@@ -440,4 +440,6 @@ ALLOW CATEGORY:
 - Respectful debates about best practices in transit data management
 - Questions and answers related to coding with GTFS data
 - Some technical jargon or mild frustration expressions, as long as they're not offensive
+
+Please categorize the following user-generated text as BLOCK or ALLOW. Respond with `BLOCK` if the text falls under the BLOCK category, and `ALLOW` if it falls under the ALLOW category:
 """

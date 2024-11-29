@@ -229,6 +229,7 @@ class LLMAgent:
         # Add the user input and main LLM response
         messages.append({"role": "user", "content": user_input})
         messages.append({"role": "assistant", "content": main_llm_response})
+        messages.append({"role": "user", "content": RETRY_PROMPT.format(error=error)})
         # # Add the error message as part of the last assistant's response
         # if messages and messages[-1]["role"] == "assistant":
         #     messages[-1]["content"] += f"\n\nError: {error}"
@@ -237,7 +238,7 @@ class LLMAgent:
         #     messages.append({"role": "assistant", "content": f"Error: {error}"})
 
         # Add the retry prompt as a new user message
-        messages.append({"role": "user", "content": RETRY_PROMPT.format(error=error)})
+        
 
         return messages
 

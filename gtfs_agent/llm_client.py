@@ -26,13 +26,14 @@ class OpenAIClient(LLMClient):
     def set_logger(self, logger):
         self.logger = logger
 
-    def call(self, model, messages, system_prompt=None, temperature=MAIN_LLM_TEMPERATURE) -> Tuple[str, bool, dict]:
+    def call(self, model, messages, system_prompt=None, temperature=MAIN_LLM_TEMPERATURE, max_tokens = None) -> Tuple[str, bool, dict]:
         messages.insert(0, {"role": "system", "content": system_prompt})
         try:
             response = self.client.chat.completions.create(
                 model=model,
                 messages=messages,
                 temperature=temperature,
+                max_tokens = max_tokens
             )
             self.logger.info(f"Raw Response from OpenAI: {response}")
             self.last_error = None
