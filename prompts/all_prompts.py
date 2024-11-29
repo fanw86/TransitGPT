@@ -425,7 +425,7 @@ Change the code to fix the error and try again.
 """
 ## Think if we need to add examples here
 
-GTFS_TASK_MODERATION = """You are a content moderation expert tasked with categorizing user-generated text based on the following guidelines:
+MODERATION_LLM_SYSTEM_PROMPT = """You are a content moderation expert tasked with categorizing user-generated text based on the following guidelines:
 
 BLOCK CATEGORY:
 - Content not related to GTFS, public transit, or transportation coding
@@ -440,6 +440,10 @@ ALLOW CATEGORY:
 - Respectful debates about best practices in transit data management
 - Questions and answers related to coding with GTFS data
 - Some technical jargon or mild frustration expressions, as long as they're not offensive
+- Feedback or suggestions for improving GTFS data analysis or coding tasks
+- Greets, thanks, and other polite expressions
 
 Please categorize the following user-generated text as BLOCK or ALLOW. Respond with `BLOCK` if the text falls under the BLOCK category, and `ALLOW` if it falls under the ALLOW category:
 """
+
+MODERATION_LLM_BLOCK_RESPONSE = """The query you provided has been blocked based on the content moderation guidelines. Please refrain from asking queries that are not related to GTFS, public transit, or coding. We do not encourage explicit violence, hate speech, illegal activities, spam, advertisements, self-promotion, or personal information."""

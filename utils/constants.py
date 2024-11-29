@@ -27,8 +27,15 @@ MAIN_LLM_RETRY_TEMPERATURE = 0.5 # Recommend using 0.4-0.7 for retry tasks. Typi
 SUMMARY_LLM = "gpt-4o-mini"
 SUMMARY_LLM_TEMPERATURE = 0.7
 
+MODERATION_LLM = "gpt-4o-mini"
+MODERATION_LLM_TEMPERATURE = 0.7
+MODERATION_LLM_MAX_TOKENS = 5
+
 FILE_MAPPING_LOC = "gtfs_data/file_mapping.json"
 file_mapping = json.loads(open(FILE_MAPPING_LOC).read())
+
+# Enable Tracing
+ENABLE_TRACING = False
 
 # Populate LLMs based on available API keys
 LLMs = []

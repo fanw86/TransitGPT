@@ -5,9 +5,20 @@ from prompts.all_prompts import (
     SUMMARY_LLM_USER_PROMPT,
     RETRY_PROMPT,
     MAIN_LLM_USER_PROMPT,
+    MODERATION_LLM_SYSTEM_PROMPT,
+    MODERATION_LLM_BLOCK_RESPONSE
 )
 from prompts.generate_prompt import generate_dynamic_few_shot
-from utils.constants import LOG_FILE, SUMMARY_LLM, MAIN_LLM_RETRY_TEMPERATURE
+from utils.constants import (
+    LOG_FILE,
+    SUMMARY_LLM,
+    SUMMARY_LLM_TEMPERATURE,
+    MAIN_LLM_RETRY_TEMPERATURE,
+    ENABLE_TRACING,
+    MODERATION_LLM,
+    MODERATION_LLM_TEMPERATURE,
+    MODERATION_LLM_MAX_TOKENS
+)
 from typing import List, Dict, Any, Tuple
 from utils.helper import summarize_large_output
 from gtfs_agent.llm_client import OpenAIClient, GroqClient, AnthropicClient
@@ -61,7 +72,7 @@ class LLMAgent:
         self.chat_history = []
         self.allow_viz = allow_viz
         self.load_system_prompt(self.GTFS, self.distance_unit, self.allow_viz)
-        if "TRACELOOP_API_KEY" in st.secrets:
+        if ENABLE_TRACING and "TRACELOOP_API_KEY" in st.secrets:
             Traceloop.init(disable_batch=True, api_key=st.secrets["TRACELOOP_API_KEY"])
 
     def load_system_prompt(self, GTFS, distance_unit, allow_viz):
@@ -124,7 +135,7 @@ class LLMAgent:
     @task(name="Call Main LLM")
     def call_main_llm(self, user_input: str) -> Tuple[str, bool, str]:
         model = self.model
-        self.logger.info(f"Calling LLM with model: {model}")
+        self.logger.info(f"Calling Main LLM with model: {model}")
         few_shot_examples = generate_dynamic_few_shot(user_input, self.allow_viz)
         user_prompt = MAIN_LLM_USER_PROMPT.format(
             user_query=user_input, examples=few_shot_examples
@@ -133,6 +144,16 @@ class LLMAgent:
         client = self.clients[self.get_client_key(model)]
         self.logger.info(f"Messages sent to {model}: {messages}\n")
         response, call_success, usage = client.call(model, messages, self.system_prompt)
+        return response, call_success, usage
+
+    @task(name="Call Moderation LLM")
+    def call_moderation_llm(self, user_input: str) -> Tuple[str, bool, str]:
+        model = MODERATION_LLM
+        self.logger.info(f"Calling Moderation LLM with model: {model}")
+        system_prompt = MODERATION_LLM_SYSTEM_PROMPT
+        messages = self.create_messages(user_input, model)
+        client = self.clients[self.get_client_key(model)]
+        response, call_success, usage = client.call(model, messages, system_prompt, max_tokens = MODERATION_LLM_MAX_TOKENS, temperature=MODERATION_LLM_TEMPERATURE)
         return response, call_success, usage
 
     @task(name="Execute Code")
@@ -152,7 +173,7 @@ class LLMAgent:
         errors = []
         total_usage = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
         attempts_allowed = self.max_retry if retry_code else 1
-        
+
         with st.status("Evaluating code..."):
             for attempt in range(1, attempts_allowed + 1):
                 result, success, error, only_text = self.execute(
@@ -172,19 +193,29 @@ class LLMAgent:
                         error_message,
                         only_text,
                     )
-                    return result, success, error_message, only_text, llm_response, total_usage
+                    return (
+                        result,
+                        success,
+                        error_message,
+                        only_text,
+                        llm_response,
+                        total_usage,
+                    )
 
                 errors.append(f"Attempt {attempt}: {error}")
                 self._log_retry_attempt(attempt, error)
 
                 if attempt < attempts_allowed:
                     llm_response, call_success, usage = self.call_main_llm_retry(
-                        user_input, llm_response, error, temperature=MAIN_LLM_RETRY_TEMPERATURE
+                        user_input,
+                        llm_response,
+                        error,
+                        temperature=MAIN_LLM_RETRY_TEMPERATURE,
                     )
                     # Add usage from retry attempt
                     for key in total_usage:
                         total_usage[key] += usage.get(key, 0)
-                        
+
                     if not call_success:
                         errors.append(f"Attempt {attempt + 1}: LLM call failed")
                         break
@@ -238,7 +269,6 @@ class LLMAgent:
         #     messages.append({"role": "assistant", "content": f"Error: {error}"})
 
         # Add the retry prompt as a new user message
-        
 
         return messages
 
@@ -287,7 +317,9 @@ class LLMAgent:
         client = self.clients["gpt"]
         # Stream the response
         system_prompt = SUMMARY_LLM_SYSTEM_PROMPT
-        for chunk in client.stream_call(model, messages, system_prompt):
+        for chunk in client.stream_call(
+            model, messages, system_prompt, temperature=SUMMARY_LLM_TEMPERATURE
+        ):
             full_response += chunk
             stream_placeholder.markdown(full_response + "▌")
 
@@ -324,20 +356,41 @@ class LLMAgent:
 
     @workflow(name="LLM Agent Workflow")
     def run_workflow(
-        self, user_input: str, retry_code: bool = False, summarize: bool = True, task: str = None
+        self,
+        user_input: str,
+        retry_code: bool = False,
+        summarize: bool = True,
+        task: str = None,
     ):
         start_time = time.time()
+        moderation_response, call_success, moderation_usage =  self.call_moderation_llm(user_input)
+        
+        if 'BLOCK' in moderation_response:
+            return {
+                "task": task,
+                "code_output": None,
+                "eval_success": False,
+                "error_message": "Your query has been blocked due to inappropriate content. Please try another query.",
+                "only_text": True,
+                "main_response": MODERATION_LLM_BLOCK_RESPONSE,
+                "summary_response": None,
+                "token_usage": moderation_usage,
+                "execution_time": 0,
+            }
+        
         llm_response, call_success, usage = self.call_main_llm(user_input)
 
         if not call_success:
             self.logger.error(f"LLM call failed: {llm_response}")
             # If call is not successful, LLM response is the error message
             return None, False, llm_response, True, None, None, None
-        
+
         # Evaluate the code with retry
         self.logger.info(f"LLM call success: {llm_response}")
-        output, success, error, only_text, llm_response, total_usage = self.evaluate_code_with_retry(
-            user_input, llm_response, retry_code=retry_code
+        output, success, error, only_text, llm_response, total_usage = (
+            self.evaluate_code_with_retry(
+                user_input, llm_response, retry_code=retry_code
+            )
         )
         # Compute the total usage by adding the usage from the first attempt
         total_usage["prompt_tokens"] += usage["prompt_tokens"]
