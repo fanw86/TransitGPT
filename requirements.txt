@@ -7,7 +7,7 @@ streamlit
 streamlit-folium
 openai
 anthropic>=0.34.1
-groq
+groq==0.12.0
 partridge
 geopandas
 gtfs_kit
