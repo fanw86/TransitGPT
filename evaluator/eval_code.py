@@ -60,11 +60,9 @@ class GTFS_Eval:
         self.system_prompt = None
         self.distance_unit = None
         self.allow_viz = None
-        # Initialize GTFSLoader objects for each GTFS feed in the selectbox with feed_sfmta
-        for key, value in self.file_mapping.items():
-            setattr(
-                self, f"loader_{key.lower()}", load_zipped_pickle(value["pickle_loc"])
-            )
+        # Initialize loader dictionary with lowercase keys and pickle file locations
+        self.loaders = {key.lower(): value["pickle_loc"] for key, value in self.file_mapping.items()}
+
 
     def __getstate__(self):
         state = self.__dict__.copy()
@@ -76,12 +74,12 @@ class GTFS_Eval:
         self.__dict__.update(state)
 
     def load_current_feed(self, GTFS: str):
-        current_loader = getattr(self, f"loader_{GTFS.lower()}")
+        current_loader = self.loaders.get(GTFS.lower())
         if self.gtfs != GTFS:
             # Force garbage collection before loading new feed
             gc.collect()
             self.gtfs = GTFS
-        return current_loader
+        return load_zipped_pickle(current_loader)
 
     def get_system_prompt(self, GTFS, distance_unit, allow_viz):
         if (

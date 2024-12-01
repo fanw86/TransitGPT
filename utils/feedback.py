@@ -93,7 +93,7 @@ class FeedbackAgent:
         st.toast("Thank you for your feedback!", icon="👍" if feedback_value else "👎")
 
 
-@st.cache_resource(show_spinner="Loading feedback...")
+@st.cache_resource(show_spinner="Loading feedback...", ttl=3600)
 def get_feedback():
     fb_agent = FeedbackAgent()
     return fb_agent

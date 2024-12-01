@@ -4,9 +4,8 @@ import streamlit as st
 from utils.helper import jumble_list
 from utils.constants import QUESTIONS_FILE, QUESTION_LIMIT
 
-st.cache_data(ttl=60)
 
-
+@st.cache_data(ttl=3600)
 def load_questions():
     if os.path.exists(QUESTIONS_FILE):
         with open(QUESTIONS_FILE, "r") as f:

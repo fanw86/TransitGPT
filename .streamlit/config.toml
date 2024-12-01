@@ -11,7 +11,7 @@ maxMessageSize = 512
 fileWatcherType = "poll"
 
 [logger]
-level = "debug"
+level = "info"
 messageFormat = "%(asctime)s %(message)s"
 
 [global]

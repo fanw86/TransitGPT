@@ -27,7 +27,7 @@ def is_json_serializable(obj):
         return False
 
 
-@st.cache_data(show_spinner="Displaying Map")
+@st.cache_data(show_spinner="Displaying Map", ttl=3600)
 def safe_folium_display(_folium_map, message_id):
     if isinstance(_folium_map, Map):
         try:
@@ -48,7 +48,7 @@ def safe_folium_display(_folium_map, message_id):
         )
 
 
-@st.cache_data(show_spinner="Displaying Figure")
+@st.cache_data(show_spinner="Displaying Figure", ttl=3600)
 def safe_fig_display(fig):
     if isinstance(fig, plt.Figure):
         try:
@@ -68,7 +68,7 @@ def safe_fig_display(fig):
         )
 
 
-@st.cache_data(show_spinner="Displaying Dataframe")
+@st.cache_data(show_spinner="Displaying Dataframe", ttl=3600)
 def safe_dataframe_display(df):
     if isinstance(df, pd.DataFrame):
         try:
