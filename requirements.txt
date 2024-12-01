@@ -28,3 +28,4 @@ branca
 stqdm
 traceloop-sdk>=0.33.5
 psutil
+inotify

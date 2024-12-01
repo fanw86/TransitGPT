@@ -59,7 +59,7 @@ def setup_sidebar():
         st.session_state["call_count"] = 0
 
     st.sidebar.markdown(
-        "`GTFS2CODE` is a specialized chatbot that helps transit enthusiasts retrieve transit information and analyze GTFS feeds via code."
+        "`TransitGPT` is a specialized chatbot that helps transit enthusiasts retrieve transit information and analyze GTFS feeds via code."
     )
 
     st.sidebar.selectbox(

@@ -14,7 +14,7 @@ from components.chat_interface import (
 from components.chat_input_box import set_chat_box
 
 st.set_page_config(
-    page_title="GTFS2CODE", page_icon="🚍", layout="wide", initial_sidebar_state="auto"
+    page_title="TransitGPT", page_icon="🚍", layout="wide", initial_sidebar_state="auto"
 )
 
 # Setup Session state variables at the beginning of your Streamlit app
@@ -46,7 +46,7 @@ if "user_name" not in st.session_state or "user_email" not in st.session_state:
     show_user_info_popup()
 
 # Chat interface
-st.title("🚌GTFS2CODE")
+st.title("🚌TransitGPT")
 # Display chat history
 display_chat_history(st.session_state["fb_agent"], st.session_state.uuid)
 
