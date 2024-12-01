@@ -8,9 +8,10 @@ fastReruns = true
 enableCORS = true
 maxUploadSize = 512
 maxMessageSize = 512
+fileWatcherType = "poll"
 
 [logger]
-level = "info"
+level = "debug"
 messageFormat = "%(asctime)s %(message)s"
 
 [global]
