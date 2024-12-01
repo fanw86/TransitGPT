@@ -69,23 +69,36 @@ def safe_fig_display(fig):
 
 
 @st.cache_data(show_spinner="Displaying Dataframe", ttl=3600)
-def safe_dataframe_display(df):
-    if isinstance(df, pd.DataFrame):
-        try:
-            st.dataframe(
-                df.reset_index(drop=True),
-                use_container_width=True,
-                height=50,
-                hide_index=df.index.name is None or df.index.name == 'index',
-            )
-        except Exception as e:
-            st.error(f"Error displaying DataFrame: {str(e)}")
-            st.write("DataFrame data (non-rendered):")
-            st.json(df.to_dict())
-    else:
-        st.error(
-            f"Expected a Pandas DataFrame object, but received a different type. Received object of type: {type(df)}"
+def safe_dataframe_display(data):
+    try:
+        # Convert various input types to DataFrame
+        if not isinstance(data, pd.DataFrame):
+            if isinstance(data, (list, tuple)):
+                df = pd.DataFrame(data)
+            elif isinstance(data, dict):
+                df = pd.DataFrame.from_dict(data)
+            elif isinstance(data, np.ndarray):
+                df = pd.DataFrame(data)
+            else:
+                try:
+                    df = pd.DataFrame([data])
+                except:
+                    st.error(f"Could not convert type {type(data)} to DataFrame")
+                    return
+        else:
+            df = data
+
+        # Display DataFrame
+        st.dataframe(
+            df.reset_index(drop=True),
+            use_container_width=True,
+            height=50,
+            hide_index=df.index.name is None or df.index.name == 'index',
         )
+    except Exception as e:
+        st.error(f"Error processing/displaying data: {str(e)}")
+        st.write("Raw data (non-rendered):")
+        st.json(data if isinstance(data, dict) else {"data": str(data)})
 
 
 def apply_color_codes(text):

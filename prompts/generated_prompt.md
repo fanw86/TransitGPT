@@ -19,7 +19,7 @@ You are a GTFS expert who helps analyze transit data and write Python code to pr
 
 <distance-unit>
 
-- The distance units for this GTFS feed are in `Kilometers`. Therefore, fields such as `shape_dist_traveled` will be reported in `Kilometers`.
+- The distance units for this GTFS feed are in `Meters`. Therefore, fields such as `shape_dist_traveled` will be reported in `Meters`.
 
 </distance-unit>
 
@@ -42,11 +42,9 @@ These are the datatypes for all files within the current GTFS:
 
 - `agency_id`: string
 - `agency_name`: string
-- `agency_phone`: string
 - `agency_url`: string
 - `agency_timezone`: string
 - `agency_lang`: string
-- `agency_fare_url`: string
 
 </data-type>
 
@@ -83,10 +81,9 @@ These are the datatypes for all files within the current GTFS:
 - `feed_publisher_name`: string
 - `feed_publisher_url`: string
 - `feed_lang`: string
-- `feed_version`: string
 - `feed_start_date`: date (datetime.date)
 - `feed_end_date`: date (datetime.date)
-- `feed_contact_url`: string
+- `feed_version`: string
 
 </data-type>
 
@@ -114,24 +111,7 @@ These are the datatypes for all files within the current GTFS:
 - `shape_pt_lat`: float
 - `shape_pt_lon`: float
 - `shape_pt_sequence`: integer
-- `shape_dist_traveled`: float (`Kilometers`)
-
-</data-type>
-
-### stop_times.txt
-
-<data-type>
-
-- `trip_id`: string
-- `arrival_time`: time (seconds since midnight)
-- `departure_time`: time (seconds since midnight)
-- `stop_id`: string
-- `stop_sequence`: integer
-- `stop_headsign`: string
-- `pickup_type`: integer
-- `drop_off_type`: integer
-- `shape_dist_traveled`: float (`Kilometers`)
-- `timepoint`: integer
+- `shape_dist_traveled`: float (`Meters`)
 
 </data-type>
 
@@ -147,7 +127,26 @@ These are the datatypes for all files within the current GTFS:
 - `stop_lon`: float
 - `zone_id`: string
 - `stop_url`: string
+- `location_type`: integer
+- `parent_station`: string
+- `stop_timezone`: string
 - `wheelchair_boarding`: integer
+
+</data-type>
+
+### stop_times.txt
+
+<data-type>
+
+- `trip_id`: string
+- `arrival_time`: time (seconds since midnight)
+- `departure_time`: time (seconds since midnight)
+- `stop_id`: string
+- `stop_sequence`: integer
+- `stop_headsign`: string
+- `pickup_type`: integer
+- `drop_off_type`: integer
+- `timepoint`: integer
 
 </data-type>
 
@@ -172,124 +171,79 @@ These are the datatypes for all files within the current GTFS:
 
 ### agency.txt (feed.agency)
 <feed-sample>
-| agency_id   | agency_name               | agency_phone   | agency_url           | agency_timezone   | agency_lang   | agency_fare_url                                            |
-|:------------|:--------------------------|:---------------|:---------------------|:------------------|:--------------|:-----------------------------------------------------------|
-| DART        | DALLAS AREA RAPID TRANSIT | 214-979-1111   | https://www.dart.org | America/Chicago   | en            | https://www.dart.org/fare/general-fares-and-overview/fares |
-</feed-sample>
-
-### blocks.txt (feed.blocks)
-<feed-sample>
-|   SERVICE_ID |   BLOCK_ID |   PULLOUTTIME |   PULLINTIME |
-|-------------:|-----------:|--------------:|-------------:|
-|            2 |        101 |         12120 |        83040 |
-|            2 |        102 |         13440 |        71160 |
-|            2 |        103 |         13920 |        91080 |
+| agency_id   | agency_name                      | agency_url            | agency_timezone   | agency_lang   |
+|:------------|:---------------------------------|:----------------------|:------------------|:--------------|
+| RTD         | Regional Transportation District | http://rtd-denver.com | America/Denver    | en            |
 </feed-sample>
 
 ### calendar.txt (feed.calendar)
 <feed-sample>
-|   service_id |   monday |   tuesday |   wednesday |   thursday |   friday |   saturday |   sunday | start_date   | end_date   |
-|-------------:|---------:|----------:|------------:|-----------:|---------:|-----------:|---------:|:-------------|:-----------|
-|            2 |        1 |         1 |           0 |          0 |        0 |          0 |        0 | 2024-10-21   | 2025-01-05 |
-|            3 |        0 |         0 |           0 |          0 |        0 |          1 |        0 | 2024-10-21   | 2025-01-05 |
-|            4 |        0 |         0 |           0 |          0 |        0 |          0 |        1 | 2024-10-21   | 2025-01-05 |
+| service_id   |   monday |   tuesday |   wednesday |   thursday |   friday |   saturday |   sunday | start_date   | end_date   |
+|:-------------|---------:|----------:|------------:|-----------:|---------:|-----------:|---------:|:-------------|:-----------|
+| DPSWK        |        1 |         1 |           1 |          1 |        1 |          0 |        0 | 2024-09-29   | 2025-01-18 |
+| FR           |        0 |         0 |           0 |          0 |        1 |          0 |        0 | 2024-09-29   | 2025-01-18 |
+| MT           |        1 |         1 |           1 |          1 |        0 |          0 |        0 | 2024-09-29   | 2025-01-18 |
 </feed-sample>
 
 ### calendar_dates.txt (feed.calendar_dates)
 <feed-sample>
-|   service_id | date       |   exception_type |
-|-------------:|:-----------|-----------------:|
-|            2 | 2024-10-23 |                1 |
-|           21 | 2024-10-23 |                1 |
-|          402 | 2024-10-23 |                1 |
-</feed-sample>
-
-### facilities.txt (feed.facilities)
-<feed-sample>
-|   facility_id |   facility_code | facility_name         |   facility_desc |   facility_lat |   facility_lon |   facility_type |   facility_url |
-|--------------:|----------------:|:----------------------|----------------:|---------------:|---------------:|----------------:|---------------:|
-|         22729 |           22729 | CEDARS STATION        |             nan |        32.7686 |       -96.7933 |               1 |            nan |
-|         25435 |           25435 | CBD WEST TC           |             nan |        32.7816 |       -96.8041 |               1 |            nan |
-|         29270 |           29270 | BUSH TURNPIKE STATION |             nan |        33.0033 |       -96.7025 |               1 |            nan |
+| service_id   | date       |   exception_type |
+|:-------------|:-----------|-----------------:|
+| DPSWK        | 2024-11-28 |                2 |
+| MT           | 2024-11-28 |                2 |
+| SU           | 2024-11-28 |                1 |
 </feed-sample>
 
 ### feed_info.txt (feed.feed_info)
 <feed-sample>
-| feed_publisher_name       | feed_publisher_url   | feed_lang   | feed_version          | feed_start_date   | feed_end_date   | feed_contact_url                |
-|:--------------------------|:---------------------|:------------|:----------------------|:------------------|:----------------|:--------------------------------|
-| DALLAS AREA RAPID TRANSIT | https://www.dart.org | en          | V566-193-195-20241021 | 2024-10-21        | 2025-01-05      | https://www.dart.org/contact-us |
-</feed-sample>
-
-### info.txt (feed.info)
-<feed-sample>
-| GTFS Version: V566-193-195-20241021                                     |
-|:------------------------------------------------------------------------|
-| Data Range: 20241021 - 20250105                                         |
-| URL: https://www.dart.org/transitdata/archive/V566-193-195-20241021.ZIP |
-| Event: Start of new Rail Signup (OCT2024_RAIL)                          |
-</feed-sample>
-
-### nodes.txt (feed.nodes)
-<feed-sample>
-|   ROUTE_NAME_SHORT |   DIRECTION_ID | NODE     |   STOP_ID | NODENAME            |
-|-------------------:|---------------:|:---------|----------:|:--------------------|
-|                001 |              0 | MAPLWCLF |     14447 | MAPLE & WYCLIFF     |
-|                001 |              0 | SAMOBEXA |     15842 | SAMOA & BEXAR       |
-|                001 |              0 | MALCMLKX |     15879 | MALCOM X & M.L KING |
-</feed-sample>
-
-### route_direction.txt (feed.route_direction)
-<feed-sample>
-|   ARTICLE |   DIRNUM | DIRECTIONNAME   |
-|----------:|---------:|:----------------|
-|       001 |        0 | SOUTHBOUND      |
-|       001 |        1 | NORTHBOUND      |
-|       003 |        0 | INBOUND         |
+| feed_publisher_name   | feed_publisher_url    | feed_lang   | feed_start_date   | feed_end_date   | feed_version                      |
+|:----------------------|:----------------------|:------------|:------------------|:----------------|:----------------------------------|
+| RTD                   | http://rtd-denver.com | en          | 2024-09-29        | 2025-01-18      | Sep24-34118-13-17-20241026-030132 |
 </feed-sample>
 
 ### routes.txt (feed.routes)
 <feed-sample>
-|   route_id | agency_id   |   route_short_name | route_long_name    |   route_desc |   route_type | route_url                                                                  | route_color   | route_text_color   |
-|-----------:|:------------|-------------------:|:-------------------|-------------:|-------------:|:---------------------------------------------------------------------------|:--------------|:-------------------|
-|      25697 | DART        |                001 | MALCOLM X/MAPLE    |          nan |            3 | https://www.dart.org/guide/transit-and-use/bus-routes/bus-route-detail/001 | FFCC00        | FFFFFF             |
-|      25698 | DART        |                003 | ROSS               |          nan |            3 | https://www.dart.org/guide/transit-and-use/bus-routes/bus-route-detail/003 | FFCC00        | FFFFFF             |
-|      25699 | DART        |                005 | LOVE FIELD SHUTTLE |          nan |            3 | https://www.dart.org/guide/transit-and-use/bus-routes/bus-route-detail/005 | FFCC00        | FFFFFF             |
+| route_id   | agency_id   | route_short_name   | route_long_name        | route_desc                                 |   route_type | route_url                                 | route_color   | route_text_color   |
+|:-----------|:------------|:-------------------|:-----------------------|:-------------------------------------------|-------------:|:------------------------------------------|:--------------|:-------------------|
+| 0          | RTD         | 0                  | Broadway               | This Route Travels Northbound & Southbound |            3 | http://www.rtd-denver.com/Schedules.shtml | 0076CE        | FFFFFF             |
+| 0B         | RTD         | 0B                 | South Broadway         | This Route Travels Northbound & Southbound |            3 | http://www.rtd-denver.com/Schedules.shtml | 0076CE        | FFFFFF             |
+| 0L         | RTD         | 0L                 | South Broadway Limited | This Route Travels Northbound & Southbound |            3 | http://www.rtd-denver.com/Schedules.shtml | 0076CE        | FFFFFF             |
 </feed-sample>
 
 ### shapes.txt (feed.shapes)
 <feed-sample>
 |   shape_id |   shape_pt_lat |   shape_pt_lon |   shape_pt_sequence |   shape_dist_traveled |
 |-----------:|---------------:|---------------:|--------------------:|----------------------:|
-|     143210 |        32.8125 |       -96.8332 |                   1 |                0      |
-|     143210 |        32.8126 |       -96.8333 |                   2 |                0.0134 |
-|     143210 |        32.8127 |       -96.8334 |                   3 |                0.0279 |
-</feed-sample>
-
-### stop_times.txt (feed.stop_times)
-<feed-sample>
-|   trip_id |   arrival_time |   departure_time |   stop_id |   stop_sequence |   stop_headsign |   pickup_type |   drop_off_type |   shape_dist_traveled |   timepoint |
-|----------:|---------------:|-----------------:|----------:|----------------:|----------------:|--------------:|----------------:|----------------------:|------------:|
-|   8107589 |          16560 |            16560 |     33286 |               1 |             nan |             0 |               0 |                0      |           1 |
-|   8107589 |          16664 |            16664 |     13396 |               2 |             nan |             0 |               0 |                0.5865 |           0 |
-|   8107589 |          16706 |            16706 |     22649 |               3 |             nan |             0 |               0 |                0.8252 |           0 |
+|    1287562 |        39.6556 |       -105     |                   1 |                 0     |
+|    1287562 |        39.6566 |       -104.999 |                   2 |               107.074 |
+|    1287562 |        39.6566 |       -104.999 |                   3 |               107.074 |
 </feed-sample>
 
 ### stops.txt (feed.stops)
 <feed-sample>
-|   stop_id |   stop_code | stop_name                         | stop_desc                                                                  |   stop_lat |   stop_lon |   zone_id |   stop_url |   wheelchair_boarding |
-|----------:|------------:|:----------------------------------|:---------------------------------------------------------------------------|-----------:|-----------:|----------:|-----------:|----------------------:|
-|     12901 |       12901 | FOREST @ SHEPHERD - E - NS        | FOREST @ SHEPHERD -Eastbound -Near Side (before the intersection)          |    32.9091 |   -96.7504 |       nan |        nan |                     1 |
-|     12908 |       12908 | WALNUT HILL @ RAMBLER - W - MB    | WALNUT HILL @ RAMBLER -Westbound -Mid Block (not near the intersection)    |    32.8834 |   -96.7609 |       nan |        nan |                     1 |
-|     12909 |       12909 | WALNUT HILL @ GREENVILLE - E - MB | WALNUT HILL @ GREENVILLE -Eastbound -Mid Block (not near the intersection) |    32.8832 |   -96.7602 |       nan |        nan |                     0 |
+|   stop_id |   stop_code | stop_name                    | stop_desc                |   stop_lat |   stop_lon |   zone_id |   stop_url |   location_type |   parent_station |   stop_timezone |   wheelchair_boarding | geometry                      |
+|----------:|------------:|:-----------------------------|:-------------------------|-----------:|-----------:|----------:|-----------:|----------------:|-----------------:|----------------:|----------------------:|:------------------------------|
+|     10512 |       10512 | W 20th Ave & Independence St | Vehicles Travelling West |    39.7475 |   -105.105 |       nan |        nan |               0 |              nan |             nan |                     1 | POINT (-105.104553 39.747528) |
+|     10582 |       10582 | 23rd Ave & Glencoe St        | Vehicles Travelling West |    39.7511 |   -104.926 |       nan |        nan |               0 |              nan |             nan |                     1 | POINT (-104.926096 39.751124) |
+|     10781 |       10781 | 29th Ave & Oneida St         | Vehicles Travelling West |    39.7584 |   -104.908 |       nan |        nan |               0 |              nan |             nan |                     1 | POINT (-104.907539 39.758442) |
+</feed-sample>
+
+### stop_times.txt (feed.stop_times)
+<feed-sample>
+|   trip_id |   arrival_time |   departure_time |   stop_id |   stop_sequence |   stop_headsign |   pickup_type |   drop_off_type |   shape_dist_traveled_x |   timepoint |   shape_dist_traveled_y |
+|----------:|---------------:|-----------------:|----------:|----------------:|----------------:|--------------:|----------------:|------------------------:|------------:|------------------------:|
+| 115053162 |          56640 |            56640 |     26175 |               1 |             nan |             0 |               1 |                     nan |           1 |                    0    |
+| 115053162 |          56756 |            56756 |     20171 |               2 |             nan |             0 |               0 |                     nan |           0 |                  765.78 |
+| 115053162 |          56838 |            56838 |     20094 |               3 |             nan |             0 |               0 |                     nan |           0 |                 1225.48 |
 </feed-sample>
 
 ### trips.txt (feed.trips)
 <feed-sample>
-|   route_id |   service_id |   trip_id | trip_headsign   |   direction_id |   block_id |   shape_id |
-|-----------:|-------------:|----------:|:----------------|---------------:|-----------:|-----------:|
-|      25697 |            2 |   8107832 | 1 BEXAR         |              0 |        102 |     143210 |
-|      25697 |            2 |   8107833 | 1 BEXAR         |              0 |        101 |     143210 |
-|      25697 |            2 |   8107834 | 1 BEXAR         |              0 |        103 |     143210 |
+|   route_id | service_id   |   trip_id | trip_headsign   |   direction_id |   block_id |   shape_id |
+|-----------:|:-------------|----------:|:----------------|---------------:|-----------:|-----------:|
+|          0 | SA           | 115053162 | Union Station   |              0 |        0_9 |    1287562 |
+|          0 | SA           | 115053163 | Union Station   |              0 |        0_4 |    1287562 |
+|          0 | SA           | 115053164 | Union Station   |              0 |        0_2 |    1287562 |
 </feed-sample>
 
 

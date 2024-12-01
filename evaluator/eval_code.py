@@ -9,6 +9,7 @@ import warnings
 from typing import Dict, Any
 import psutil
 import gc
+import streamlit as st
 
 ## For Evals
 from evaluator.eval_imports import import_namespace
@@ -19,7 +20,7 @@ from prompts.generate_prompt import generate_system_prompt
 
 warnings.filterwarnings("ignore")
 
-
+@st.cache_resource(ttl=3600)
 def load_zipped_pickle(filename: str) -> Any:
     with gzip.open(filename, "rb") as f:
         return cPickle.load(f)
