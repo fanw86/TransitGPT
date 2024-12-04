@@ -19,7 +19,7 @@ You are a GTFS expert who helps analyze transit data and write Python code to pr
 
 <distance-unit>
 
-- The distance units for this GTFS feed are in `Meters`. Therefore, fields such as `shape_dist_traveled` will be reported in `Meters`.
+- The distance units for this GTFS feed are in `Kilometers`. Therefore, fields such as `shape_dist_traveled` will be reported in `Kilometers`.
 
 </distance-unit>
 
@@ -45,6 +45,9 @@ These are the datatypes for all files within the current GTFS:
 - `agency_url`: string
 - `agency_timezone`: string
 - `agency_lang`: string
+- `agency_phone`: string
+- `agency_fare_url`: string
+- `agency_email`: string
 
 </data-type>
 
@@ -74,16 +77,26 @@ These are the datatypes for all files within the current GTFS:
 
 </data-type>
 
-### feed_info.txt
+### fare_attributes.txt
 
 <data-type>
 
-- `feed_publisher_name`: string
-- `feed_publisher_url`: string
-- `feed_lang`: string
-- `feed_start_date`: date (datetime.date)
-- `feed_end_date`: date (datetime.date)
-- `feed_version`: string
+- `fare_id`: string
+- `price`: float
+- `currency_type`: string
+- `payment_method`: integer
+- `transfers`: integer
+- `agency_id`: string
+- `transfer_duration`: integer
+
+</data-type>
+
+### fare_rules.txt
+
+<data-type>
+
+- `fare_id`: string
+- `route_id`: string
 
 </data-type>
 
@@ -95,11 +108,12 @@ These are the datatypes for all files within the current GTFS:
 - `agency_id`: string
 - `route_short_name`: string
 - `route_long_name`: string
+- `route_url`: string
 - `route_desc`: string
 - `route_type`: integer
-- `route_url`: string
 - `route_color`: string
 - `route_text_color`: string
+- `route_sort_order`: integer
 
 </data-type>
 
@@ -111,26 +125,7 @@ These are the datatypes for all files within the current GTFS:
 - `shape_pt_lat`: float
 - `shape_pt_lon`: float
 - `shape_pt_sequence`: integer
-- `shape_dist_traveled`: float (`Meters`)
-
-</data-type>
-
-### stops.txt
-
-<data-type>
-
-- `stop_id`: string
-- `stop_code`: string
-- `stop_name`: string
-- `stop_desc`: string
-- `stop_lat`: float
-- `stop_lon`: float
-- `zone_id`: string
-- `stop_url`: string
-- `location_type`: integer
-- `parent_station`: string
-- `stop_timezone`: string
-- `wheelchair_boarding`: integer
+- `shape_dist_traveled`: float (`Kilometers`)
 
 </data-type>
 
@@ -144,9 +139,23 @@ These are the datatypes for all files within the current GTFS:
 - `stop_id`: string
 - `stop_sequence`: integer
 - `stop_headsign`: string
-- `pickup_type`: integer
-- `drop_off_type`: integer
+- `shape_dist_traveled`: float (`Kilometers`)
 - `timepoint`: integer
+
+</data-type>
+
+### stops.txt
+
+<data-type>
+
+- `stop_id`: string
+- `stop_code`: string
+- `stop_name`: string
+- `stop_lat`: float
+- `stop_lon`: float
+- `wheelchair_boarding`: integer
+- `platform_code`: string
+- `stop_url`: string
 
 </data-type>
 
@@ -161,6 +170,8 @@ These are the datatypes for all files within the current GTFS:
 - `direction_id`: integer
 - `block_id`: string
 - `shape_id`: string
+- `wheelchair_accessible`: integer
+- `bikes_allowed`: integer
 
 </data-type>
 
@@ -171,79 +182,152 @@ These are the datatypes for all files within the current GTFS:
 
 ### agency.txt (feed.agency)
 <feed-sample>
-| agency_id   | agency_name                      | agency_url            | agency_timezone   | agency_lang   |
-|:------------|:---------------------------------|:----------------------|:------------------|:--------------|
-| RTD         | Regional Transportation District | http://rtd-denver.com | America/Denver    | en            |
+| agency_id   | agency_name                                   | agency_url           | agency_timezone     | agency_lang   |   agency_phone | agency_fare_url         | agency_email           |
+|:------------|:----------------------------------------------|:---------------------|:--------------------|:--------------|---------------:|:------------------------|:-----------------------|
+| SFMTA       | San Francisco Municipal Transportation Agency | http://www.sfmta.com | America/Los_Angeles | en            |            311 | https://SFMTA.com/Fares | munifeedback@sfmta.com |
 </feed-sample>
 
 ### calendar.txt (feed.calendar)
 <feed-sample>
-| service_id   |   monday |   tuesday |   wednesday |   thursday |   friday |   saturday |   sunday | start_date   | end_date   |
-|:-------------|---------:|----------:|------------:|-----------:|---------:|-----------:|---------:|:-------------|:-----------|
-| DPSWK        |        1 |         1 |           1 |          1 |        1 |          0 |        0 | 2024-09-29   | 2025-01-18 |
-| FR           |        0 |         0 |           0 |          0 |        1 |          0 |        0 | 2024-09-29   | 2025-01-18 |
-| MT           |        1 |         1 |           1 |          1 |        0 |          0 |        0 | 2024-09-29   | 2025-01-18 |
+|   service_id |   monday |   tuesday |   wednesday |   thursday |   friday |   saturday |   sunday | start_date   | end_date   |
+|-------------:|---------:|----------:|------------:|-----------:|---------:|-----------:|---------:|:-------------|:-----------|
+|            1 |        1 |         1 |           1 |          1 |        1 |          0 |        0 | 2024-06-22   | 2024-08-16 |
+|            2 |        0 |         0 |           0 |          0 |        0 |          1 |        0 | 2024-06-22   | 2024-08-16 |
+|            3 |        0 |         0 |           0 |          0 |        0 |          0 |        1 | 2024-06-22   | 2024-08-16 |
+</feed-sample>
+
+### calendar_attributes.txt (feed.calendar_attributes)
+<feed-sample>
+|   service_id | service_description   |
+|-------------:|:----------------------|
+|            1 | WEEKDAY               |
+|            2 | SATURDAY              |
+|            3 | SUNDAY                |
 </feed-sample>
 
 ### calendar_dates.txt (feed.calendar_dates)
 <feed-sample>
 | service_id   | date       |   exception_type |
 |:-------------|:-----------|-----------------:|
-| DPSWK        | 2024-11-28 |                2 |
-| MT           | 2024-11-28 |                2 |
-| SU           | 2024-11-28 |                1 |
+| 2            | 2024-06-22 |                2 |
+| M12          | 2024-06-22 |                1 |
+| 3            | 2024-06-23 |                2 |
 </feed-sample>
 
-### feed_info.txt (feed.feed_info)
+### directions.txt (feed.directions)
 <feed-sample>
-| feed_publisher_name   | feed_publisher_url    | feed_lang   | feed_start_date   | feed_end_date   | feed_version                      |
-|:----------------------|:----------------------|:------------|:------------------|:----------------|:----------------------------------|
-| RTD                   | http://rtd-denver.com | en          | 2024-09-29        | 2025-01-18      | Sep24-34118-13-17-20241026-030132 |
+|   route_id |   direction_id | direction   |
+|-----------:|---------------:|:------------|
+|          1 |              0 | Outbound    |
+|          1 |              1 | Inbound     |
+|          2 |              0 | Outbound    |
+</feed-sample>
+
+### fare_attributes.txt (feed.fare_attributes)
+<feed-sample>
+|   fare_id |   price | currency_type   |   payment_method |   transfers |   agency_id |   transfer_duration |
+|----------:|--------:|:----------------|-----------------:|------------:|------------:|--------------------:|
+|         1 |       3 | USD             |                0 |         nan |         nan |                5400 |
+|         2 |       8 | USD             |                0 |           0 |         nan |                   0 |
+</feed-sample>
+
+### fare_rider_categories.txt (feed.fare_rider_categories)
+<feed-sample>
+|   fare_id |   rider_category_id |   price |   expiration_date |   commencement_date |
+|----------:|--------------------:|--------:|------------------:|--------------------:|
+|         1 |                   2 |    1.25 |               nan |                 nan |
+|         1 |                   3 |    0    |               nan |                 nan |
+|         1 |                   5 |    0    |               nan |                 nan |
+</feed-sample>
+
+### fare_rules.txt (feed.fare_rules)
+<feed-sample>
+|   fare_id |   route_id |
+|----------:|-----------:|
+|         1 |          1 |
+|         1 |         12 |
+|         1 |         14 |
+</feed-sample>
+
+### realtime_routes.txt (feed.realtime_routes)
+<feed-sample>
+|   route_id |   realtime_enabled |
+|-----------:|-------------------:|
+|          1 |                  1 |
+|          2 |                  1 |
+|          5 |                  1 |
+</feed-sample>
+
+### rider_categories.txt (feed.rider_categories)
+<feed-sample>
+|   rider_category_id | rider_category_description   |
+|--------------------:|:-----------------------------|
+|                   2 | Senior                       |
+|                   3 | Child                        |
+|                   5 | Youth                        |
+</feed-sample>
+
+### route_attributes.txt (feed.route_attributes)
+<feed-sample>
+| route_id   |   category |   subcategory |   running_way |
+|:-----------|-----------:|--------------:|--------------:|
+| 1          |          2 |           201 |             3 |
+| 12         |          3 |           301 |             5 |
+| 1X         |          3 |           302 |             3 |
 </feed-sample>
 
 ### routes.txt (feed.routes)
 <feed-sample>
-| route_id   | agency_id   | route_short_name   | route_long_name        | route_desc                                 |   route_type | route_url                                 | route_color   | route_text_color   |
-|:-----------|:------------|:-------------------|:-----------------------|:-------------------------------------------|-------------:|:------------------------------------------|:--------------|:-------------------|
-| 0          | RTD         | 0                  | Broadway               | This Route Travels Northbound & Southbound |            3 | http://www.rtd-denver.com/Schedules.shtml | 0076CE        | FFFFFF             |
-| 0B         | RTD         | 0B                 | South Broadway         | This Route Travels Northbound & Southbound |            3 | http://www.rtd-denver.com/Schedules.shtml | 0076CE        | FFFFFF             |
-| 0L         | RTD         | 0L                 | South Broadway Limited | This Route Travels Northbound & Southbound |            3 | http://www.rtd-denver.com/Schedules.shtml | 0076CE        | FFFFFF             |
+|   route_id | agency_id   |   route_short_name | route_long_name   | route_url               | route_desc            |   route_type | route_color   | route_text_color   |   route_sort_order |
+|-----------:|:------------|-------------------:|:------------------|:------------------------|:----------------------|-------------:|:--------------|:-------------------|-------------------:|
+|          1 | SFMTA       |                  1 | CALIFORNIA        | http://www.sfmta.com/1  | 5am-12 midnight daily |            3 | 005B95        | FFFFFF             |                nan |
+|         12 | SFMTA       |                 12 | FOLSOM-PACIFIC    | http://www.sfmta.com/12 | 6am-10pm daily        |            3 | 005B95        | FFFFFF             |                nan |
+|         14 | SFMTA       |                 14 | MISSION           | http://www.sfmta.com/14 | 24 hour service daily |            3 | 005B95        | FFFFFF             |                nan |
 </feed-sample>
 
 ### shapes.txt (feed.shapes)
 <feed-sample>
 |   shape_id |   shape_pt_lat |   shape_pt_lon |   shape_pt_sequence |   shape_dist_traveled |
 |-----------:|---------------:|---------------:|--------------------:|----------------------:|
-|    1287562 |        39.6556 |       -105     |                   1 |                 0     |
-|    1287562 |        39.6566 |       -104.999 |                   2 |               107.074 |
-|    1287562 |        39.6566 |       -104.999 |                   3 |               107.074 |
+|         30 |        37.7736 |        -122.51 |                   1 |             0         |
+|         30 |        37.7736 |        -122.51 |                   3 |             0.0031725 |
+|         30 |        37.7733 |        -122.51 |                   4 |             0.0237813 |
 </feed-sample>
 
-### stops.txt (feed.stops)
+### stop_attributes.txt (feed.stop_attributes)
 <feed-sample>
-|   stop_id |   stop_code | stop_name                    | stop_desc                |   stop_lat |   stop_lon |   zone_id |   stop_url |   location_type |   parent_station |   stop_timezone |   wheelchair_boarding | geometry                      |
-|----------:|------------:|:-----------------------------|:-------------------------|-----------:|-----------:|----------:|-----------:|----------------:|-----------------:|----------------:|----------------------:|:------------------------------|
-|     10512 |       10512 | W 20th Ave & Independence St | Vehicles Travelling West |    39.7475 |   -105.105 |       nan |        nan |               0 |              nan |             nan |                     1 | POINT (-105.104553 39.747528) |
-|     10582 |       10582 | 23rd Ave & Glencoe St        | Vehicles Travelling West |    39.7511 |   -104.926 |       nan |        nan |               0 |              nan |             nan |                     1 | POINT (-104.926096 39.751124) |
-|     10781 |       10781 | 29th Ave & Oneida St         | Vehicles Travelling West |    39.7584 |   -104.908 |       nan |        nan |               0 |              nan |             nan |                     1 | POINT (-104.907539 39.758442) |
+|   stop_id |   accessibility_id |   cardinal_direction |   relative_position | stop_city     |
+|----------:|-------------------:|---------------------:|--------------------:|:--------------|
+|      6598 |                  0 |                  nan |                 nan | San Francisco |
+|      6599 |                  0 |                  nan |                 nan | San Francisco |
+|      6600 |                  0 |                  nan |                 nan | San Francisco |
 </feed-sample>
 
 ### stop_times.txt (feed.stop_times)
 <feed-sample>
-|   trip_id |   arrival_time |   departure_time |   stop_id |   stop_sequence |   stop_headsign |   pickup_type |   drop_off_type |   shape_dist_traveled_x |   timepoint |   shape_dist_traveled_y |
-|----------:|---------------:|-----------------:|----------:|----------------:|----------------:|--------------:|----------------:|------------------------:|------------:|------------------------:|
-| 115053162 |          56640 |            56640 |     26175 |               1 |             nan |             0 |               1 |                     nan |           1 |                    0    |
-| 115053162 |          56756 |            56756 |     20171 |               2 |             nan |             0 |               0 |                     nan |           0 |                  765.78 |
-| 115053162 |          56838 |            56838 |     20094 |               3 |             nan |             0 |               0 |                     nan |           0 |                 1225.48 |
+|   trip_id |   arrival_time |   departure_time |   stop_id |   stop_sequence |   stop_headsign |   shape_dist_traveled |   timepoint |
+|----------:|---------------:|-----------------:|----------:|----------------:|----------------:|----------------------:|------------:|
+|  11593899 |          16320 |            16320 |      3892 |               1 |             nan |              0        |           1 |
+|  11593899 |          16361 |            16361 |      3875 |               2 |             nan |              0.172503 |           0 |
+|  11593899 |          16408 |            16408 |      3896 |               3 |             nan |              0.370289 |           0 |
+</feed-sample>
+
+### stops.txt (feed.stops)
+<feed-sample>
+|   stop_id |   stop_code | stop_name                |   stop_lat |   stop_lon |   wheelchair_boarding | platform_code   | stop_url                    |
+|----------:|------------:|:-------------------------|-----------:|-----------:|----------------------:|:----------------|:----------------------------|
+|      4200 |       14200 | Crescent Ave & Porter St |    37.7349 |   -122.418 |                     0 |                 | https://www.sfmta.com/14200 |
+|      4201 |       14201 | Crescent Ave & Putnam St |    37.735  |   -122.411 |                     0 |                 | https://www.sfmta.com/14201 |
+|      4202 |       14202 | Crescent Ave & Putnam St |    37.7349 |   -122.411 |                     0 |                 | https://www.sfmta.com/14202 |
 </feed-sample>
 
 ### trips.txt (feed.trips)
 <feed-sample>
-|   route_id | service_id   |   trip_id | trip_headsign   |   direction_id |   block_id |   shape_id |
-|-----------:|:-------------|----------:|:----------------|---------------:|-----------:|-----------:|
-|          0 | SA           | 115053162 | Union Station   |              0 |        0_9 |    1287562 |
-|          0 | SA           | 115053163 | Union Station   |              0 |        0_4 |    1287562 |
-|          0 | SA           | 115053164 | Union Station   |              0 |        0_2 |    1287562 |
+|   route_id |   service_id |   trip_id | trip_headsign       |   direction_id |   block_id |   shape_id |   wheelchair_accessible |   bikes_allowed |
+|-----------:|-------------:|----------:|:--------------------|---------------:|-----------:|-----------:|------------------------:|----------------:|
+|          1 |            1 |  11593899 | Geary + 33rd Avenue |              0 |        102 |        103 |                     nan |             nan |
+|          1 |            1 |  11593900 | Geary + 33rd Avenue |              0 |        103 |        103 |                     nan |             nan |
+|          1 |            1 |  11593901 | Geary + 33rd Avenue |              0 |        105 |        103 |                     nan |             nan |
 </feed-sample>
 
 

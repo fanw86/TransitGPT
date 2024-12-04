@@ -170,7 +170,7 @@ def display_llm_response(fb_agent, uuid, message, i):
                 executable_pattern, message["main_response"], re.DOTALL
             )
             code_block = "```python\n" + executable_code[0] + "\n```"
-            st.markdown(code_block)
+            st.code(code_block, wrap_lines=True, line_numbers =True, language="python")
 
     col1, col2, col3 = st.columns([6, 2, 1])
     with col1:
