@@ -10,7 +10,8 @@ from components.sidebar import clear_chat_history
 import plotly.graph_objects as go
 from folium import Map
 from utils.constants import TIMEOUT_SECONDS
-
+import plotly.io as pio
+pio.templates.default = "plotly"
 
 @st.dialog("Maximum number of messages reached!")
 def clear_chat():
@@ -59,6 +60,7 @@ def safe_fig_display(fig):
             st.write("Figure data (non-rendered):")
     elif isinstance(fig, go.Figure):
         try:
+            fig.update_layout(height=800, width=600)
             st.plotly_chart(fig, use_container_width=True)
         except Exception as e:
             st.error(f"Error displaying Plotly figure: {str(e)}")
@@ -123,7 +125,7 @@ def display_code_output(message, only_text=False):
         return
 
     code_output = message["code_output"]
-    with st.expander("✅Code Evaluation Result:", expanded=False):
+    with st.expander("✅Code Evaluation Output:", expanded=False):
         st.write(code_output)
 
 
@@ -170,7 +172,7 @@ def display_llm_response(fb_agent, uuid, message, i):
                 executable_pattern, message["main_response"], re.DOTALL
             )
             code_block = "```python\n" + executable_code[0] + "\n```"
-            st.code(code_block, wrap_lines=True, line_numbers =True, language="python")
+            st.code(executable_code[0] , wrap_lines=False, line_numbers =True, language="python")
 
     col1, col2, col3 = st.columns([6, 2, 1])
     with col1:
