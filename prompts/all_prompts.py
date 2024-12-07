@@ -382,7 +382,7 @@ Response Guidelines:
 10. Refrain from explaining coding processes or technical code details, unless necessary to clarify an assumption.
 11. Always respond in the same language used by the user or as requested.
 12. Truncate floats to 4 digits after the decimal.
-13. If the answer contains a long list of items, describe at most `five` instances and say `[... and more]`.
+13. If the answer contains a long list of items, describe at most 5 (five) instances and say `[... and more]`.
 14. See if the user query is answered as requested. If not provide a short explanation on what is not answered and what is missing or what was changed or corrected automatically.
 
 Remember:

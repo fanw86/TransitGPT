@@ -34,6 +34,11 @@
     "distance_unit": "km",
     "pickle_loc": "gtfs_data/feed_pickles/SDMTS_gtfs_loader.pkl"
   },
+  "MARTA": {
+    "file_loc": "gtfs_data/Atlanta-Metropolitan Atlanta Rapid Transit Authority (MARTA)-GA/gtfs.zip",
+    "distance_unit": "km",
+    "pickle_loc": "gtfs_data/feed_pickles/MARTA_gtfs_loader.pkl"
+  },
   "VTA": {
     "file_loc": "gtfs_data/San Jose-Santa Clara Valley Transportation Authority (VTA)-CA/gtfs.zip",
     "distance_unit": "km",
