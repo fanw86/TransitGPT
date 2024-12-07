@@ -1,16 +1,14 @@
 import json
 import os
 import streamlit as st
-from utils.helper import jumble_list
 from utils.constants import QUESTIONS_FILE, QUESTION_LIMIT
+import numpy as np
 
-
-@st.cache_data(ttl=60)
-def load_questions():
+# @st.cache_data(ttl=10)
+def load_questions(limit=QUESTION_LIMIT):
     if os.path.exists(QUESTIONS_FILE):
         with open(QUESTIONS_FILE, "r") as f:
             question_list = json.load(f)
-            question_list = jumble_list(question_list)
-            question_list = question_list[:QUESTION_LIMIT]
+            question_list = np.random.choice(question_list, size=limit, replace=False).tolist()
             return question_list
     return []

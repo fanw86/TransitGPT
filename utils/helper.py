@@ -18,19 +18,6 @@ def get_current_time():
     current_time_chicago = datetime.now(chicago_tz)
     return current_time_chicago
 
-
-def jumble_list(original_list):
-    # Create a copy of the original list to avoid modifying it directly
-    jumbled_list = original_list.copy()
-
-    # Use the Fisher-Yates shuffle algorithm
-    for i in range(len(jumbled_list) - 1, 0, -1):
-        j = random.randint(0, i)
-        jumbled_list[i], jumbled_list[j] = jumbled_list[j], jumbled_list[i]
-
-    return jumbled_list
-
-
 def list_files_in_zip(zip_path):
     with zipfile.ZipFile(zip_path, "r") as zip_ref:
         file_list = zip_ref.namelist()
