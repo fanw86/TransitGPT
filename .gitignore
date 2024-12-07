@@ -19,3 +19,4 @@ demo.py
 !images/*.png
 benchmark/
 GTFS2CODE_paper/
+crawler.py

@@ -42,8 +42,8 @@ def show_user_info_popup():
         
 
 # Call the dialog function when needed
-if "user_name" not in st.session_state or "user_email" not in st.session_state:
-    show_user_info_popup()
+# if "user_name" not in st.session_state or "user_email" not in st.session_state:
+#     show_user_info_popup()
 
 # Chat interface
 st.title("🚌TransitGPT")
