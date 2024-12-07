@@ -20,3 +20,4 @@ demo.py
 benchmark/
 GTFS2CODE_paper/
 crawler.py
+crawler_output/
