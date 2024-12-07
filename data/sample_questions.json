@@ -405,8 +405,6 @@
     "Extract the geographical coordinates (latitude and longitude) of all stops in the GTFS feed.",
     "Calculate the total service hours for a route on date.",
     "Find the latest arrival time across all trips in the GTFS feed.",
-    "Calculate the percentage of routes that have at least one trip operating 24/7 (i.e., at least one trip every hour of every day).",
-    "Filter trips based on a service id and count them.",
     "Find the longest trip in the GTFS feed based on distance traveled.",
     "Calculate the frequency of trips for each route on the busiest day.",
     "Count the total number of unique routes that have service on weekends within the GTFS feed.",
@@ -422,6 +420,5 @@
     "Find out how many distinct services operate during weekends in the GTFS feed.",
     "Identify the stops that are only served by express trips (trips that skip stops) for route.",
     "Identify services that run on weekdays but not on weekends from the GTFS feed.",
-    "Identify stops that are only served during times of the day (e.g., only morning or evening).",
     "Find the stop with the highest number of transfers (defined as stops where multiple routes intersect)."
 ]
