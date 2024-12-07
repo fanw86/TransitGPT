@@ -746,5 +746,5 @@
     "Identify services that run on weekdays but not on weekends from the GTFS feed.",
     "Identify stops that are only served during {specific} times of the day (e.g., only morning or evening).",
     "Retrieve the total count of trips for a specified `service_id`.",
-    "Find the stop with the highest number of transfers (defined as stops where multiple routes intersect).",
+    "Find the stop with the highest number of transfers (defined as stops where multiple routes intersect)."
 ]
