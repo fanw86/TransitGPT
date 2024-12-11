@@ -119,7 +119,7 @@ class LLMAgent:
                         f"Result: {eval_summary}"
                     ])
                     
-                    if interaction.error_message:
+                    if interaction.error_message and not interaction.code_success:
                         response_parts.append(f"Error: {interaction.error_message}")
                 
                 messages.append({
@@ -382,7 +382,6 @@ class LLMAgent:
         )
         self.load_system_prompt(GTFS, distance_unit, allow_viz)
 
-    @workflow(name="LLM Agent Workflow")
     @workflow(name="LLM Agent Workflow")
     def run_workflow(
         self,
