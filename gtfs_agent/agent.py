@@ -98,15 +98,35 @@ class LLMAgent:
             if interaction.user_prompt.strip():
                 messages.append({"role": "user", "content": interaction.user_prompt})
             else:
-                print(f"Empty user prompt: {interaction.user_prompt}")
                 self.logger.warning(
                     f"Empty user prompt found at index {interaction}: {interaction.user_prompt!r}"
                 )
                 messages.append({"role": "user", "content": "..."})
+            
             if interaction.assistant_response.strip():
-                messages.append(
-                    {"role": "assistant", "content": interaction.assistant_response}
-                )
+                # Format the full response with evaluation details
+                response_parts = [interaction.assistant_response]
+                
+                if interaction.evaluation_result is not None:
+                    eval_summary = summarize_large_output(
+                        interaction.evaluation_result, 
+                        self.max_rows, 
+                        self.max_chars
+                    )
+                    response_parts.extend([
+                        "\n\nEvaluation Output:",
+                        f"Success: {interaction.code_success}",
+                        f"Result: {eval_summary}"
+                    ])
+                    
+                    if interaction.error_message:
+                        response_parts.append(f"Error: {interaction.error_message}")
+                
+                messages.append({
+                    "role": "assistant", 
+                    "content": "\n".join(response_parts)
+                })
+        
         if user_prompt.strip():
             messages.append({"role": "user", "content": user_prompt})
         return messages
@@ -363,6 +383,7 @@ class LLMAgent:
         self.load_system_prompt(GTFS, distance_unit, allow_viz)
 
     @workflow(name="LLM Agent Workflow")
+    @workflow(name="LLM Agent Workflow")
     def run_workflow(
         self,
         user_input: str,
@@ -371,22 +392,25 @@ class LLMAgent:
         task: str = None,
     ):
         start_time = time.time()
-        moderation_response, call_success, moderation_usage = self.call_moderation_llm(
-            user_input
-        )
+        
+        # Only run moderation for the first message in chat history
+        if not self.chat_history:
+            moderation_response, call_success, moderation_usage = self.call_moderation_llm(user_input)
+            if "BLOCK" in moderation_response:
+                return {
+                    "task": task,
+                    "code_output": None,
+                    "eval_success": False,
+                    "error_message": "Your query has been blocked due to inappropriate content. Please try another query.",
+                    "only_text": True,
+                    "main_response": MODERATION_LLM_BLOCK_RESPONSE,
+                    "summary_response": None,
+                    "token_usage": moderation_usage,
+                    "execution_time": 0,
+                }
+        else:
+            moderation_usage = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
 
-        if "BLOCK" in moderation_response:
-            return {
-                "task": task,
-                "code_output": None,
-                "eval_success": False,
-                "error_message": "Your query has been blocked due to inappropriate content. Please try another query.",
-                "only_text": True,
-                "main_response": MODERATION_LLM_BLOCK_RESPONSE,
-                "summary_response": None,
-                "token_usage": moderation_usage,
-                "execution_time": 0,
-            }
         with st.status("Calling Main LLM..."):
             llm_response, call_success, main_llm_usage = self.call_main_llm(user_input)
 
