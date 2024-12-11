@@ -29,7 +29,7 @@ def load_yaml_examples(yaml_file):
         return yaml.safe_load(file)
 
 
-def select_relevant_examples(query, examples, n=FEW_SHOT_EXAMPLE_LIMIT, threshold=0.1):
+def select_relevant_examples(query, examples, n=FEW_SHOT_EXAMPLE_LIMIT, threshold=0.25):
     # Create a list of all examples
     all_examples = [f"{ex['question']}\n{ex['answer']}" for ex in examples.values()]
     # Add the query to the list
