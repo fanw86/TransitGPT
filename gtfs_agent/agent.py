@@ -133,10 +133,10 @@ class LLMAgent:
             self.chat_history.append(interaction)
 
     @task(name="Call Main LLM")
-    def call_main_llm(self, user_input: str) -> Tuple[str, bool, str]:
+    def call_main_llm(self, user_input: str, method: str = "tfidf") -> Tuple[str, bool, str]:
         model = self.model
         self.logger.info(f"Calling Main LLM with model: {model}")
-        few_shot_examples = generate_dynamic_few_shot(user_input, self.allow_viz)
+        few_shot_examples = generate_dynamic_few_shot(user_input, method, self.allow_viz)
         user_prompt = MAIN_LLM_USER_PROMPT.format(
             user_query=user_input, examples=few_shot_examples
         )
@@ -367,6 +367,7 @@ class LLMAgent:
         retry_code: bool = False,
         summarize: bool = True,
         task: str = None,
+        similarity_method: str = "sentence_transformer",
     ):
         start_time = time.time()
         moderation_response, call_success, moderation_usage = self.call_moderation_llm(
@@ -386,7 +387,7 @@ class LLMAgent:
                 "execution_time": 0,
             }
 
-        llm_response, call_success, main_llm_usage = self.call_main_llm(user_input)
+        llm_response, call_success, main_llm_usage = self.call_main_llm(user_input, similarity_method)
 
         if not call_success:
             self.logger.error(f"LLM call failed: {llm_response}")

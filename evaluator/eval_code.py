@@ -20,7 +20,7 @@ from prompts.generate_prompt import generate_system_prompt
 
 warnings.filterwarnings("ignore")
 
-@st.cache_resource(ttl=3600)
+@st.cache_resource(ttl=3600, show_spinner="Loading GTFS feed...")
 def load_zipped_pickle(filename: str) -> Any:
     with gzip.open(filename, "rb") as f:
         return cPickle.load(f)
