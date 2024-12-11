@@ -148,18 +148,19 @@ class LLMAgent:
 
     @task(name="Call Moderation LLM")
     def call_moderation_llm(self, user_input: str) -> Tuple[str, bool, str]:
-        model = MODERATION_LLM
-        self.logger.info(f"Calling Moderation LLM with model: {model}")
-        system_prompt = MODERATION_LLM_SYSTEM_PROMPT
-        messages = self.create_messages(user_input, model)
-        client = self.clients[self.get_client_key(model)]
-        response, call_success, usage = client.call(
-            model,
-            messages,
-            system_prompt,
-            max_tokens=MODERATION_LLM_MAX_TOKENS,
-            temperature=MODERATION_LLM_TEMPERATURE,
-        )
+        with st.status("Moderating query..."):
+            model = MODERATION_LLM
+            self.logger.info(f"Calling Moderation LLM with model: {model}")
+            system_prompt = MODERATION_LLM_SYSTEM_PROMPT
+            messages = self.create_messages(user_input, model)
+            client = self.clients[self.get_client_key(model)]
+            response, call_success, usage = client.call(
+                model,
+                messages,
+                system_prompt,
+                max_tokens=MODERATION_LLM_MAX_TOKENS,
+                temperature=MODERATION_LLM_TEMPERATURE,
+            )
         return response, call_success, usage
 
     @task(name="Execute Code")
@@ -322,12 +323,13 @@ class LLMAgent:
         full_response = ""
         client = self.clients["gpt"]
         # Stream the response
-        system_prompt = SUMMARY_LLM_SYSTEM_PROMPT
-        for chunk in client.stream_call(
-            model, messages, system_prompt, temperature=SUMMARY_LLM_TEMPERATURE
-        ):
-            full_response += chunk
-            stream_placeholder.markdown(full_response + "▌")
+        with st.status("Summarizing response..."):
+            system_prompt = SUMMARY_LLM_SYSTEM_PROMPT
+            for chunk in client.stream_call(
+                model, messages, system_prompt, temperature=SUMMARY_LLM_TEMPERATURE
+            ):
+                full_response += chunk
+                stream_placeholder.markdown(full_response + "▌")
 
         self.logger.info("Summary response from LLM:\n %s", full_response)
         return full_response
@@ -385,8 +387,8 @@ class LLMAgent:
                 "token_usage": moderation_usage,
                 "execution_time": 0,
             }
-
-        llm_response, call_success, main_llm_usage = self.call_main_llm(user_input)
+        with st.status("Calling Main LLM..."):
+            llm_response, call_success, main_llm_usage = self.call_main_llm(user_input)
 
         if not call_success:
             self.logger.error(f"LLM call failed: {llm_response}")
