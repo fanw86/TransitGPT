@@ -2012,3 +2012,116 @@ example_32:
             "plot": fig
         }
         ```
+
+example_33:
+    feed: SFMTA
+    question: Create a heatmap showing the distance between consecutive stops (stop spacings) for each route in the feed.
+    answer: |
+        ```python
+        def create_stop_spacing_heatmap_with_shapes(feed):
+            # Define categorical bins and colors
+            bins = [0, 50, 100, 200, 500, 1000, 2000, float('inf')]
+            labels = ['0-50m', '50-100m', '100-200m', '200-500m', '500-1000m', '1-2km', '>2km']
+        
+            # Use distinct colors for categories
+            colors = ['#440154', '#404387', '#29788E', '#22A784', '#79D151', '#FDE724', '#FDE724']
+            color_dict = dict(zip(labels, colors))
+        
+            # Create base map
+            center_lat = feed.stops.stop_lat.mean()
+            center_lon = feed.stops.stop_lon.mean()
+            m = folium.Map(location=[center_lat, center_lon],
+                          zoom_start=12,
+                          tiles='CartoDB positron')
+        
+            # Create categorical legend
+            legend_html = '''
+            <div style="position: fixed; 
+                        bottom: 50px; right: 50px; width: 150px; height: 160px; 
+                        border:2px solid grey; z-index:9999; font-size:14px;
+                        background-color: white;
+                        padding: 10px;
+                        opacity: 0.8;">
+            <p style="margin-bottom: 5px"><b>Stop Spacing</b></p>
+            '''
+        
+            for label, color in color_dict.items():
+                legend_html += f'''
+                <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                    <div style="background-color: {color}; 
+                                width: 20px; height: 3px; 
+                                margin-right: 5px;"></div>
+                    <div>{label}</div>
+                </div>'''
+            legend_html += '</div>'
+        
+            # Process each route
+            for route_info in feed.trips.groupby('route_id').first().reset_index().to_dict('records'):
+                shape_id = route_info['shape_id']
+                trip_id = route_info['trip_id']
+        
+                # Get ordered stops
+                stop_times = feed.stop_times[feed.stop_times.trip_id == trip_id].sort_values('stop_sequence')
+                stops = pd.merge(stop_times, feed.stops[['stop_id', 'stop_lat', 'stop_lon']], on='stop_id')
+        
+                # Get shape points
+                shape_points = feed.shapes[feed.shapes.shape_id == shape_id].sort_values('shape_pt_sequence')
+        
+                # Create LineString from shape points
+                shape_coords = list(zip(shape_points.shape_pt_lon, shape_points.shape_pt_lat))
+                route_line = shapely.geometry.LineString(shape_coords)
+        
+                # Process consecutive stops
+                for i in range(len(stops)-1):
+                    start_stop = stops.iloc[i]
+                    end_stop = stops.iloc[i+1]
+        
+                    # Create Point objects
+                    start_point = shapely.geometry.Point(start_stop.stop_lon, start_stop.stop_lat)
+                    end_point = shapely.geometry.Point(end_stop.stop_lon, end_stop.stop_lat)
+        
+                    # Project stops onto route line
+                    start_proj = route_line.interpolate(route_line.project(start_point))
+                    end_proj = route_line.interpolate(route_line.project(end_point))
+        
+                    # Get points along route segment
+                    segment_points = []
+                    curr_dist = route_line.project(start_point)
+                    while curr_dist <= route_line.project(end_point):
+                        point = route_line.interpolate(curr_dist)
+                        segment_points.append([point.y, point.x])
+                        curr_dist += 0.0001
+        
+                    # Calculate distance
+                    distance = geopy.distance.geodesic(
+                        (start_stop.stop_lat, start_stop.stop_lon),
+                        (end_stop.stop_lat, end_stop.stop_lon)
+                    ).meters
+        
+                    # Find category
+                    bin_idx = pd.cut([distance], bins=bins, labels=labels)[0]
+        
+                    # Draw segment
+                    if len(segment_points) > 1:
+                        folium.PolyLine(
+                            segment_points,
+                            color=color_dict[bin_idx],
+                            weight=3,
+                            opacity=0.8,
+                            popup=f"Distance: {distance:.0f}m"
+                        ).add_to(m)
+        
+            # Add legend to map
+            m.get_root().html.add_child(folium.Element(legend_html))
+        
+            result = {
+                'answer': 'Created stop spacing heatmap with categorical colors and custom legend',
+                'additional_info': 'Used distinct colors for each distance category with a fixed legend showing all categories',
+                'map': m
+            }
+        
+            return result
+        
+        # Create the heatmap
+        result = create_stop_spacing_heatmap_with_shapes(feed)
+        ```

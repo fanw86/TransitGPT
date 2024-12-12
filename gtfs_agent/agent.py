@@ -74,6 +74,7 @@ class LLMAgent:
         self.load_system_prompt(self.GTFS, self.distance_unit, self.allow_viz)
         if ENABLE_TRACING and "TRACELOOP_API_KEY" in st.secrets:
             Traceloop.init(disable_batch=True, api_key=st.secrets["TRACELOOP_API_KEY"])
+        self.status = None  # Initialize status
 
     def load_system_prompt(self, GTFS, distance_unit, allow_viz):
         ## Load system prompt
@@ -168,19 +169,20 @@ class LLMAgent:
 
     @task(name="Call Moderation LLM")
     def call_moderation_llm(self, user_input: str) -> Tuple[str, bool, str]:
-        with st.status("Moderating query..."):
-            model = MODERATION_LLM
-            self.logger.info(f"Calling Moderation LLM with model: {model}")
-            system_prompt = MODERATION_LLM_SYSTEM_PROMPT
-            messages = self.create_messages(user_input, model)
-            client = self.clients[self.get_client_key(model)]
-            response, call_success, usage = client.call(
-                model,
-                messages,
-                system_prompt,
-                max_tokens=MODERATION_LLM_MAX_TOKENS,
-                temperature=MODERATION_LLM_TEMPERATURE,
-            )
+        if self.status:
+            self.status.update(label="Moderating query...", state="running")
+        model = MODERATION_LLM
+        self.logger.info(f"Calling Moderation LLM with model: {model}")
+        system_prompt = MODERATION_LLM_SYSTEM_PROMPT
+        messages = self.create_messages(user_input, model)
+        client = self.clients[self.get_client_key(model)]
+        response, call_success, usage = client.call(
+            model,
+            messages,
+            system_prompt,
+            max_tokens=MODERATION_LLM_MAX_TOKENS,
+            temperature=MODERATION_LLM_TEMPERATURE,
+        )
         return response, call_success, usage
 
     @task(name="Execute Code")
@@ -201,56 +203,57 @@ class LLMAgent:
         total_usage = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
         attempts_allowed = self.max_retry if retry_code else 1
 
-        with st.status("Evaluating code..."):
-            for attempt in range(1, attempts_allowed + 1):
-                result, success, error, only_text = self.execute(
-                    user_input, llm_response
+        if self.status:
+            self.status.update(label="Evaluating code...", state="running")
+        for attempt in range(1, attempts_allowed + 1):
+            result, success, error, only_text = self.execute(
+                user_input, llm_response
+            )
+
+            if isinstance(result, dict) and "map" in result:
+                success, error = self._check_map_renderability(result["map"])
+
+            if success or only_text or "TimeoutError" in error:
+                error_message = "\n".join(errors) if len(errors) > 0 else error
+                self.update_chat_history(
+                    user_input,
+                    llm_response,
+                    result,
+                    success,
+                    error_message,
+                    only_text,
+                )
+                return (
+                    result,
+                    success,
+                    error_message,
+                    only_text,
+                    llm_response,
+                    total_usage,
                 )
 
-                if isinstance(result, dict) and "map" in result:
-                    success, error = self._check_map_renderability(result["map"])
+            errors.append(f"Attempt {attempt}: {error}")
+            self._log_retry_attempt(attempt, error)
 
-                if success or only_text or "TimeoutError" in error:
-                    error_message = "\n".join(errors) if len(errors) > 0 else error
-                    self.update_chat_history(
-                        user_input,
-                        llm_response,
-                        result,
-                        success,
-                        error_message,
-                        only_text,
-                    )
-                    return (
-                        result,
-                        success,
-                        error_message,
-                        only_text,
-                        llm_response,
-                        total_usage,
-                    )
+            if attempt < attempts_allowed:
+                llm_response, call_success, usage = self.call_main_llm_retry(
+                    user_input,
+                    llm_response,
+                    error,
+                    temperature=MAIN_LLM_RETRY_TEMPERATURE,
+                )
+                # Add usage from retry attempt
+                for key in total_usage:
+                    total_usage[key] += usage.get(key, 0)
 
-                errors.append(f"Attempt {attempt}: {error}")
-                self._log_retry_attempt(attempt, error)
+                if not call_success:
+                    errors.append(f"Attempt {attempt + 1}: LLM call failed")
+                    break
 
-                if attempt < attempts_allowed:
-                    llm_response, call_success, usage = self.call_main_llm_retry(
-                        user_input,
-                        llm_response,
-                        error,
-                        temperature=MAIN_LLM_RETRY_TEMPERATURE,
-                    )
-                    # Add usage from retry attempt
-                    for key in total_usage:
-                        total_usage[key] += usage.get(key, 0)
-
-                    if not call_success:
-                        errors.append(f"Attempt {attempt + 1}: LLM call failed")
-                        break
-
-            error_message = self._format_error_message(attempt, errors)
-            self.update_chat_history(
-                user_input, llm_response, result, success, error_message, only_text
-            )
+        error_message = self._format_error_message(attempt, errors)
+        self.update_chat_history(
+            user_input, llm_response, result, success, error_message, only_text
+        )
         return None, False, error_message, only_text, llm_response, total_usage
 
     def _check_map_renderability(self, map_obj):
@@ -343,13 +346,13 @@ class LLMAgent:
         full_response = ""
         client = self.clients["gpt"]
         # Stream the response
-        with st.status("Summarizing response..."):
-            system_prompt = SUMMARY_LLM_SYSTEM_PROMPT
-            for chunk in client.stream_call(
-                model, messages, system_prompt, temperature=SUMMARY_LLM_TEMPERATURE
-            ):
-                full_response += chunk
-                stream_placeholder.markdown(full_response + "▌")
+        if self.status:
+            self.status.update(label="Summarizing response...", state="complete", expanded=True)
+        for chunk in client.stream_call(
+            model, messages, SUMMARY_LLM_SYSTEM_PROMPT, temperature=SUMMARY_LLM_TEMPERATURE
+        ):
+            full_response += chunk
+            stream_placeholder.markdown(full_response + "▌")
 
         self.logger.info("Summary response from LLM:\n %s", full_response)
         return full_response
@@ -358,6 +361,7 @@ class LLMAgent:
         self.last_response = None
         self.chat_history = []
         self.result = None
+        self.status = None
         self._reset_logger()
 
     def _reset_logger(self):
@@ -382,6 +386,9 @@ class LLMAgent:
         )
         self.load_system_prompt(GTFS, distance_unit, allow_viz)
 
+    def set_status(self, status: st.status):
+        self.status = status
+
     @workflow(name="LLM Agent Workflow")
     def run_workflow(
         self,
@@ -389,10 +396,10 @@ class LLMAgent:
         retry_code: bool = False,
         summarize: bool = True,
         task: str = None,
+        status: st.status = None,
     ):
+        self.set_status(status)  # Set the status at the beginning of the workflow
         start_time = time.time()
-        
-        # Only run moderation for the first message in chat history
         if not self.chat_history:
             moderation_response, call_success, moderation_usage = self.call_moderation_llm(user_input)
             if "BLOCK" in moderation_response:
@@ -410,8 +417,9 @@ class LLMAgent:
         else:
             moderation_usage = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
 
-        with st.status("Calling Main LLM..."):
-            llm_response, call_success, main_llm_usage = self.call_main_llm(user_input)
+        if self.status:
+            self.status.update(label="Calling Main LLM...", state="running")
+        llm_response, call_success, main_llm_usage = self.call_main_llm(user_input)
 
         if not call_success:
             self.logger.error(f"LLM call failed: {llm_response}")

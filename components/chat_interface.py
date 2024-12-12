@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from utils.feedback import FeedbackAgent
-from streamlit_folium import folium_static
+from streamlit_folium import folium_static, st_folium
 from components.sidebar import clear_chat_history
 import plotly.graph_objects as go
 from folium import Map
@@ -28,19 +28,21 @@ def is_json_serializable(obj):
     except (TypeError, OverflowError):
         return False
 
-
-@st.cache_data(show_spinner="Displaying Map", ttl=3600)
-def safe_folium_display(_folium_map, message_id):
-    if isinstance(_folium_map, Map):
+# @st.cache_data(show_spinner="Displaying Map", ttl=3600, experimental_allow_widgets=True)
+@st.fragment
+def safe_folium_display(folium_map, message_id):
+    if isinstance(folium_map, Map):
         try:
-            folium_static(_folium_map, height=400)
+            # _folium_map.fit_bounds(_folium_map.get_bounds())
+            # folium_static(_folium_map, height=400)
+            st_folium(folium_map, height=400, width=600, key=message_id, render=False, returned_objects=[])
         except Exception as e:
             st.error(f"Error displaying Folium map: {str(e)}")
             st.write("Map data (non-rendered):")
             st.json(
                 {
                     k: v
-                    for k, v in _folium_map.__dict__.items()
+                    for k, v in folium_map.__dict__.items()
                     if is_json_serializable(v)
                 }
             )
@@ -49,7 +51,7 @@ def safe_folium_display(_folium_map, message_id):
             f"Expected a Folium Map object, but received a different type. Received object of type: {type(_folium_map)}"
         )
 
-
+@st.fragment
 @st.cache_data(show_spinner="Displaying Figure", ttl=3600)
 def safe_fig_display(fig):
     if isinstance(fig, plt.Figure):
@@ -70,7 +72,7 @@ def safe_fig_display(fig):
             f"Expected a Matplotlib or Plotly Figure object, but received a different type. Received object of type: {type(fig)}"
         )
 
-
+@st.fragment
 @st.cache_data(show_spinner="Displaying Dataframe", ttl=3600)
 def safe_dataframe_display(data):
     try:
@@ -115,16 +117,17 @@ def apply_color_codes(text):
     # Wrap the entire text in a paragraph tag to ensure inline HTML is rendered
     return colored_text
 
-
-def display_code_output(message, only_text=False):
-    if "code_output" not in message or only_text:
+@st.fragment
+@st.cache_data(show_spinner="Displaying Code", ttl=3600)
+def display_code_output(_message, only_text=False):
+    if "code_output" not in _message or only_text:
         return
 
-    if not message.get("eval_success", False):
+    if not _message.get("eval_success", False):
         st.write("Evaluation failed.")
         return
 
-    code_output = message["code_output"]
+    code_output = _message["code_output"]
     with st.expander("✅Code Evaluation Output:", expanded=False):
         st.write(code_output)
 
