@@ -74,6 +74,7 @@ class LLMAgent:
         self.load_system_prompt(self.GTFS, self.distance_unit, self.allow_viz)
         if ENABLE_TRACING and "TRACELOOP_API_KEY" in st.secrets:
             Traceloop.init(disable_batch=True, api_key=st.secrets["TRACELOOP_API_KEY"])
+        self.status = None  # Initialize status
 
     def load_system_prompt(self, GTFS, distance_unit, allow_viz):
         ## Load system prompt
@@ -98,15 +99,35 @@ class LLMAgent:
             if interaction.user_prompt.strip():
                 messages.append({"role": "user", "content": interaction.user_prompt})
             else:
-                print(f"Empty user prompt: {interaction.user_prompt}")
                 self.logger.warning(
                     f"Empty user prompt found at index {interaction}: {interaction.user_prompt!r}"
                 )
                 messages.append({"role": "user", "content": "..."})
+            
             if interaction.assistant_response.strip():
-                messages.append(
-                    {"role": "assistant", "content": interaction.assistant_response}
-                )
+                # Format the full response with evaluation details
+                response_parts = [interaction.assistant_response]
+                
+                if interaction.evaluation_result is not None:
+                    eval_summary = summarize_large_output(
+                        interaction.evaluation_result, 
+                        self.max_rows, 
+                        self.max_chars
+                    )
+                    response_parts.extend([
+                        "\n\nEvaluation Output:",
+                        f"Success: {interaction.code_success}",
+                        f"Result: {eval_summary}"
+                    ])
+                    
+                    if interaction.error_message and not interaction.code_success:
+                        response_parts.append(f"Error: {interaction.error_message}")
+                
+                messages.append({
+                    "role": "assistant", 
+                    "content": "\n".join(response_parts)
+                })
+        
         if user_prompt.strip():
             messages.append({"role": "user", "content": user_prompt})
         return messages
@@ -148,6 +169,8 @@ class LLMAgent:
 
     @task(name="Call Moderation LLM")
     def call_moderation_llm(self, user_input: str) -> Tuple[str, bool, str]:
+        if self.status:
+            self.status.update(label="Moderating query...", state="running")
         model = MODERATION_LLM
         self.logger.info(f"Calling Moderation LLM with model: {model}")
         system_prompt = MODERATION_LLM_SYSTEM_PROMPT
@@ -180,56 +203,57 @@ class LLMAgent:
         total_usage = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
         attempts_allowed = self.max_retry if retry_code else 1
 
-        with st.status("Evaluating code..."):
-            for attempt in range(1, attempts_allowed + 1):
-                result, success, error, only_text = self.execute(
-                    user_input, llm_response
+        if self.status:
+            self.status.update(label="Evaluating code...", state="running")
+        for attempt in range(1, attempts_allowed + 1):
+            result, success, error, only_text = self.execute(
+                user_input, llm_response
+            )
+
+            if isinstance(result, dict) and "map" in result:
+                success, error = self._check_map_renderability(result["map"])
+
+            if success or only_text or "TimeoutError" in error:
+                error_message = "\n".join(errors) if len(errors) > 0 else error
+                self.update_chat_history(
+                    user_input,
+                    llm_response,
+                    result,
+                    success,
+                    error_message,
+                    only_text,
+                )
+                return (
+                    result,
+                    success,
+                    error_message,
+                    only_text,
+                    llm_response,
+                    total_usage,
                 )
 
-                if isinstance(result, dict) and "map" in result:
-                    success, error = self._check_map_renderability(result["map"])
+            errors.append(f"Attempt {attempt}: {error}")
+            self._log_retry_attempt(attempt, error)
 
-                if success or only_text or "TimeoutError" in error:
-                    error_message = "\n".join(errors) if len(errors) > 0 else error
-                    self.update_chat_history(
-                        user_input,
-                        llm_response,
-                        result,
-                        success,
-                        error_message,
-                        only_text,
-                    )
-                    return (
-                        result,
-                        success,
-                        error_message,
-                        only_text,
-                        llm_response,
-                        total_usage,
-                    )
+            if attempt < attempts_allowed:
+                llm_response, call_success, usage = self.call_main_llm_retry(
+                    user_input,
+                    llm_response,
+                    error,
+                    temperature=MAIN_LLM_RETRY_TEMPERATURE,
+                )
+                # Add usage from retry attempt
+                for key in total_usage:
+                    total_usage[key] += usage.get(key, 0)
 
-                errors.append(f"Attempt {attempt}: {error}")
-                self._log_retry_attempt(attempt, error)
+                if not call_success:
+                    errors.append(f"Attempt {attempt + 1}: LLM call failed")
+                    break
 
-                if attempt < attempts_allowed:
-                    llm_response, call_success, usage = self.call_main_llm_retry(
-                        user_input,
-                        llm_response,
-                        error,
-                        temperature=MAIN_LLM_RETRY_TEMPERATURE,
-                    )
-                    # Add usage from retry attempt
-                    for key in total_usage:
-                        total_usage[key] += usage.get(key, 0)
-
-                    if not call_success:
-                        errors.append(f"Attempt {attempt + 1}: LLM call failed")
-                        break
-
-            error_message = self._format_error_message(attempt, errors)
-            self.update_chat_history(
-                user_input, llm_response, result, success, error_message, only_text
-            )
+        error_message = self._format_error_message(attempt, errors)
+        self.update_chat_history(
+            user_input, llm_response, result, success, error_message, only_text
+        )
         return None, False, error_message, only_text, llm_response, total_usage
 
     def _check_map_renderability(self, map_obj):
@@ -322,9 +346,10 @@ class LLMAgent:
         full_response = ""
         client = self.clients["gpt"]
         # Stream the response
-        system_prompt = SUMMARY_LLM_SYSTEM_PROMPT
+        if self.status:
+            self.status.update(label="Summarizing response...", state="complete", expanded=True)
         for chunk in client.stream_call(
-            model, messages, system_prompt, temperature=SUMMARY_LLM_TEMPERATURE
+            model, messages, SUMMARY_LLM_SYSTEM_PROMPT, temperature=SUMMARY_LLM_TEMPERATURE
         ):
             full_response += chunk
             stream_placeholder.markdown(full_response + "▌")
@@ -336,6 +361,7 @@ class LLMAgent:
         self.last_response = None
         self.chat_history = []
         self.result = None
+        self.status = None
         self._reset_logger()
 
     def _reset_logger(self):
@@ -360,6 +386,9 @@ class LLMAgent:
         )
         self.load_system_prompt(GTFS, distance_unit, allow_viz)
 
+    def set_status(self, status: st.status):
+        self.status = status
+
     @workflow(name="LLM Agent Workflow")
     def run_workflow(
         self,
@@ -369,42 +398,46 @@ class LLMAgent:
         task: str = None,
         similarity_method: str = "sentence_transformer",
     ):
-        start_time = time.time()
-        moderation_response, call_success, moderation_usage = self.call_moderation_llm(
-            user_input
-        )
+        with st.status("Processing your request...", state="running") as status:
+            self.set_status(status)  # Set the status at the beginning of the workflow
+            start_time = time.time()
+            if not self.chat_history:
+                moderation_response, call_success, moderation_usage = self.call_moderation_llm(user_input)
+                if "BLOCK" in moderation_response:
+                    return {
+                        "task": task,
+                        "code_output": None,
+                        "eval_success": False,
+                        "error_message": "Your query has been blocked due to inappropriate content. Please try another query.",
+                        "only_text": True,
+                        "main_response": MODERATION_LLM_BLOCK_RESPONSE,
+                        "summary_response": None,
+                        "token_usage": moderation_usage,
+                        "execution_time": 0,
+                    }
+            else:
+                moderation_usage = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
 
-        if "BLOCK" in moderation_response:
-            return {
-                "task": task,
-                "code_output": None,
-                "eval_success": False,
-                "error_message": "Your query has been blocked due to inappropriate content. Please try another query.",
-                "only_text": True,
-                "main_response": MODERATION_LLM_BLOCK_RESPONSE,
-                "summary_response": None,
-                "token_usage": moderation_usage,
-                "execution_time": 0,
-            }
+            if self.status:
+                self.status.update(label="Calling Main LLM...", state="running")
+            llm_response, call_success, main_llm_usage = self.call_main_llm(user_input, similarity_method)
 
-        llm_response, call_success, main_llm_usage = self.call_main_llm(user_input, similarity_method)
+            if not call_success:
+                self.logger.error(f"LLM call failed: {llm_response}")
+                # If call is not successful, LLM response is the error message
+                return None, False, llm_response, True, None, None, None
 
-        if not call_success:
-            self.logger.error(f"LLM call failed: {llm_response}")
-            # If call is not successful, LLM response is the error message
-            return None, False, llm_response, True, None, None, None
-
-        # Evaluate the code with retry
-        self.logger.info(f"LLM call success: {llm_response}")
-        output, success, error, only_text, llm_response, retry_usage = (
-            self.evaluate_code_with_retry(
-                user_input, llm_response, retry_code=retry_code
+            # Evaluate the code with retry
+            self.logger.info(f"LLM call success: {llm_response}")
+            output, success, error, only_text, llm_response, retry_usage = (
+                self.evaluate_code_with_retry(
+                    user_input, llm_response, retry_code=retry_code
+                )
             )
-        )
-        # Compute the total usage by adding the usage from the first attempt
-        total_usage = combine_token_usage(
-            [moderation_usage, main_llm_usage, retry_usage]
-        )
+            # Compute the total usage by adding the usage from the first attempt
+            total_usage = combine_token_usage(
+                [moderation_usage, main_llm_usage, retry_usage]
+            )
 
         # New step: Validate evaluation results
         # validation_response = self.validate_evaluation(user_input, llm_response, result, success, error, only_text)

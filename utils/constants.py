@@ -27,9 +27,9 @@ MAIN_LLM_RETRY_TEMPERATURE = 0.5 # Recommend using 0.4-0.7 for retry tasks. Typi
 SUMMARY_LLM = "gpt-4o-mini"
 SUMMARY_LLM_TEMPERATURE = 0.7
 
-MODERATION_LLM = "gpt-4o-mini"
-MODERATION_LLM_TEMPERATURE = 0.7
-MODERATION_LLM_MAX_TOKENS = 5
+MODERATION_LLM = "gpt-4o"
+MODERATION_LLM_TEMPERATURE = 0.5
+MODERATION_LLM_MAX_TOKENS = 2
 
 FILE_MAPPING_LOC = "gtfs_data/file_mapping.json"
 file_mapping = json.loads(open(FILE_MAPPING_LOC).read())
@@ -41,7 +41,7 @@ ENABLE_TRACING = True
 LLMs = []
 
 if "OPENAI_API_KEY" in st.secrets:
-    LLMs.extend(["gpt-4o-2024-08-06", "gpt-4o-mini"])
+    LLMs.extend(["gpt-4o-2024-11-20", "gpt-4o-mini"])
 
 if "ANTHROPIC_API_KEY" in st.secrets:
     LLMs.extend(
