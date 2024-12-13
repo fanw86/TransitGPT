@@ -7,9 +7,7 @@ from utils.data_models import ChatHistoryEntry
 def process_user_input(user_input: str):
     agent = st.session_state["agent"]
     with st.chat_message("assistant", avatar="🚍"):
-        with st.status("Processing your request...", state="running") as status:
-            result = agent.run_workflow(user_input, st.session_state.retry_code, status = status)
-            
+        result = agent.run_workflow(user_input, st.session_state.retry_code)
 
         if not result["eval_success"] and not result["only_text"]:
             st.error(f"Error: {result['error_message']}")

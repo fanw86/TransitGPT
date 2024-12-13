@@ -41,7 +41,7 @@ ENABLE_TRACING = True
 LLMs = []
 
 if "OPENAI_API_KEY" in st.secrets:
-    LLMs.extend(["gpt-4o-2024-08-06", "gpt-4o-mini"])
+    LLMs.extend(["gpt-4o-2024-11-20", "gpt-4o-mini"])
 
 if "ANTHROPIC_API_KEY" in st.secrets:
     LLMs.extend(

@@ -398,45 +398,46 @@ class LLMAgent:
         task: str = None,
         status: st.status = None,
     ):
-        self.set_status(status)  # Set the status at the beginning of the workflow
-        start_time = time.time()
-        if not self.chat_history:
-            moderation_response, call_success, moderation_usage = self.call_moderation_llm(user_input)
-            if "BLOCK" in moderation_response:
-                return {
-                    "task": task,
-                    "code_output": None,
-                    "eval_success": False,
-                    "error_message": "Your query has been blocked due to inappropriate content. Please try another query.",
-                    "only_text": True,
-                    "main_response": MODERATION_LLM_BLOCK_RESPONSE,
-                    "summary_response": None,
-                    "token_usage": moderation_usage,
-                    "execution_time": 0,
-                }
-        else:
-            moderation_usage = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
+        with st.status("Processing your request...", state="running") as status:
+            self.set_status(status)  # Set the status at the beginning of the workflow
+            start_time = time.time()
+            if not self.chat_history:
+                moderation_response, call_success, moderation_usage = self.call_moderation_llm(user_input)
+                if "BLOCK" in moderation_response:
+                    return {
+                        "task": task,
+                        "code_output": None,
+                        "eval_success": False,
+                        "error_message": "Your query has been blocked due to inappropriate content. Please try another query.",
+                        "only_text": True,
+                        "main_response": MODERATION_LLM_BLOCK_RESPONSE,
+                        "summary_response": None,
+                        "token_usage": moderation_usage,
+                        "execution_time": 0,
+                    }
+            else:
+                moderation_usage = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
 
-        if self.status:
-            self.status.update(label="Calling Main LLM...", state="running")
-        llm_response, call_success, main_llm_usage = self.call_main_llm(user_input)
+            if self.status:
+                self.status.update(label="Calling Main LLM...", state="running")
+            llm_response, call_success, main_llm_usage = self.call_main_llm(user_input)
 
-        if not call_success:
-            self.logger.error(f"LLM call failed: {llm_response}")
-            # If call is not successful, LLM response is the error message
-            return None, False, llm_response, True, None, None, None
+            if not call_success:
+                self.logger.error(f"LLM call failed: {llm_response}")
+                # If call is not successful, LLM response is the error message
+                return None, False, llm_response, True, None, None, None
 
-        # Evaluate the code with retry
-        self.logger.info(f"LLM call success: {llm_response}")
-        output, success, error, only_text, llm_response, retry_usage = (
-            self.evaluate_code_with_retry(
-                user_input, llm_response, retry_code=retry_code
+            # Evaluate the code with retry
+            self.logger.info(f"LLM call success: {llm_response}")
+            output, success, error, only_text, llm_response, retry_usage = (
+                self.evaluate_code_with_retry(
+                    user_input, llm_response, retry_code=retry_code
+                )
             )
-        )
-        # Compute the total usage by adding the usage from the first attempt
-        total_usage = combine_token_usage(
-            [moderation_usage, main_llm_usage, retry_usage]
-        )
+            # Compute the total usage by adding the usage from the first attempt
+            total_usage = combine_token_usage(
+                [moderation_usage, main_llm_usage, retry_usage]
+            )
 
         # New step: Validate evaluation results
         # validation_response = self.validate_evaluation(user_input, llm_response, result, success, error, only_text)
