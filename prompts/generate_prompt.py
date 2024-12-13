@@ -1,5 +1,6 @@
 import time
 import yaml
+import streamlit as st
 from prompts.all_prompts import (
     GTFS_STRUCTURE,
     BASE_PROMPT,
@@ -28,16 +29,40 @@ def load_yaml_examples(yaml_file):
     with open(yaml_file, "r") as file:
         return yaml.safe_load(file)
 
-
-def select_relevant_examples(query, examples, n=FEW_SHOT_EXAMPLE_LIMIT, threshold=0.25):
+def TFIDF_similarity(examples, query):
     # Create a list of all examples
     all_examples = [f"{ex['question']}\n{ex['answer']}" for ex in examples.values()]
     # Add the query to the list
     all_texts = [query] + all_examples
     # Create TF-IDF vectors
     vectorizer = TfidfVectorizer().fit_transform(all_texts)
-    # Compute cosine similarity
     cosine_similarities = cosine_similarity(vectorizer[0:1], vectorizer[1:]).flatten()
+    return cosine_similarities
+
+@st.cache_resource(show_spinner="Loading sentence transformer...", ttl=3600)
+def load_sentence_transformer():
+    from sentence_transformers import SentenceTransformer
+    return SentenceTransformer('all-MiniLM-L6-v2')
+
+@st.cache_resource(show_spinner="Embedding examples...", ttl=3600)
+def embed_examples(examples):
+    model = load_sentence_transformer()
+    example_queries = [f"{ex['question']}" for ex in examples.values()]
+    return model.encode(example_queries)
+
+def SentenceTransformer_similarity(examples, query):
+    model = load_sentence_transformer()
+    examples_embeddings = embed_examples(examples)
+    query_embedding = model.encode(query)
+    cosine_similarities = cosine_similarity([query_embedding], examples_embeddings).flatten()
+    return cosine_similarities
+
+def select_relevant_examples(query, examples, n=FEW_SHOT_EXAMPLE_LIMIT, method = "tfidf", threshold=0.25):
+    # Create a list of all examples
+    if method == "tfidf":
+        cosine_similarities = TFIDF_similarity(examples, query)
+    elif method == "sentence_transformer":
+        cosine_similarities = SentenceTransformer_similarity(examples, query)
 
     # Filter examples based on threshold and get top n
     relevant_indices = [
@@ -49,11 +74,11 @@ def select_relevant_examples(query, examples, n=FEW_SHOT_EXAMPLE_LIMIT, threshol
     return [list(examples.values())[i] for i in top_indices]
 
 
-def generate_dynamic_few_shot(query, allow_viz, n=3):
+def generate_dynamic_few_shot(query, method, allow_viz, n=3):
     examples = load_yaml_examples(
         FEW_SHOT_EXAMPLES_FILE_VIZ if allow_viz else FEW_SHOT_EXAMPLES_FILE
     )
-    relevant_examples = select_relevant_examples(query, examples, n)
+    relevant_examples = select_relevant_examples(query, examples, n, method)
     examples = ["<examples>"]
     for ex in relevant_examples:
         example = "<example>\n"
