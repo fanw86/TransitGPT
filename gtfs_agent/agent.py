@@ -347,7 +347,7 @@ class LLMAgent:
         client = self.clients["gpt"]
         
         if self.status:
-            self.status.update(label="Summarizing response...", state="complete", expanded=True)
+            self.status.update(label="Summarizing response...", state="complete")
         
         stream_placeholder = st.empty()
         # Use the actual stream_placeholder here, but don't include it in task tracking
