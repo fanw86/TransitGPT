@@ -321,14 +321,14 @@ class LLMAgent:
         self.logger.info(f"LLM Response: {response}")
         return response, call_success, usage
 
-    @task(name="Summary LLM Call")
-    def call_summary_llm(self, stream_placeholder):
+    @task(name="Call Summary LLM")
+    def call_summary_llm(self):
         last_interaction = self.chat_history[-1] if self.chat_history else None
 
         if not last_interaction:
             self.logger.warning("No interactions in chat history for summary LLM call")
             return "No previous interaction available."
-        # Additional check to ensure that large dataframes are not passed to the LLM
+            
         summarized_evaluation = summarize_large_output(
             last_interaction.evaluation_result, self.max_rows, self.max_chars
         )
@@ -339,15 +339,18 @@ class LLMAgent:
             success=last_interaction.code_success,
             error=last_interaction.error_message,
         )
-        # Hardcoded model for summary LLM call
+        
         model = SUMMARY_LLM
         messages = self.create_messages(user_prompt, model)
         self.logger.info(f"Summary LLM message sent to {model} : {messages}")
         full_response = ""
         client = self.clients["gpt"]
-        # Stream the response
+        
         if self.status:
             self.status.update(label="Summarizing response...", state="complete", expanded=True)
+        
+        stream_placeholder = st.empty()
+        # Use the actual stream_placeholder here, but don't include it in task tracking
         for chunk in client.stream_call(
             model, messages, SUMMARY_LLM_SYSTEM_PROMPT, temperature=SUMMARY_LLM_TEMPERATURE
         ):
@@ -444,7 +447,7 @@ class LLMAgent:
         # validation_response = None
 
         if success and not only_text and summarize:
-            summary_response = self.call_summary_llm(st.empty())
+            summary_response = self.call_summary_llm()
         else:
             summary_response = None
 
