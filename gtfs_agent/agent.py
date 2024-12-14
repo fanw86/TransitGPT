@@ -332,12 +332,13 @@ class LLMAgent:
         summarized_evaluation = summarize_large_output(
             last_interaction.evaluation_result, self.max_rows, self.max_chars
         )
+        error_message = "" if last_interaction.code_success else last_interaction.error_message
         user_prompt = SUMMARY_LLM_USER_PROMPT.format(
             question=last_interaction.user_prompt,
             response=last_interaction.assistant_response,
             evaluation=summarized_evaluation,
             success=last_interaction.code_success,
-            error=last_interaction.error_message,
+            error=error_message,
         )
         
         model = SUMMARY_LLM
