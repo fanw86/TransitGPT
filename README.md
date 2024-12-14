@@ -4,16 +4,16 @@ TransitGPT is a specialized chatbot that helps transit enthusiasts retrieve tran
 
 
 <p align="center">
-  <img src="images/Viz_cap.png" alt="GTFS2CODE Visualization Capabilities" style="max-width: 60%; width : 600px;">
+  <img src="images/Viz_cap.png" alt="TransitGPT Visualization Capabilities" style="max-width: 60%; width : 600px;">
 </p>
 
 ## Architecture Overview
 
 <p align="center">
-  <img src="images/transitGPTArch.png" alt="GTFS2CODE Architecture" style="max-width: 60%; width : 600px">
+  <img src="images/transitGPTArch.png" alt="TransitGPT Architecture" style="max-width: 60%; width : 600px">
 </p>
 
-This diagram illustrates the high-level architecture of the GTFS2CODE system, showing how different components interact.
+This diagram illustrates the high-level architecture of the TransitGPT system, showing how different components interact.
 
 ## Features
 
