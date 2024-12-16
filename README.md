@@ -54,7 +54,19 @@ This diagram illustrates the high-level architecture of the TransitGPT system, s
    ```bash
    pip install -r requirements.txt
    ```
-3. Ensure you have the necessary GTFS data files and update the `gtfs_data/file_mapping.json` accordingly
+3. Ensure you have the necessary GTFS data files and update the `gtfs_data/file_mapping.json` accordingly:
+
+   - **Add a New GTFS Feed**:
+     - **Place the GTFS File**: Add the GTFS zip file to the appropriate directory within `gtfs_data/`.
+     - **Update `file_mapping.json`**: Add a new entry for the transit agency in the following format:
+        ```json
+        "New Transit": {
+          "file_loc": "gtfs_data/New Transit Agency/gtfs.zip",
+          "distance_unit": "m",
+          "pickle_loc": "gtfs_data/feed_pickles/New_Transit_gtfs_loader.pkl"
+        }
+        ```
+
 4. Generate pickled GTFS feeds for faster loading:
    ```bash
    python utils/generate_feed_pickles.py
