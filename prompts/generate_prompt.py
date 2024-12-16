@@ -145,7 +145,8 @@ def generate_system_prompt(loader: GTFSLoader, allow_viz: bool = False) -> str:
     GTFS = loader.gtfs
     feed = loader.feed
     file_list = loader.file_list
-    distance_unit = "`Meters`" if distance_unit == "m" else "`Kilometers`"
+    distance_mapping = {"m": "Meters", "km": "Kilometers", "ft": "Feet", "mi": "Miles"}
+    distance_unit = distance_mapping[distance_unit]
     FILE_INFO, GTFS_FEED_DATATYPES = generate_fileinfo_dtypes(
         feed, file_list, distance_unit
     )

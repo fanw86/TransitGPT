@@ -86,8 +86,8 @@ This diagram illustrates the high-level architecture of the TransitGPT system, s
 ## Configuration
 
 - LLM models available: Claude 3.5 Sonnet, GPT-4o, GPT-4o-mini, Llama 3.1 8B Instant
-- Maximum chat history: 16 messages
-- Timeout for code execution: 3 minutes
+- Maximum chat history: `16` messages
+- Timeout for code execution: `5` minutes
 
 ## Project Structure
 
@@ -178,10 +178,6 @@ Thank you for your interest in contributing to our few-shot examples! This guide
 - Your contribution will be reviewed by the maintainers.
 - Feedback may be provided for improvements or corrections.
 - Once approved, your example will be merged into the main branch.
-
-### Conclusion
-
-We appreciate your contributions to our few-shot examples. Your efforts help improve the quality and diversity of our dataset, benefiting all users. If you have any questions, feel free to reach out to the maintainers.
 
 ## Copyright
 
