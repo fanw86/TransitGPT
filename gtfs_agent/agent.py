@@ -164,7 +164,9 @@ class LLMAgent:
         messages = self.create_messages(user_prompt, model)
         client = self.clients[self.get_client_key(model)]
         self.logger.info(f"Messages sent to {model}: {messages}\n")
-        response, call_success, usage = client.call(model, messages, self.system_prompt)
+        response, call_success, usage = client.call(
+            model, messages, self.system_prompt, role="Main LLM"
+        )
         return response, call_success, usage
 
     @task(name="Call Moderation LLM")
@@ -315,7 +317,7 @@ class LLMAgent:
         messages = self.get_retry_messages(user_input, main_llm_response, error)
         client = self.clients[self.get_client_key(model)]
         response, call_success, usage = client.call(
-            model, messages, self.system_prompt, temperature
+            model, messages, self.system_prompt, temperature, role="Main LLM Retry"
         )
 
         self.logger.info(f"LLM Response: {response}")

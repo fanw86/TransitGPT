@@ -19,7 +19,7 @@ You are a GTFS expert who helps analyze transit data and write Python code to pr
 
 <distance-unit>
 
-- The distance units for this GTFS feed are in Feet. Therefore, fields such as `shape_dist_traveled` will be reported in Feet.
+- The distance units for this GTFS feed are in Kilometers. Therefore, fields such as `shape_dist_traveled` will be reported in Kilometers.
 
 </distance-unit>
 
@@ -36,16 +36,88 @@ Common data types:
 
 These are the datatypes for all files within the current GTFS:
 
-### agency.txt
+### routes.txt
 
 <data-type>
 
-- `agency_name`: string
-- `agency_url`: string
-- `agency_timezone`: string
-- `agency_lang`: string
-- `agency_phone`: string
-- `agency_fare_url`: string
+- `route_id`: string
+- `agency_id`: string
+- `route_short_name`: string
+- `route_long_name`: string
+- `route_url`: string
+- `route_desc`: string
+- `route_type`: integer
+- `route_color`: string
+- `route_text_color`: string
+- `route_sort_order`: integer
+
+</data-type>
+
+### stops.txt
+
+<data-type>
+
+- `stop_id`: string
+- `stop_code`: string
+- `stop_name`: string
+- `stop_desc`: string
+- `stop_lat`: float
+- `stop_lon`: float
+- `zone_id`: string
+- `stop_url`: string
+
+</data-type>
+
+### stop_times.txt
+
+<data-type>
+
+- `trip_id`: string
+- `arrival_time`: time (seconds since midnight)
+- `departure_time`: time (seconds since midnight)
+- `stop_id`: string
+- `stop_sequence`: integer
+- `stop_headsign`: string
+- `pickup_type`: integer
+- `drop_off_type`: integer
+- `shape_dist_traveled`: float (Kilometers)
+
+</data-type>
+
+### shapes.txt
+
+<data-type>
+
+- `shape_id`: string
+- `shape_pt_lon`: float
+- `shape_pt_lat`: float
+- `shape_pt_sequence`: integer
+- `shape_dist_traveled`: float (Kilometers)
+
+</data-type>
+
+### trips.txt
+
+<data-type>
+
+- `route_id`: string
+- `service_id`: string
+- `trip_id`: string
+- `trip_headsign`: string
+- `direction_id`: integer
+- `block_id`: string
+- `shape_id`: string
+- `wheelchair_accessible`: integer
+- `bikes_allowed`: integer
+
+</data-type>
+
+### calendar_dates.txt
+
+<data-type>
+
+- `service_id`: string
+- `exception_type`: integer
 
 </data-type>
 
@@ -66,104 +138,37 @@ These are the datatypes for all files within the current GTFS:
 
 </data-type>
 
-### calendar_dates.txt
+### fare_rules.txt
 
 <data-type>
 
-- `service_id`: string
-- `exception_type`: integer
-
-</data-type>
-
-### frequencies.txt
-
-<data-type>
-
-- `trip_id`: object
-- `start_time`: object
-- `end_time`: object
-- `headway_secs`: object
-
-</data-type>
-
-### routes.txt
-
-<data-type>
-
+- `fare_id`: string
 - `route_id`: string
-- `route_short_name`: string
-- `route_long_name`: string
-- `route_type`: integer
-- `route_url`: string
-- `route_color`: string
-- `route_text_color`: string
 
 </data-type>
 
-### shapes.txt
+### fare_attributes.txt
 
 <data-type>
 
-- `shape_id`: string
-- `shape_pt_lat`: float
-- `shape_pt_lon`: float
-- `shape_pt_sequence`: integer
-- `shape_dist_traveled`: float (Feet)
+- `fare_id`: string
+- `price`: float
+- `currency_type`: string
+- `payment_method`: integer
+- `transfers`: integer
+- `transfer_duration`: integer
 
 </data-type>
 
-### stop_times.txt
+### agency.txt
 
 <data-type>
 
-- `trip_id`: string
-- `arrival_time`: time (seconds since midnight)
-- `departure_time`: time (seconds since midnight)
-- `stop_id`: string
-- `stop_sequence`: integer
-- `stop_headsign`: string
-- `pickup_type`: integer
-- `shape_dist_traveled`: float (Feet)
-
-</data-type>
-
-### stops.txt
-
-<data-type>
-
-- `stop_id`: string
-- `stop_code`: string
-- `stop_name`: string
-- `stop_desc`: string
-- `stop_lat`: float
-- `stop_lon`: float
-- `location_type`: integer
-- `parent_station`: string
-- `wheelchair_boarding`: integer
-
-</data-type>
-
-### transfers.txt
-
-<data-type>
-
-- `from_stop_id`: string
-- `to_stop_id`: string
-- `transfer_type`: integer
-
-</data-type>
-
-### trips.txt
-
-<data-type>
-
-- `route_id`: string
-- `service_id`: string
-- `trip_id`: string
-- `direction_id`: integer
-- `block_id`: string
-- `shape_id`: string
-- `wheelchair_accessible`: integer
+- `agency_id`: string
+- `agency_name`: string
+- `agency_url`: string
+- `agency_timezone`: string
+- `agency_lang`: string
 
 </data-type>
 
@@ -172,89 +177,109 @@ These are the datatypes for all files within the current GTFS:
 ## Sample from the feed: 
  The following is a sample from the feed, showcasing the first five lines from each file:
 
-### agency.txt (feed.agency)
+### routes.txt (feed.routes)
 <feed-sample>
-| agency_name               | agency_url                | agency_timezone   | agency_lang   | agency_phone   | agency_fare_url                                                     |
-|:--------------------------|:--------------------------|:------------------|:--------------|:---------------|:--------------------------------------------------------------------|
-| Chicago Transit Authority | http://transitchicago.com | America/Chicago   | en            | 1-888-YOURCTA  | http://www.transitchicago.com/travel_information/fares/default.aspx |
+|   route_id | agency_id   |   route_short_name | route_long_name   | route_url            | route_desc            |   route_type | route_color   | route_text_color   |   route_sort_order |
+|-----------:|:------------|-------------------:|:------------------|:---------------------|:----------------------|-------------:|:--------------|:-------------------|-------------------:|
+|          1 | SFMTA       |                  1 | CALIFORNIA        | https://SFMTA.com/1  | 5am-12 midnight daily |            3 | 005B95        | FFFFFF             |                nan |
+|         12 | SFMTA       |                 12 | FOLSOM-PACIFIC    | https://SFMTA.com/12 | 6am-10pm daily        |            3 | 005B95        | FFFFFF             |                nan |
+|         14 | SFMTA       |                 14 | MISSION           | https://SFMTA.com/14 | 24 hour service daily |            3 | 005B95        | FFFFFF             |                nan |
 </feed-sample>
 
-### calendar.txt (feed.calendar)
+### stops.txt (feed.stops)
 <feed-sample>
-|   service_id |   monday |   tuesday |   wednesday |   thursday |   friday |   saturday |   sunday | start_date   | end_date   |
-|-------------:|---------:|----------:|------------:|-----------:|---------:|-----------:|---------:|:-------------|:-----------|
-|        66801 |        1 |         1 |           1 |          1 |        1 |          0 |        0 | 2024-10-14   | 2024-12-31 |
-|        66802 |        1 |         1 |           1 |          1 |        0 |          0 |        0 | 2024-10-14   | 2024-12-31 |
-|        66803 |        0 |         1 |           1 |          1 |        1 |          0 |        0 | 2024-10-14   | 2024-12-31 |
+|   stop_id |   stop_code | stop_name                 | stop_desc   |   stop_lat |   stop_lon | zone_id   | stop_url                |
+|----------:|------------:|:--------------------------|:------------|-----------:|-----------:|:----------|:------------------------|
+|       390 |       10390 | 19th Avenue & Holloway St |             |    37.7212 |   -122.475 |           | https://SFMTA.com/10390 |
+|       913 |       10913 | Dublin St & La Grande Ave |             |    37.7192 |   -122.426 |           | https://SFMTA.com/10913 |
+|      3016 |       13016 | 3rd St & 4th St           |             |    37.7726 |   -122.39  |           | https://SFMTA.com/13016 |
+</feed-sample>
+
+### stop_times.txt (feed.stop_times)
+<feed-sample>
+|   trip_id |   arrival_time |   departure_time |   stop_id |   stop_sequence | stop_headsign   | pickup_type   | drop_off_type   | shape_dist_traveled   |
+|----------:|---------------:|-----------------:|----------:|----------------:|:----------------|:--------------|:----------------|:----------------------|
+|  11645514 |          16320 |            16320 |      3892 |              30 |                 |               |                 |                       |
+|  11645514 |          16360 |            16360 |      3875 |              31 |                 |               |                 |                       |
+|  11645514 |          16408 |            16408 |      3896 |              32 |                 |               |                 |                       |
+</feed-sample>
+
+### shapes.txt (feed.shapes)
+<feed-sample>
+|   shape_id |   shape_pt_lon |   shape_pt_lat |   shape_pt_sequence |   shape_dist_traveled |
+|-----------:|---------------:|---------------:|--------------------:|----------------------:|
+|     216528 |       -122.397 |        37.7954 |                   1 |                     0 |
+|     216528 |       -122.397 |        37.7955 |                   2 |                    17 |
+|     216528 |       -122.397 |        37.7946 |                   3 |                   116 |
+</feed-sample>
+
+### trips.txt (feed.trips)
+<feed-sample>
+|   route_id |   service_id |   trip_id | trip_headsign       |   direction_id |   block_id |   shape_id |   wheelchair_accessible |   bikes_allowed |
+|-----------:|-------------:|----------:|:--------------------|---------------:|-----------:|-----------:|------------------------:|----------------:|
+|          1 |            1 |  11645514 | Geary + 33rd Avenue |              0 |        102 |     216529 |                       1 |               1 |
+|          1 |            1 |  11645515 | Geary + 33rd Avenue |              0 |        104 |     216529 |                       1 |               1 |
+|          1 |            1 |  11645516 | Geary + 33rd Avenue |              0 |        106 |     216529 |                       1 |               1 |
 </feed-sample>
 
 ### calendar_dates.txt (feed.calendar_dates)
 <feed-sample>
 |   service_id | date       |   exception_type |
 |-------------:|:-----------|-----------------:|
-|        66801 | 2024-11-28 |                2 |
-|        66801 | 2024-12-25 |                2 |
-|        66802 | 2024-11-28 |                2 |
+|            1 | 2024-11-28 |                2 |
+|            3 | 2024-11-28 |                1 |
+|            1 | 2024-12-25 |                2 |
 </feed-sample>
 
-### frequencies.txt (feed.frequencies)
+### timepoints.txt (feed.timepoints)
 <feed-sample>
-| trip_id   | start_time   | end_time   | headway_secs   |
-|-----------|--------------|------------|----------------|
+|     trip_id |   stop_id |
+|------------:|----------:|
+| 1.16457e+07 |      3893 |
+| 1.16455e+07 |      3892 |
+| 1.16457e+07 |      6296 |
 </feed-sample>
 
-### routes.txt (feed.routes)
+### calendar.txt (feed.calendar)
 <feed-sample>
-|   route_id |   route_short_name | route_long_name           |   route_type | route_url                            | route_color   | route_text_color   |
-|-----------:|-------------------:|:--------------------------|-------------:|:-------------------------------------|:--------------|:-------------------|
-|          1 |                  1 | Bronzeville/Union Station |            3 | http://www.transitchicago.com/bus/1/ | 565a5c        | ffffff             |
-|          2 |                  2 | Hyde Park Express         |            3 | http://www.transitchicago.com/bus/2/ | b71234        | ffffff             |
-|          3 |                  3 | King Drive                |            3 | http://www.transitchicago.com/bus/3/ | 565a5c        | ffffff             |
+|   service_id |   monday |   tuesday |   wednesday |   thursday |   friday |   saturday |   sunday | start_date   | end_date   |
+|-------------:|---------:|----------:|------------:|-----------:|---------:|-----------:|---------:|:-------------|:-----------|
+|            1 |        1 |         1 |           1 |          1 |        1 |          0 |        0 | 2024-10-26   | 2025-01-10 |
+|            2 |        0 |         0 |           0 |          0 |        0 |          1 |        0 | 2024-10-26   | 2025-01-10 |
+|            3 |        0 |         0 |           0 |          0 |        0 |          0 |        1 | 2024-10-26   | 2025-01-10 |
 </feed-sample>
 
-### shapes.txt (feed.shapes)
+### fare_rules.txt (feed.fare_rules)
 <feed-sample>
-|   shape_id |   shape_pt_lat |   shape_pt_lon |   shape_pt_sequence |   shape_dist_traveled |
-|-----------:|---------------:|---------------:|--------------------:|----------------------:|
-|   66800095 |        41.9113 |       -87.6312 |                   1 |                     0 |
-|   66800095 |        41.9113 |       -87.6312 |                   2 |                    49 |
-|   66800095 |        41.9112 |       -87.6313 |                   3 |                   106 |
+|   fare_id |   route_id |
+|----------:|-----------:|
+|         1 |          1 |
+|         1 |         12 |
+|         1 |         14 |
 </feed-sample>
 
-### stop_times.txt (feed.stop_times)
+### fare_attributes.txt (feed.fare_attributes)
 <feed-sample>
-|     trip_id |   arrival_time |   departure_time |   stop_id |   stop_sequence | stop_headsign   |   pickup_type |   shape_dist_traveled |
-|------------:|---------------:|-----------------:|----------:|----------------:|:----------------|--------------:|----------------------:|
-| 84253143395 |          16200 |            16200 |     30181 |               1 | Loop            |             0 |                     0 |
-| 84253143395 |          16350 |            16350 |     30185 |               2 | Loop            |             0 |                  6924 |
-| 84253143395 |          16500 |            16500 |     30219 |               3 | Loop            |             0 |                 12801 |
+|   fare_id |   price | currency_type   |   payment_method |   transfers |   transfer_duration |
+|----------:|--------:|:----------------|-----------------:|------------:|--------------------:|
+|         1 |       3 | USD             |                0 |         nan |                5400 |
+|         2 |       8 | USD             |                0 |           0 |                 nan |
 </feed-sample>
 
-### stops.txt (feed.stops)
+### agency.txt (feed.agency)
 <feed-sample>
-|   stop_id |   stop_code | stop_name                 | stop_desc                                               |   stop_lat |   stop_lon |   location_type |   parent_station |   wheelchair_boarding |
-|----------:|------------:|:--------------------------|:--------------------------------------------------------|-----------:|-----------:|----------------:|-----------------:|----------------------:|
-|         1 |           1 | Jackson & Austin Terminal | Jackson & Austin Terminal, Northeastbound, Bus Terminal |    41.8763 |   -87.7741 |               0 |              nan |                     1 |
-|         2 |           2 | 5900 W Jackson            | 5900 W Jackson, Eastbound, Southside of the Street      |    41.8771 |   -87.7713 |               0 |              nan |                     1 |
-|         4 |           4 | 5700 W Jackson            | 5700 W Jackson, Eastbound, Southside of the Street      |    41.877  |   -87.7683 |               0 |              nan |                     1 |
+| agency_id   | agency_name                                   | agency_url        | agency_timezone     | agency_lang   |
+|:------------|:----------------------------------------------|:------------------|:--------------------|:--------------|
+| SFMTA       | San Francisco Municipal Transportation Agency | https://SFMTA.com | America/Los_Angeles | en            |
 </feed-sample>
 
-### transfers.txt (feed.transfers)
+### directions.txt (feed.directions)
 <feed-sample>
-|   from_stop_id |   to_stop_id |   transfer_type |
-|---------------:|-------------:|----------------:|
-|          30176 |        30175 |               0 |
-|          30174 |        30175 |               0 |
-|          30258 |        30256 |               0 |
-</feed-sample>
-
-### trips.txt (feed.trips)
-<feed-sample>
-| route_id   |   service_id |       trip_id |   direction_id |     block_id |   shape_id | direction   |   wheelchair_accessible |   schd_trip_id |
-|:-----------|-------------:|--------------:|---------------:|-------------:|-----------:|:------------|------------------------:|---------------:|
-| X9         |        66801 | 6680010077020 |              1 | 668000003564 |   66808469 | North       |                       1 |       10077020 |
-| X9         |        66801 | 6680010170020 |              1 | 668000002136 |   66808470 | North       |                       1 |       10170020 |
-| X9         |        66801 | 6680011050020 |              1 | 668000003543 |   66808469 | North       |                       1 |       11050020 |
+|   route_id |   direction_id | direction   |
+|-----------:|---------------:|:------------|
+|          1 |              0 | Outbound    |
+|          1 |              1 | Inbound     |
+|          2 |              0 | Outbound    |
 </feed-sample>
 
 

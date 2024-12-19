@@ -74,11 +74,33 @@ def select_relevant_examples(query, examples, n=FEW_SHOT_EXAMPLE_LIMIT, method =
     return [list(examples.values())[i] for i in top_indices]
 
 
-def generate_dynamic_few_shot(query, method, allow_viz, n=3):
-    examples = load_yaml_examples(
-        FEW_SHOT_EXAMPLES_FILE_VIZ if allow_viz else FEW_SHOT_EXAMPLES_FILE
-    )
-    relevant_examples = select_relevant_examples(query, examples, n, method)
+def generate_dynamic_few_shot(query, method, allow_viz, n=3, threshold=0.25):
+    if allow_viz:
+        # Load both types of examples
+        examples_viz = load_yaml_examples(FEW_SHOT_EXAMPLES_FILE_VIZ)
+        examples_non_viz = load_yaml_examples(FEW_SHOT_EXAMPLES_FILE)
+        
+        # Create a new combined dictionary
+        combined_examples = {}
+        
+        # Add non-visualization examples first
+        combined_examples.update(examples_non_viz)
+        
+        # Add visualization examples, overwriting any duplicates
+        for key, viz_example in examples_viz.items():
+            # Find if this question already exists
+            for existing_key in list(combined_examples.keys()):
+                if combined_examples[existing_key]['question'] == viz_example['question']:
+                    del combined_examples[existing_key]  # Remove the non-viz version
+            combined_examples[key] = viz_example  # Add the viz version
+    else:
+        # Only load and use non-visualization examples
+        combined_examples = load_yaml_examples(FEW_SHOT_EXAMPLES_FILE)
+
+    # Select relevant examples
+    relevant_examples = select_relevant_examples(query, combined_examples, n, method, threshold)
+    
+    # Construct the examples string
     examples = ["<examples>"]
     for ex in relevant_examples:
         example = "<example>\n"
@@ -87,6 +109,7 @@ def generate_dynamic_few_shot(query, method, allow_viz, n=3):
         example += "</example>"
         examples.append(example)
     examples.append("</examples>")
+    
     return "\n".join(examples)
 
 
