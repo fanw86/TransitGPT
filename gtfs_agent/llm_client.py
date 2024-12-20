@@ -156,3 +156,39 @@ class AnthropicClient(LLMClient):
             self.logger.error(error_message)
             self.last_error = error_message
             return error_message, False, {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
+
+
+class GeminiClient(LLMClient):
+    def __init__(self):
+        self.client = OpenAI(
+            api_key=st.secrets["GEMINI_API_KEY"],
+            base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+        )
+        self.logger = None
+        self.last_error = None
+
+    def set_logger(self, logger):
+        self.logger = logger
+
+    def call(self, model, messages, system_prompt=None, temperature=MAIN_LLM_TEMPERATURE, **kwargs) -> Tuple[str, bool, dict]:
+        messages.insert(0, {"role": "system", "content": system_prompt})
+        try:
+            response = self.client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+            )
+            self.logger.info(f"Raw Response from Gemini: {response}")
+            self.last_error = None
+            usage = {
+                "prompt_tokens": response.usage.promptTokens,
+                "completion_tokens": response.usage.completionTokens,
+                "total_tokens": response.usage.totalTokens
+            }
+            self.logger.info(f"Usage from Gemini: {usage}")
+            return response.choices[0].message.content, True, usage
+        except OpenAIError as e:
+            error_message = f"Gemini API call failed: {str(e)}"
+            self.logger.error(error_message)
+            self.last_error = error_message
+            return error_message, False, {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}

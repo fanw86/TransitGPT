@@ -119,7 +119,7 @@ def apply_color_codes(text):
 
 @st.fragment
 @st.cache_data(show_spinner="Displaying Code", ttl=3600)
-def display_code_output(_message, only_text=False):
+def display_code_output(_message, message_id, only_text=False):
     if "code_output" not in _message or only_text:
         return
 
@@ -168,6 +168,8 @@ def display_feedback_ui(fb_agent, message_id, col2, col3):
 def display_llm_response(fb_agent, uuid, message, i):
     # Display Code if final response is different from the initial LLM response
     only_text = message["only_text"]
+    message_id = f"{uuid}_{i}"
+    st.session_state.current_message_id = message_id
     if not only_text:
         with st.expander("👨‍💻Code", expanded=False):
             executable_pattern = r"```python\n(.*?)```"
@@ -182,7 +184,7 @@ def display_llm_response(fb_agent, uuid, message, i):
         if "code_output" in message and not only_text:
             # Default empty eval_success to False
             if message.get("eval_success", False):
-                display_code_output(message)
+                display_code_output(message, message_id)
             else:
                 error_message = message["error_message"]
                 if "TimeoutError" in error_message:
@@ -215,8 +217,6 @@ def display_llm_response(fb_agent, uuid, message, i):
                         "Call Failed! Please try again with a different LLM.", icon="⚠"
                     )
 
-    message_id = f"{uuid}_{i}"
-    st.session_state.current_message_id = message_id
 
     if only_text or message["summary_response"] != message["main_response"]:
         if message["summary_response"] is None:

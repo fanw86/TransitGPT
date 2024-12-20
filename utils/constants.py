@@ -53,6 +53,9 @@ if "ANTHROPIC_API_KEY" in st.secrets:
         ]
     )
 
+if "GEMINI_API_KEY" in st.secrets:
+    LLMs.extend(["gemini-2.0-flash-exp","gemini-2.0-flash-thinking-exp-1219"])
+
 # if "GROQ_API_KEY" in st.secrets:
 #     LLMs.extend(["llama-3.1-8b-instant"])
 

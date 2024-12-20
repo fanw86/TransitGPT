@@ -21,7 +21,7 @@ from utils.constants import (
 )
 from typing import List, Dict, Any, Tuple
 from utils.helper import summarize_large_output, combine_token_usage
-from gtfs_agent.llm_client import OpenAIClient, GroqClient, AnthropicClient
+from gtfs_agent.llm_client import OpenAIClient, GroqClient, AnthropicClient, GeminiClient
 from utils.data_models import ChatInteraction
 from evaluator.eval_code import GTFS_Eval
 from streamlit_folium import folium_static
@@ -61,6 +61,7 @@ class LLMAgent:
             "gpt": OpenAIClient(),
             # "llama": GroqClient(),
             "claude": AnthropicClient(),
+            "gemini": GeminiClient(),
         }
 
         # Set the logger for each client
@@ -91,6 +92,8 @@ class LLMAgent:
             return "claude"
         if model.startswith("gpt") or model.startswith("o1"):
             return "gpt"
+        if model.startswith("gemini"):
+            return "gemini"
         return "llama"
 
     def create_messages(self, user_prompt: str, model: str) -> List[Dict[str, str]]:
