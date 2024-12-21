@@ -194,3 +194,19 @@ Thank you for your interest in contributing to our few-shot examples! This guide
 ## ©️ Copyright
 
 Copyright © 2024 [Urban Traffic & Economics Lab (UTEL)](https://github.com/UTEL-UIUC)
+
+## 📚 Citation
+
+If you use TransitGPT in your research, please cite our paper:
+
+```bibtex
+@misc{devunuri2024transitgpt,
+      title={TransitGPT: A Generative AI-based framework for interacting with GTFS data using Large Language Models}, 
+      author={Saipraneeth Devunuri and Lewis Lehe},
+      year={2024},
+      eprint={2412.06831},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2412.06831}, 
+}
+```
