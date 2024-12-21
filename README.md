@@ -1,6 +1,9 @@
 # TransitGPT 🚌
 
-[TransitGPT](https://arxiv.org/abs/2412.06831) is a specialized chatbot that helps transit enthusiasts retrieve transit information and analyze GTFS feeds via code. Try the chatbot [here](https://transitgpt.streamlit.app/).
+[![arXiv](https://img.shields.io/badge/arXiv-2412.06831-b31b1b.svg)](https://arxiv.org/abs/2412.06831)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://transitgpt.streamlit.app/)
+
+TransitGPT is a specialized chatbot that helps transit enthusiasts retrieve transit information and analyze GTFS feeds via code. Try the chatbot [here](https://transitgpt.streamlit.app/).
 
 
 <p align="center">
