@@ -1,6 +1,6 @@
 # TransitGPT 🚌
 
-TransitGPT is a specialized chatbot that helps transit enthusiasts retrieve transit information and analyze GTFS feeds via code.
+[TransitGPT](https://arxiv.org/abs/2412.06831) is a specialized chatbot that helps transit enthusiasts retrieve transit information and analyze GTFS feeds via code.
 
 
 <p align="center">
