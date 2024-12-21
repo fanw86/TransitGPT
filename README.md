@@ -56,7 +56,8 @@ This diagram illustrates the high-level architecture of the TransitGPT system, s
    ```
 3. Ensure you have the necessary GTFS data files and update the `gtfs_data/file_mapping.json` accordingly:
 
-   - **Add a New GTFS Feed**:
+   #### Add a New GTFS Feed:
+   ---
      - **Place the GTFS File**: Add the GTFS zip file to the appropriate directory within `gtfs_data/`.
      - **Update `file_mapping.json`**: Add a new entry for the transit agency in the following format:
         ```json
@@ -67,11 +68,11 @@ This diagram illustrates the high-level architecture of the TransitGPT system, s
         }
         ```
 
-4. Generate pickled GTFS feeds for faster loading:
+5. Generate pickled GTFS feeds for faster loading:
    ```bash
    python utils/generate_feed_pickles.py
    ```
-5. Set up your environment variables for API keys and other sensitive information:
+6. Set up your environment variables for API keys and other sensitive information:
    - Create a `.streamlit/secrets.toml` file in your project directory.
    - Add your API keys in the following format:
      ```toml
@@ -83,7 +84,7 @@ This diagram illustrates the high-level architecture of the TransitGPT system, s
      ```
    - Ensure that this file is not included in version control by adding it to your `.gitignore`.
 
-6. Run the Streamlit app:
+7. Run the Streamlit app:
    ```bash
    streamlit run chat_app.py
    ```
