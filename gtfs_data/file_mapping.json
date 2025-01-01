@@ -1,7 +1,7 @@
 {
   "SFMTA": {
     "file_loc": "gtfs_data/San Francisco-San Francisco Municipal Transportation Agency (SFMTA, Muni)-CA/gtfs.zip",
-    "distance_unit": "km",
+    "distance_unit": "m",
     "pickle_loc": "gtfs_data/feed_pickles/SFMTA_gtfs_loader.pkl"
   },
   "CUMTD": {
