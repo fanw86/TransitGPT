@@ -22,8 +22,8 @@ FEW_SHOT_EXAMPLE_LIMIT = 3
 ## LLM HYPERPARAMETERS
 # Define the maximum number of messages to keep in the chat history
 MAX_MESSAGES = 16
-MAIN_LLM_TEMPERATURE = 0.3  # Recommend using 0.2-0.5 for coding related tasks
-MAIN_LLM_RETRY_TEMPERATURE = 0.5 # Recommend using 0.4-0.7 for retry tasks. Typically, the retry task is higher to avoid repeating the same mistakes.
+MAIN_LLM_TEMPERATURE = 0.2  # Recommend using 0.2-0.5 for coding related tasks
+MAIN_LLM_RETRY_TEMPERATURE = 0.4 # Recommend using 0.4-0.7 for retry tasks. Typically, the retry task is higher to avoid repeating the same mistakes.
 SUMMARY_LLM = "gpt-4o-mini"
 SUMMARY_LLM_TEMPERATURE = 0.7
 
