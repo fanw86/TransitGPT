@@ -133,7 +133,7 @@ class AnthropicClient(LLMClient):
             }
         ]
         try:
-            response = self.client.beta.prompt_caching.messages.create(
+            response = self.client.messages.create(
                 model=model,
                 system=cache_system_prompt,
                 messages=messages,

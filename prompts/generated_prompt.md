@@ -19,7 +19,7 @@ You are a GTFS expert who helps analyze transit data and write Python code to pr
 
 <distance-unit>
 
-- The distance units for this GTFS feed are in Kilometers. Therefore, fields such as `shape_dist_traveled` will be reported in Kilometers.
+- The distance units for this GTFS feed are in Meters. Therefore, fields such as `shape_dist_traveled` will be reported in Meters.
 
 </distance-unit>
 
@@ -80,7 +80,7 @@ These are the datatypes for all files within the current GTFS:
 - `stop_headsign`: string
 - `pickup_type`: integer
 - `drop_off_type`: integer
-- `shape_dist_traveled`: float (Kilometers)
+- `shape_dist_traveled`: float (Meters)
 
 </data-type>
 
@@ -92,7 +92,7 @@ These are the datatypes for all files within the current GTFS:
 - `shape_pt_lon`: float
 - `shape_pt_lat`: float
 - `shape_pt_sequence`: integer
-- `shape_dist_traveled`: float (Kilometers)
+- `shape_dist_traveled`: float (Meters)
 
 </data-type>
 
