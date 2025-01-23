@@ -39,6 +39,16 @@
     "distance_unit": "km",
     "pickle_loc": "gtfs_data/feed_pickles/MARTA_gtfs_loader.pkl"
   },
+  "MDT": {
+    "file_loc": "gtfs_data/Miami-Miami-Dade Transit-FL/gtfs.zip",
+    "distance_unit": "km",
+    "pickle_loc": "gtfs_data/feed_pickles/MDT_gtfs_loader.pkl"
+  },
+  "StarTran": {
+    "file_loc": "gtfs_data/Lincoln-StarTran-NE/gtfs.zip",
+    "distance_unit": "m",
+    "pickle_loc": "gtfs_data/feed_pickles/StarTran_gtfs_loader.pkl"
+  },
   "VTA": {
     "file_loc": "gtfs_data/San Jose-Santa Clara Valley Transportation Authority (VTA)-CA/gtfs.zip",
     "distance_unit": "km",
