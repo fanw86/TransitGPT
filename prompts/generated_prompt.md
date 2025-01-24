@@ -19,7 +19,7 @@ You are a GTFS expert who helps analyze transit data and write Python code to pr
 
 <distance-unit>
 
-- The distance units for this GTFS feed are in Meters. Therefore, fields such as `shape_dist_traveled` will be reported in Meters.
+- The distance units for this GTFS feed are in Kilometers. Therefore, fields such as `shape_dist_traveled` will be reported in Kilometers.
 
 </distance-unit>
 
@@ -36,88 +36,17 @@ Common data types:
 
 These are the datatypes for all files within the current GTFS:
 
-### routes.txt
+### agency.txt
 
 <data-type>
 
-- `route_id`: string
 - `agency_id`: string
-- `route_short_name`: string
-- `route_long_name`: string
-- `route_url`: string
-- `route_desc`: string
-- `route_type`: integer
-- `route_color`: string
-- `route_text_color`: string
-- `route_sort_order`: integer
-
-</data-type>
-
-### stops.txt
-
-<data-type>
-
-- `stop_id`: string
-- `stop_code`: string
-- `stop_name`: string
-- `stop_desc`: string
-- `stop_lat`: float
-- `stop_lon`: float
-- `zone_id`: string
-- `stop_url`: string
-
-</data-type>
-
-### stop_times.txt
-
-<data-type>
-
-- `trip_id`: string
-- `arrival_time`: time (seconds since midnight)
-- `departure_time`: time (seconds since midnight)
-- `stop_id`: string
-- `stop_sequence`: integer
-- `stop_headsign`: string
-- `pickup_type`: integer
-- `drop_off_type`: integer
-- `shape_dist_traveled`: float (Meters)
-
-</data-type>
-
-### shapes.txt
-
-<data-type>
-
-- `shape_id`: string
-- `shape_pt_lon`: float
-- `shape_pt_lat`: float
-- `shape_pt_sequence`: integer
-- `shape_dist_traveled`: float (Meters)
-
-</data-type>
-
-### trips.txt
-
-<data-type>
-
-- `route_id`: string
-- `service_id`: string
-- `trip_id`: string
-- `trip_headsign`: string
-- `direction_id`: integer
-- `block_id`: string
-- `shape_id`: string
-- `wheelchair_accessible`: integer
-- `bikes_allowed`: integer
-
-</data-type>
-
-### calendar_dates.txt
-
-<data-type>
-
-- `service_id`: string
-- `exception_type`: integer
+- `agency_name`: string
+- `agency_url`: string
+- `agency_timezone`: string
+- `agency_lang`: string
+- `agency_phone`: string
+- `agency_fare_url`: string
 
 </data-type>
 
@@ -138,37 +67,92 @@ These are the datatypes for all files within the current GTFS:
 
 </data-type>
 
-### fare_rules.txt
+### calendar_dates.txt
 
 <data-type>
 
-- `fare_id`: string
+- `service_id`: string
+- `exception_type`: integer
+
+</data-type>
+
+### routes.txt
+
+<data-type>
+
 - `route_id`: string
-
-</data-type>
-
-### fare_attributes.txt
-
-<data-type>
-
-- `fare_id`: string
-- `price`: float
-- `currency_type`: string
-- `payment_method`: integer
-- `transfers`: integer
-- `transfer_duration`: integer
-
-</data-type>
-
-### agency.txt
-
-<data-type>
-
 - `agency_id`: string
-- `agency_name`: string
-- `agency_url`: string
-- `agency_timezone`: string
-- `agency_lang`: string
+- `route_short_name`: string
+- `route_long_name`: string
+- `route_desc`: string
+- `route_type`: integer
+- `route_url`: string
+- `route_color`: string
+- `route_text_color`: string
+
+</data-type>
+
+### shapes.txt
+
+<data-type>
+
+- `shape_id`: string
+- `shape_pt_lat`: float
+- `shape_pt_lon`: float
+- `shape_pt_sequence`: integer
+- `shape_dist_traveled`: float (Kilometers)
+
+</data-type>
+
+### stop_times.txt
+
+<data-type>
+
+- `trip_id`: string
+- `arrival_time`: time (seconds since midnight)
+- `departure_time`: time (seconds since midnight)
+- `stop_id`: string
+- `stop_sequence`: integer
+- `stop_headsign`: string
+- `pickup_type`: integer
+- `drop_off_type`: integer
+- `timepoint`: integer
+
+</data-type>
+
+### stops.txt
+
+<data-type>
+
+- `stop_id`: string
+- `stop_code`: string
+- `stop_name`: string
+- `stop_desc`: string
+- `stop_lat`: float
+- `stop_lon`: float
+- `zone_id`: string
+- `stop_url`: string
+- `location_type`: integer
+- `parent_station`: string
+- `stop_timezone`: string
+- `wheelchair_boarding`: integer
+
+</data-type>
+
+### trips.txt
+
+<data-type>
+
+- `route_id`: string
+- `service_id`: string
+- `trip_id`: string
+- `trip_headsign`: string
+- `trip_short_name`: string
+- `direction_id`: integer
+- `block_id`: string
+- `shape_id`: string
+- `wheelchair_accessible`: integer
+- `bikes_allowed`: integer
 
 </data-type>
 
@@ -177,109 +161,74 @@ These are the datatypes for all files within the current GTFS:
 ## Sample from the feed: 
  The following is a sample from the feed, showcasing the first five lines from each file:
 
-### routes.txt (feed.routes)
+### agency.txt (feed.agency)
 <feed-sample>
-|   route_id | agency_id   |   route_short_name | route_long_name   | route_url            | route_desc            |   route_type | route_color   | route_text_color   |   route_sort_order |
-|-----------:|:------------|-------------------:|:------------------|:---------------------|:----------------------|-------------:|:--------------|:-------------------|-------------------:|
-|          1 | SFMTA       |                  1 | CALIFORNIA        | https://SFMTA.com/1  | 5am-12 midnight daily |            3 | 005B95        | FFFFFF             |                nan |
-|         12 | SFMTA       |                 12 | FOLSOM-PACIFIC    | https://SFMTA.com/12 | 6am-10pm daily        |            3 | 005B95        | FFFFFF             |                nan |
-|         14 | SFMTA       |                 14 | MISSION           | https://SFMTA.com/14 | 24 hour service daily |            3 | 005B95        | FFFFFF             |                nan |
-</feed-sample>
-
-### stops.txt (feed.stops)
-<feed-sample>
-|   stop_id |   stop_code | stop_name                 | stop_desc   |   stop_lat |   stop_lon | zone_id   | stop_url                |
-|----------:|------------:|:--------------------------|:------------|-----------:|-----------:|:----------|:------------------------|
-|       390 |       10390 | 19th Avenue & Holloway St |             |    37.7212 |   -122.475 |           | https://SFMTA.com/10390 |
-|       913 |       10913 | Dublin St & La Grande Ave |             |    37.7192 |   -122.426 |           | https://SFMTA.com/10913 |
-|      3016 |       13016 | 3rd St & 4th St           |             |    37.7726 |   -122.39  |           | https://SFMTA.com/13016 |
-</feed-sample>
-
-### stop_times.txt (feed.stop_times)
-<feed-sample>
-|   trip_id |   arrival_time |   departure_time |   stop_id |   stop_sequence | stop_headsign   | pickup_type   | drop_off_type   | shape_dist_traveled   |
-|----------:|---------------:|-----------------:|----------:|----------------:|:----------------|:--------------|:----------------|:----------------------|
-|  11645514 |          16320 |            16320 |      3892 |              30 |                 |               |                 |                       |
-|  11645514 |          16360 |            16360 |      3875 |              31 |                 |               |                 |                       |
-|  11645514 |          16408 |            16408 |      3896 |              32 |                 |               |                 |                       |
-</feed-sample>
-
-### shapes.txt (feed.shapes)
-<feed-sample>
-|   shape_id |   shape_pt_lon |   shape_pt_lat |   shape_pt_sequence |   shape_dist_traveled |
-|-----------:|---------------:|---------------:|--------------------:|----------------------:|
-|     216528 |       -122.397 |        37.7954 |                   1 |                     0 |
-|     216528 |       -122.397 |        37.7955 |                   2 |                    17 |
-|     216528 |       -122.397 |        37.7946 |                   3 |                   116 |
-</feed-sample>
-
-### trips.txt (feed.trips)
-<feed-sample>
-|   route_id |   service_id |   trip_id | trip_headsign       |   direction_id |   block_id |   shape_id |   wheelchair_accessible |   bikes_allowed |
-|-----------:|-------------:|----------:|:--------------------|---------------:|-----------:|-----------:|------------------------:|----------------:|
-|          1 |            1 |  11645514 | Geary + 33rd Avenue |              0 |        102 |     216529 |                       1 |               1 |
-|          1 |            1 |  11645515 | Geary + 33rd Avenue |              0 |        104 |     216529 |                       1 |               1 |
-|          1 |            1 |  11645516 | Geary + 33rd Avenue |              0 |        106 |     216529 |                       1 |               1 |
-</feed-sample>
-
-### calendar_dates.txt (feed.calendar_dates)
-<feed-sample>
-|   service_id | date       |   exception_type |
-|-------------:|:-----------|-----------------:|
-|            1 | 2024-11-28 |                2 |
-|            3 | 2024-11-28 |                1 |
-|            1 | 2024-12-25 |                2 |
-</feed-sample>
-
-### timepoints.txt (feed.timepoints)
-<feed-sample>
-|     trip_id |   stop_id |
-|------------:|----------:|
-| 1.16457e+07 |      3893 |
-| 1.16455e+07 |      3892 |
-| 1.16457e+07 |      6296 |
+|   agency_id | agency_name        | agency_url                       | agency_timezone   | agency_lang   |   agency_phone |   agency_fare_url |
+|------------:|:-------------------|:---------------------------------|:------------------|:--------------|---------------:|------------------:|
+|         nan | Miami-Dade Transit | http://www.miamidade.gov/transit | America/New_York  | en            |            nan |               nan |
 </feed-sample>
 
 ### calendar.txt (feed.calendar)
 <feed-sample>
 |   service_id |   monday |   tuesday |   wednesday |   thursday |   friday |   saturday |   sunday | start_date   | end_date   |
 |-------------:|---------:|----------:|------------:|-----------:|---------:|-----------:|---------:|:-------------|:-----------|
-|            1 |        1 |         1 |           1 |          1 |        1 |          0 |        0 | 2024-10-26   | 2025-01-10 |
-|            2 |        0 |         0 |           0 |          0 |        0 |          1 |        0 | 2024-10-26   | 2025-01-10 |
-|            3 |        0 |         0 |           0 |          0 |        0 |          0 |        1 | 2024-10-26   | 2025-01-10 |
+|           19 |        0 |         0 |           0 |          0 |        0 |          1 |        0 | 2021-01-01   | 2025-12-31 |
+|           21 |        1 |         1 |           1 |          1 |        1 |          0 |        0 | 2021-01-01   | 2025-12-31 |
+|           18 |        0 |         0 |           0 |          0 |        0 |          0 |        1 | 2021-01-01   | 2025-12-31 |
 </feed-sample>
 
-### fare_rules.txt (feed.fare_rules)
+### calendar_dates.txt (feed.calendar_dates)
 <feed-sample>
-|   fare_id |   route_id |
-|----------:|-----------:|
-|         1 |          1 |
-|         1 |         12 |
-|         1 |         14 |
+|   service_id | date       |   exception_type |
+|-------------:|:-----------|-----------------:|
+|            3 | 2024-11-28 |                1 |
+|            1 | 2024-11-28 |                2 |
+|            3 | 2024-12-25 |                1 |
 </feed-sample>
 
-### fare_attributes.txt (feed.fare_attributes)
+### routes.txt (feed.routes)
 <feed-sample>
-|   fare_id |   price | currency_type   |   payment_method |   transfers |   transfer_duration |
-|----------:|--------:|:----------------|-----------------:|------------:|--------------------:|
-|         1 |       3 | USD             |                0 |         nan |                5400 |
-|         2 |       8 | USD             |                0 |           0 |                 nan |
+|   route_id |   agency_id |   route_short_name | route_long_name                     |   route_desc |   route_type |   route_url | route_color   | route_text_color   |
+|-----------:|------------:|-------------------:|:------------------------------------|-------------:|-------------:|------------:|:--------------|:-------------------|
+|      29438 |         nan |                  2 | DOWNTOWN- NE 84 ST VIA NW 2 AVE     |          nan |            3 |         nan | 008000        | FFFFFF             |
+|      29439 |         nan |                  3 | AVENTURA-DOWNTOWN VIA BISC.BLVD.    |          nan |            3 |         nan | 800080        | FFFFFF             |
+|      29440 |         nan |                  7 | DOWNTOWN-DOLPH MALL/AIRPORT VIA 7ST |          nan |            3 |         nan | FF0000        | FFFFFF             |
 </feed-sample>
 
-### agency.txt (feed.agency)
+### shapes.txt (feed.shapes)
 <feed-sample>
-| agency_id   | agency_name                                   | agency_url        | agency_timezone     | agency_lang   |
-|:------------|:----------------------------------------------|:------------------|:--------------------|:--------------|
-| SFMTA       | San Francisco Municipal Transportation Agency | https://SFMTA.com | America/Los_Angeles | en            |
+|   shape_id |   shape_pt_lat |   shape_pt_lon |   shape_pt_sequence |   shape_dist_traveled |
+|-----------:|---------------:|---------------:|--------------------:|----------------------:|
+|     123745 |        25.7893 |       -80.1959 |                   1 |                0      |
+|     123745 |        25.7894 |       -80.1942 |                   2 |                0.1671 |
+|     123745 |        25.7894 |       -80.194  |                   3 |                0.1852 |
 </feed-sample>
 
-### directions.txt (feed.directions)
+### stop_times.txt (feed.stop_times)
 <feed-sample>
-|   route_id |   direction_id | direction   |
-|-----------:|---------------:|:------------|
-|          1 |              0 | Outbound    |
-|          1 |              1 | Inbound     |
-|          2 |              0 | Outbound    |
+|   trip_id |   arrival_time |   departure_time |   stop_id |   stop_sequence |   stop_headsign |   pickup_type |   drop_off_type |   shape_dist_traveled_x |   timepoint |   shape_dist_traveled_y |
+|----------:|---------------:|-----------------:|----------:|----------------:|----------------:|--------------:|----------------:|------------------------:|------------:|------------------------:|
+|   4828768 |          19020 |            19020 |       795 |               1 |             nan |             0 |               0 |                 nan     |           1 |                  0.1671 |
+|   4828768 |          19080 |            19080 |       796 |               2 |             nan |             0 |               0 |                   0.795 |           1 |                  0.7329 |
+|   4828768 |          19140 |            19140 |       797 |               3 |             nan |             0 |               0 |                   1.395 |           1 |                  1.4285 |
+</feed-sample>
+
+### stops.txt (feed.stops)
+<feed-sample>
+|   stop_id | stop_code   | stop_name                      | stop_desc                     |   stop_lat |   stop_lon |   zone_id |   stop_url |   location_type |   parent_station |   stop_timezone |   wheelchair_boarding | geometry                   |
+|----------:|:------------|:-------------------------------|:------------------------------|-----------:|-----------:|----------:|-----------:|----------------:|-----------------:|----------------:|----------------------:|:---------------------------|
+|         1 | 115AQRSN    | SW 114 AVE & QUAIL ROOST DR    | SW 114TH AVE & QUAIL ROOST DR |    25.5924 |   -80.3779 |       nan |        nan |             nan |              nan |             nan |                     2 | POINT (-80.37795 25.59245) |
+|         2 | CTLRTERW    | SW 211 ST @ OP S DADE GOVT CTR | nan                           |    25.5719 |   -80.3667 |       nan |        nan |             nan |              nan |             nan |                     2 | POINT (-80.36665 25.57193) |
+|         4 | 152SBSWS    | BUSWAY @ SW 152 ST             | nan                           |    25.6282 |   -80.3418 |       nan |        nan |             nan |              nan |             nan |                     2 | POINT (-80.34185 25.62821) |
+</feed-sample>
+
+### trips.txt (feed.trips)
+<feed-sample>
+|   route_id |   service_id |   trip_id | trip_headsign   |   trip_short_name |   direction_id |   block_id |   shape_id |   wheelchair_accessible |   bikes_allowed |
+|-----------:|-------------:|----------:|:----------------|------------------:|---------------:|-----------:|-----------:|------------------------:|----------------:|
+|      14456 |           11 |   4828768 | DOWNTOWN        |               nan |              0 |    1403220 |     123745 |                       2 |               2 |
+|      14456 |           11 |   4828978 | DOWNTOWN        |               nan |              0 |    1403218 |     123746 |                       2 |               2 |
+|      14456 |           11 |   4828769 | DOWNTOWN        |               nan |              0 |    1403224 |     123745 |                       2 |               2 |
 </feed-sample>
 
 

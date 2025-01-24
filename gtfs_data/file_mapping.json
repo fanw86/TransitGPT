@@ -49,6 +49,11 @@
     "distance_unit": "m",
     "pickle_loc": "gtfs_data/feed_pickles/StarTran_gtfs_loader.pkl"
   },
+  "MTA(Maryland)": {
+    "file_loc": "gtfs_data/Maryland-Maryland Transit Administration-Local Bus-MD/gtfs.zip",
+    "distance_unit": "km",
+    "pickle_loc": "gtfs_data/feed_pickles/MTA(Maryland)_gtfs_loader.pkl"
+  },
   "VTA": {
     "file_loc": "gtfs_data/San Jose-Santa Clara Valley Transportation Authority (VTA)-CA/gtfs.zip",
     "distance_unit": "km",
