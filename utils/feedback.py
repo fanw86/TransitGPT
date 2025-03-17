@@ -14,6 +14,9 @@ import plotly.graph_objs as go
 
 
 def create_feedback_entry(result):
+    if st.session_state["fb_agent"].db is None:
+        return
+    
     message_id = f"{st.session_state.uuid}_{len(st.session_state.chat_history) - 1}"
     st.session_state.current_message_id = message_id
 
@@ -57,10 +60,17 @@ def create_feedback_entry(result):
 
 class FeedbackAgent:
     def __init__(self, collection_name="feedback"):
-        key_dict = json.loads(st.secrets["firestore_key"])
-        credentials = service_account.Credentials.from_service_account_info(key_dict)
-        self.db = firestore.Client(credentials=credentials, project="gtfs2code")
-        self.collection_name = collection_name
+        try:
+            key_dict = json.loads(st.secrets["firestore_key"])
+            credentials = service_account.Credentials.from_service_account_info(key_dict)
+            self.db = firestore.Client(credentials=credentials, project="gtfs2code")
+            self.collection_name = collection_name
+        except (KeyError, json.JSONDecodeError):
+            # Handle case where firestore_key is not present or invalid
+            self.db = None
+            self.collection_name = collection_name
+            # Remove st.toast from here as it causes caching issues
+            self.firestore_error = True
 
     def load_feedback(self):
         feedback = {}
@@ -74,6 +84,10 @@ class FeedbackAgent:
             self.db.collection(self.collection_name).document(message_id).set(data)
 
     def on_feedback_change(self):
+        if self.db is None:
+            st.toast("Feedback functionality is disabled. Add `firestore_key` to secrets.", icon="🚫")
+            return
+        
         feedback_value = st.session_state[
             f"{st.session_state.current_message_id}_feedback"
         ]
@@ -96,4 +110,6 @@ class FeedbackAgent:
 @st.cache_resource(show_spinner="Loading feedback...", ttl=3600)
 def get_feedback():
     fb_agent = FeedbackAgent()
+    # if hasattr(fb_agent, 'firestore_error') and fb_agent.firestore_error:
+    #     st.toast("Firestore key not found. Feedback functionality is disabled.", icon="🚫")
     return fb_agent

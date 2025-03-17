@@ -1,0 +1,37 @@
+# Ignore Python cache files
+__pycache__
+*.pyc
+*.pyo
+
+# Ignore virtual environments
+venv
+.venv
+
+# Ignore git files
+.git
+.gitignore
+
+# Ignore other unnecessary files
+.DS_Store
+.env
+.streamlit/secrets.toml 
+
+# Ignore paper and other directories
+.vscode/
+data_challenge/
+kent_seminar/
+notebooks/
+TODO.md
+demo.py
+!images/*.png
+benchmark/
+GTFS2CODE_paper/
+crawler.py
+crawler_output/
+TRB 2025/
+
+*.ipynb
+*.pdf
+*.excalidraw
+*.png
+!images/*.png

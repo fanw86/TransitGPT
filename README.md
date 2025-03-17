@@ -92,6 +92,37 @@ This diagram illustrates the high-level architecture of the TransitGPT system, s
    streamlit run chat_app.py
    ```
 
+### [Alternative] 🐳 Docker Installation
+
+As an alternative to the standard setup, you can use Docker to run TransitGPT:
+
+
+1. **Build the Docker image**:
+   ```bash
+   docker build -t transitgpt .
+   ```
+
+2. **Run the container**:
+   ```bash
+   docker run -p 8501:8501 \
+     -e OPENAI_API_KEY=your_openai_api_key \
+     -e GROQ_API_KEY=your_groq_api_key \
+     -e ANTHROPIC_API_KEY=your_anthropic_api_key \
+     -e GMAP_API=your_google_maps_api_key \
+     -v $(pwd)/gtfs_data:/app/gtfs_data \
+     transitgpt
+   ```
+
+3. **Access the application**:
+   Open your browser and go to http://localhost:8501
+
+
+#### Notes for Docker Setup
+
+- Make sure to replace the placeholder API keys with your actual keys
+- The volume mount for `gtfs_data` ensures your GTFS data persists between container restarts
+- If you need to add new GTFS feeds, add them to your local `gtfs_data` directory and update `file_mapping.json` as described in the standard setup
+
 ## 📱 Usage
 
 1. Select an LLM model and GTFS feed from the sidebar
@@ -214,3 +245,5 @@ If you use TransitGPT in your research, please cite our paper:
       url={https://arxiv.org/abs/2412.06831}, 
 }
 ```
+
+
