@@ -30,3 +30,4 @@ traceloop-sdk>=0.33.5
 psutil
 inotify # for streamlit
 sentence-transformers
+rich
