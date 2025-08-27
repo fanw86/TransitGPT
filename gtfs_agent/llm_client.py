@@ -192,3 +192,64 @@ class GeminiClient(LLMClient):
             self.logger.error(error_message)
             self.last_error = error_message
             return error_message, False, {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
+
+
+class OpenRouterClient(LLMClient):
+    def __init__(self):
+        self.client = OpenAI(
+            api_key=st.secrets.general.OPENROUTER_API_KEY,
+            base_url="https://openrouter.ai/api/v1"
+        )
+        self.logger = None
+        self.last_error = None
+
+    def set_logger(self, logger):
+        self.logger = logger
+
+    def call(self, model, messages, system_prompt=None, temperature=MAIN_LLM_TEMPERATURE, max_tokens=None, **kwargs) -> Tuple[str, bool, dict]:
+        messages.insert(0, {"role": "system", "content": system_prompt})
+        try:
+            response = self.client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens
+            )
+            self.logger.info(f"Raw Response from OpenRouter: {response}")
+            self.last_error = None
+            usage = {
+                "prompt_tokens": response.usage.prompt_tokens,
+                "completion_tokens": response.usage.completion_tokens,
+                "total_tokens": response.usage.total_tokens
+            }
+            self.logger.info(f"Usage from OpenRouter: {usage}")
+            return response.choices[0].message.content, True, usage
+        except OpenAIError as e:
+            error_message = f"OpenRouter API call failed: {str(e)}"
+            self.logger.error(error_message)
+            self.last_error = error_message
+            return error_message, False, {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
+
+    def stream_call(
+        self, model, messages, system_prompt=None, temperature=SUMMARY_LLM_TEMPERATURE
+    ) -> Generator[Union[str, dict], None, None]:
+        messages.insert(0, {"role": "system", "content": system_prompt})
+        try:
+            stream = self.client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                stream=True,
+                stream_options={"include_usage": True}
+            )
+            for chunk in stream:
+                try:        
+                    if chunk.choices[0].delta.content is not None:
+                        yield chunk.choices[0].delta.content
+                except Exception as e:
+                    pass  # for the usage data
+        except OpenAIError as e:
+            error_message = f"OpenRouter API streaming call failed: {str(e)}"
+            self.logger.error(error_message)
+            self.last_error = error_message
+            yield error_message

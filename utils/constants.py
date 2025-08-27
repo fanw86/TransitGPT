@@ -24,10 +24,10 @@ FEW_SHOT_EXAMPLE_LIMIT = 3
 MAX_MESSAGES = 16
 MAIN_LLM_TEMPERATURE = 0.2  # Recommend using 0.2-0.5 for coding related tasks
 MAIN_LLM_RETRY_TEMPERATURE = 0.4 # Recommend using 0.4-0.7 for retry tasks. Typically, the retry task is higher to avoid repeating the same mistakes.
-SUMMARY_LLM = "gpt-4o-mini"
+SUMMARY_LLM = "deepseek/deepseek-r1-0528:free"
 SUMMARY_LLM_TEMPERATURE = 0.7
 
-MODERATION_LLM = "gpt-4o"
+MODERATION_LLM = "deepseek/deepseek-r1-0528:free"
 MODERATION_LLM_TEMPERATURE = 0.5
 MODERATION_LLM_MAX_TOKENS = 2
 
@@ -37,27 +37,17 @@ file_mapping = json.loads(open(FILE_MAPPING_LOC).read())
 # Enable Tracing
 ENABLE_TRACING = True
 
-# Populate LLMs based on available API keys
-LLMs = []
-
-if "OPENAI_API_KEY" in st.secrets:
-    LLMs.extend(["gpt-4o", "gpt-4o-mini"])
-
-if "ANTHROPIC_API_KEY" in st.secrets:
-    LLMs.extend(
-        [
-            "claude-3-5-sonnet-20241022",
-            "claude-3-5-haiku-20241022"
-            # "claude-3-5-sonnet-20240620",
-            # "claude-3-haiku-20240307",
-        ]
-    )
-
-if "GEMINI_API_KEY" in st.secrets:
-    LLMs.extend(["gemini-2.0-flash-exp","gemini-2.0-flash-thinking-exp-1219"])
-
-# if "GROQ_API_KEY" in st.secrets:
-#     LLMs.extend(["llama-3.1-8b-instant"])
+# Only use OpenRouter LLMs
+LLMs = [
+    "deepseek/deepseek-r1-0528:free",
+    "anthropic/claude-3.5-sonnet",
+    "anthropic/claude-3.5-haiku",
+    "openai/gpt-4o",
+    "openai/gpt-4o-mini",
+    "meta-llama/llama-3.1-8b-instruct",
+    "google/gemini-2.0-flash-exp",
+    "qwen/qwen-2.5-coder-32b-instruct"
+]
 
 disclaimer_text = """
 This chatbot is an AI-powered tool designed to assist with GTFS data analysis and code generation. Please be aware of the following:

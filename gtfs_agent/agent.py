@@ -21,7 +21,7 @@ from utils.constants import (
 )
 from typing import List, Dict, Any, Tuple
 from utils.helper import summarize_large_output, combine_token_usage
-from gtfs_agent.llm_client import OpenAIClient, GroqClient, AnthropicClient, GeminiClient
+from gtfs_agent.llm_client import OpenAIClient, GroqClient, AnthropicClient, GeminiClient, OpenRouterClient
 from utils.data_models import ChatInteraction
 from evaluator.eval_code import GTFS_Eval
 from streamlit_folium import folium_static
@@ -58,10 +58,7 @@ class LLMAgent:
             f"Updating LLMAgent with model: [red]{self.model}[/red], GTFS: [red]{self.GTFS}[/red], distance unit: [red]{self.distance_unit}[/red], and allow_viz: [green]{self.allow_viz}[/green]"
         )
         self.clients = {
-            "gpt": OpenAIClient(),
-            # "llama": GroqClient(),
-            "claude": AnthropicClient(),
-            "gemini": GeminiClient(),
+            "openrouter": OpenRouterClient(),
         }
 
         # Set the logger for each client
@@ -88,13 +85,8 @@ class LLMAgent:
 
     @staticmethod
     def get_client_key(model):
-        if model.startswith("claude"):
-            return "claude"
-        if model.startswith("gpt") or model.startswith("o1"):
-            return "gpt"
-        if model.startswith("gemini"):
-            return "gemini"
-        return "llama"
+        # Always use OpenRouter client for all models
+        return "openrouter"
 
     def create_messages(self, user_prompt: str, model: str) -> List[Dict[str, str]]:
         messages = []
@@ -350,7 +342,8 @@ class LLMAgent:
         messages = self.create_messages(user_prompt, model)
         self.logger.info(f"Summary LLM message sent to {model} : {messages}")
         full_response = ""
-        client = self.clients["gpt"]
+        client_key = self.get_client_key(model)
+        client = self.clients[client_key]
         
         if self.status:
             self.status.update(label="Summarizing response...", state="complete")
@@ -434,7 +427,19 @@ class LLMAgent:
             if not call_success:
                 self.logger.error(f"LLM call failed: {llm_response}")
                 # If call is not successful, LLM response is the error message
-                return None, False, llm_response, True, None, None, None
+                end_time = time.time()
+                execution_time = end_time - start_time
+                return {
+                    "task": task,
+                    "code_output": None,
+                    "eval_success": False,
+                    "error_message": llm_response,
+                    "only_text": True,
+                    "main_response": llm_response,
+                    "summary_response": None,
+                    "token_usage": main_llm_usage,
+                    "execution_time": execution_time,
+                }
 
             # Evaluate the code with retry
             self.logger.info(f"LLM call success: {llm_response}")
@@ -503,7 +508,8 @@ class LLMAgent:
         """
 
         messages = self.create_messages(validation_prompt, self.model)
-        client = self.clients["gpt"]
+        client_key = self.get_client_key(SUMMARY_LLM)
+        client = self.clients[client_key]
         validation_response, _ = client.call(SUMMARY_LLM, messages, self.system_prompt)
 
         self.logger.info(f"Validation response from LLM: {validation_response}")
