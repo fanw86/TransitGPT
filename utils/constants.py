@@ -24,10 +24,10 @@ FEW_SHOT_EXAMPLE_LIMIT = 3
 MAX_MESSAGES = 16
 MAIN_LLM_TEMPERATURE = 0.2  # Recommend using 0.2-0.5 for coding related tasks
 MAIN_LLM_RETRY_TEMPERATURE = 0.4 # Recommend using 0.4-0.7 for retry tasks. Typically, the retry task is higher to avoid repeating the same mistakes.
-SUMMARY_LLM = "deepseek/deepseek-r1-0528:free"
+SUMMARY_LLM = "deepseek/deepseek-chat-v3.1"
 SUMMARY_LLM_TEMPERATURE = 0.7
 
-MODERATION_LLM = "deepseek/deepseek-r1-0528:free"
+MODERATION_LLM = "deepseek/deepseek-chat-v3.1"
 MODERATION_LLM_TEMPERATURE = 0.5
 MODERATION_LLM_MAX_TOKENS = 2
 
@@ -39,7 +39,7 @@ ENABLE_TRACING = True
 
 # Only use OpenRouter LLMs
 LLMs = [
-    "deepseek/deepseek-r1-0528:free",
+    "deepseek/deepseek-chat-v3.1",
     "anthropic/claude-3.5-sonnet",
     "anthropic/claude-3.5-haiku",
     "openai/gpt-4o",
@@ -60,4 +60,4 @@ This chatbot is an AI-powered tool designed to assist with GTFS data analysis an
 By using this chatbot, you acknowledge and agree to these terms.
 """
 
-copyright_text = "Copyright © 2024 [Urban Traffic & Economics Lab (UTEL)](https://github.com/UTEL-UIUC)"
+copyright_text = "Copyright"

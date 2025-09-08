@@ -16,11 +16,13 @@ DATE_FORMAT_ALT = "%Y-%m-%d"
 
 
 @lru_cache(maxsize=None)
-def process_stop_sequence(stops, shape_coords, k_neighbors=3):
+def process_stop_sequence(stops, shape_coords, k_neighbors=3, debug=False):
     geo_const = 6371000 * np.pi / 180
     tree = cKDTree(data=shape_coords)
 
     if len(stops) <= 1:
+        if debug:
+            print(f"  DEBUG: process_stop_sequence failed - only {len(stops)} stops")
         return None
 
     neighbors = k_neighbors
@@ -44,6 +46,8 @@ def process_stop_sequence(stops, shape_coords, k_neighbors=3):
                     neighbors = min(neighbors + 2, len(stops))
                     break
                 else:
+                    if debug:
+                        print(f"  DEBUG: process_stop_sequence failed - exhausted neighbor search (tried k={neighbors})")
                     return None
 
         if len(points) == len(stops):
@@ -51,7 +55,7 @@ def process_stop_sequence(stops, shape_coords, k_neighbors=3):
 
 
 def nearest_points(
-    stop_df: pd.DataFrame, shape_points: pd.DataFrame, k_neighbors: int = 3
+    stop_df: pd.DataFrame, shape_points: pd.DataFrame, k_neighbors: int = 3, route_info: dict = None
 ) -> pd.DataFrame:
     stop_df = stop_df.copy()
     stop_df["snap_start_id"] = -1
@@ -61,6 +65,17 @@ def nearest_points(
     failed_trips = []
     total_trips = 0
     defective_trips = 0
+    
+    # Track failure reasons
+    failure_stats = {
+        "insufficient_stops": 0,
+        "no_shape_data": 0,
+        "sequence_matching_failed": 0
+    }
+    
+    # Track route-specific failures
+    route_failures = {}
+    route_id = route_info.get('route_id', 'Unknown') if route_info else 'Unknown'
 
     for name, group in stop_df.groupby("trip_id"):
         total_trips += 1
@@ -73,14 +88,56 @@ def nearest_points(
         if points is None:
             failed_trips.append(name)
             defective_trips += 1
-            print(f"Excluding Trip: {name} due to processing failure")
+            num_stops = len(stops)
+            num_shape_coords = len(shape_coords) if shape_coords is not None else 0
+            
+            # Determine failure reason and update statistics
+            if num_stops <= 1:
+                reason = "Insufficient stops"
+                failure_stats["insufficient_stops"] += 1
+            elif num_shape_coords == 0:
+                reason = "No shape data"
+                failure_stats["no_shape_data"] += 1
+            else:
+                reason = "Sequence matching failed"
+                failure_stats["sequence_matching_failed"] += 1
+                # Run debug version to get detailed failure information
+                print(f"Excluding Trip: {name} (Route: {route_id}) due to processing failure - stops: {num_stops}, shape_coords: {num_shape_coords} ({reason})")
+                process_stop_sequence(stops, tuple(map(tuple, shape_coords)), k_neighbors, debug=True)
+                
+                # Track route-specific failures
+                if route_id not in route_failures:
+                    route_failures[route_id] = 0
+                route_failures[route_id] += 1
+                continue
+            
+            print(f"Excluding Trip: {name} (Route: {route_id}) due to processing failure - stops: {num_stops}, shape_coords: {num_shape_coords} ({reason})")
+            
+            # Track route-specific failures for all failure types
+            if route_id not in route_failures:
+                route_failures[route_id] = 0
+            route_failures[route_id] += 1
         else:
             stop_df.loc[stop_df.trip_id == name, "snap_start_id"] = points
 
     if defective_trips > 0:
         percent_defective = (defective_trips / total_trips) * 100
+        print(f"\n=== TRIP PROCESSING SUMMARY ===")
+        print(f"Total trips processed: {total_trips}")
         print(f"Total defective trips: {defective_trips}")
         print(f"Percentage defective trips: {percent_defective:.2f}%")
+        print(f"\nFailure breakdown:")
+        print(f"  - Insufficient stops (≤1): {failure_stats['insufficient_stops']} ({failure_stats['insufficient_stops']/defective_trips*100:.1f}%)")
+        print(f"  - No shape data: {failure_stats['no_shape_data']} ({failure_stats['no_shape_data']/defective_trips*100:.1f}%)")
+        print(f"  - Sequence matching failed: {failure_stats['sequence_matching_failed']} ({failure_stats['sequence_matching_failed']/defective_trips*100:.1f}%)")
+        
+        if route_failures:
+            print(f"\nRoute-specific failures:")
+            # Sort routes by failure count (descending)
+            sorted_routes = sorted(route_failures.items(), key=lambda x: x[1], reverse=True)
+            for route_id, fail_count in sorted_routes:
+                print(f"  - Route {route_id}: {fail_count} failed trips")
+        print(f"===========================\n")
 
     stop_df = stop_df[~stop_df.trip_id.isin(failed_trips)].reset_index(drop=True)
     return stop_df
@@ -177,7 +234,7 @@ class GTFSLoader:
         )
         # Create a GeoDataFrame with stop locations
         stops_gdf = feed.stop_times.merge(stops[["stop_id", "geometry"]], on="stop_id")
-        stops_gdf = stops_gdf.merge(feed.trips[["trip_id", "shape_id"]], on="trip_id")
+        stops_gdf = stops_gdf.merge(feed.trips[["trip_id", "shape_id", "route_id"]], on="trip_id")
         # Group by shape_id and apply nearest_points function
         grouped = stops_gdf.groupby("shape_id")
         results = []
@@ -187,7 +244,9 @@ class GTFSLoader:
             shape_geometry = shape_points.apply(
                 lambda x: Point(x["shape_pt_lon"], x["shape_pt_lat"]), axis=1
             )
-            result = nearest_points(group, shape_geometry)
+            # Get route info for debugging
+            route_info = {'route_id': group['route_id'].iloc[0] if len(group) > 0 else 'Unknown'}
+            result = nearest_points(group, shape_geometry, route_info=route_info)
             result["shape_dist_traveled"] = shape_points.iloc[result["snap_start_id"]][
                 "shape_dist_traveled"
             ].values

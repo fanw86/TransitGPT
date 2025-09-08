@@ -1,4 +1,9 @@
 {
+  "Abu Dhabi ITC": {
+    "file_loc": "gtfs_data/AbuDhabi-ITC-AD/gtfs.zip",
+    "distance_unit": "m",
+    "pickle_loc": "gtfs_data/feed_pickles/Abu Dhabi ITC_gtfs_loader.pkl"
+  },
   "SFMTA": {
     "file_loc": "gtfs_data/San Francisco-San Francisco Municipal Transportation Agency (SFMTA, Muni)-CA/gtfs.zip",
     "distance_unit": "m",
